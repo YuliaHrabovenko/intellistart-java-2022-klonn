@@ -26,7 +26,7 @@ public class InterviewerTimeSlot {
   private LocalTime from;
   private LocalTime to;
   @ManyToOne
-  private Interviewer interviewer;
+  private User interviewer;
 
   /**
    * Constructor.

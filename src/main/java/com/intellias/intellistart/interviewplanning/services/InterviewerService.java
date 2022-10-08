@@ -1,7 +1,7 @@
 package com.intellias.intellistart.interviewplanning.services;
 
 import com.intellias.intellistart.interviewplanning.models.InterviewerTimeSlot;
-import com.intellias.intellistart.interviewplanning.repositories.InterviewerRepository;
+import com.intellias.intellistart.interviewplanning.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 
 /**
@@ -9,13 +9,13 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class InterviewerService {
-  private final InterviewerRepository interviewerRepository;
+  private final UserRepository interviewerRepository;
 
-  public InterviewerService(InterviewerRepository interviewerRepository) {
+  public InterviewerService(UserRepository interviewerRepository) {
     this.interviewerRepository = interviewerRepository;
   }
 
-  public InterviewerRepository getInterviewerRepository() {
+  public UserRepository getInterviewerRepository() {
     return interviewerRepository;
   }
 

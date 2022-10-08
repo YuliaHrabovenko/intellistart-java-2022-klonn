@@ -24,7 +24,7 @@ public class CandidateTimeSlot {
   private LocalDateTime start;
   private LocalTime duration;
   @ManyToOne
-  private Candidate candidate;
+  private User candidate;
 
   /**
    * Constructor.
