@@ -1,7 +1,7 @@
 package com.intellias.intellistart.interviewplanning.services;
 
 import com.intellias.intellistart.interviewplanning.models.CandidateTimeSlot;
-import com.intellias.intellistart.interviewplanning.repositories.CandidateRepository;
+import com.intellias.intellistart.interviewplanning.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 
 /**
@@ -9,10 +9,10 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class CandidateService {
-  private final CandidateRepository candidateRepository;
+  private final UserRepository candidateRepository;
 
 
-  public CandidateService(CandidateRepository candidateRepository) {
+  public CandidateService(UserRepository candidateRepository) {
     this.candidateRepository = candidateRepository;
   }
 
