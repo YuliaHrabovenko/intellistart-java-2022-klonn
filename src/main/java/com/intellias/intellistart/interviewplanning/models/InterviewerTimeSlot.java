@@ -1,48 +1,48 @@
 package com.intellias.intellistart.interviewplanning.models;
 
 import java.time.DayOfWeek;
-import java.time.LocalTime;
+import java.util.UUID;
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import lombok.Getter;
+import javax.persistence.Table;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
 
 /**
  * InterviewerTimeSlot model.
  */
 @Entity
-@Getter
-@Setter
-@ToString
+@Data
 @NoArgsConstructor
+@Table(name = "interviewer_time_slots")
 public class InterviewerTimeSlot {
   @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "id")
   private Long id;
+  @Column(name = "uuid")
+  private UUID uuid = UUID.randomUUID();
+  @Column(name = "day_of_week")
   private DayOfWeek dayOfWeek;
-  private Integer weekNum;
-  private LocalTime from;
-  private LocalTime to;
-  @ManyToOne
-  private User interviewer;
+  @Column(name = "period_id")
+  private Long periodId;
+  @Column(name = "interviewer_id")
+  private Long interviewerId;
 
   /**
    * Constructor.
    *
-   * @param id        the id of interviewer`s time slot in db
-   * @param dayOfWeek the day of week
-   * @param from      start time
-   * @param to        end time
+   * @param dayOfWeek     day of week
+   * @param periodId      period id
+   * @param interviewerId interviewer id
    */
-  public InterviewerTimeSlot(long id,
-                             DayOfWeek dayOfWeek,
-                             LocalTime from,
-                             LocalTime to) {
-    this.id = id;
+
+  public InterviewerTimeSlot(DayOfWeek dayOfWeek, Long periodId, Long interviewerId) {
     this.dayOfWeek = dayOfWeek;
-    this.from = from;
-    this.to = to;
+    this.periodId = periodId;
+    this.interviewerId = interviewerId;
   }
 }

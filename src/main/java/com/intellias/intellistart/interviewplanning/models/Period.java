@@ -1,5 +1,6 @@
 package com.intellias.intellistart.interviewplanning.models;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,27 +12,26 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * CandidateTimeSlot model.
+ * Period model.
  */
-@Entity
 @Data
+@Entity
 @NoArgsConstructor
-@Table(name = "candidate_time_slots")
-public class CandidateTimeSlot {
+@Table(name = "periods")
+public class Period {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
   private Long id;
   @Column(name = "uuid")
   private UUID uuid = UUID.randomUUID();
-  @Column(name = "period_id")
-  private Long periodId;
-  @Column(name = "candidate_id")
-  private Long candidateId;
+  @Column(name = "startTime")
+  private LocalDateTime from;
+  @Column(name = "endTime")
+  private LocalDateTime to;
 
-  public CandidateTimeSlot(Long periodId, Long candidateId) {
-    this.periodId = periodId;
-    this.candidateId = candidateId;
+  public Period(LocalDateTime from, LocalDateTime to) {
+    this.from = from;
+    this.to = to;
   }
-
 }

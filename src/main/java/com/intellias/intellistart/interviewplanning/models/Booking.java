@@ -1,56 +1,68 @@
 package com.intellias.intellistart.interviewplanning.models;
 
-import java.time.LocalTime;
+import java.util.UUID;
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import lombok.Getter;
+import javax.persistence.Table;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
 
 /**
  * Booking model.
  */
 @Entity
-@Getter
-@Setter
-@ToString
+@Data
 @NoArgsConstructor
+@Table(name = "bookings")
 public class Booking {
   @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "id")
   private Long id;
-  private LocalTime from;
-  private LocalTime to;
+  @Column(name = "uuid")
+  private UUID uuid = UUID.randomUUID();
+  @Column(name = "subject")
   private String subject;
+  @Column(name = "description")
   private String description;
+  @Column(name = "status")
+  @Enumerated(EnumType.STRING)
   private BookingStatus status;
-  @ManyToOne
-  private InterviewerTimeSlot interviewerSlot;
-  @ManyToOne
-  private CandidateTimeSlot candidateSlot;
+  @Column(name = "period_id")
+  private Long periodId;
+  @Column(name = "interviewer_time_slot_id")
+  private Long interviewerTimeSlotId;
+  @Column(name = "candidate_time_slot_id")
+  private Long candidateTimeSlotId;
 
   /**
    * Constructor.
    *
-   * @param interviewerSlot interviewer slot
-   * @param candidateSlot   candidate slot
-   * @param from            start time of booking
-   * @param to              end time of booking
-   * @param subject         booking subject
-   * @param description     booking description
+   * @param periodId              id of period
+   * @param interviewerTimeSlotId interviewer time slot id
+   * @param candidateTimeSlotId   candidate time slot id
+   * @param status                status of booking
+   * @param subject               booking subject
+   * @param description           booking description
    */
-  public Booking(InterviewerTimeSlot interviewerSlot,
-                 CandidateTimeSlot candidateSlot,
-                 LocalTime from,
-                 LocalTime to,
+
+  public Booking(Long periodId,
+                 Long interviewerTimeSlotId,
+                 Long candidateTimeSlotId,
+                 BookingStatus status,
                  String subject,
                  String description) {
-    this.from = from;
-    this.to = to;
+    this.periodId = periodId;
+    this.interviewerTimeSlotId = interviewerTimeSlotId;
+    this.candidateTimeSlotId = candidateTimeSlotId;
+    this.status = status;
     this.subject = subject;
     this.description = description;
-    this.interviewerSlot = interviewerSlot;
-    this.candidateSlot = candidateSlot;
   }
+
 }
