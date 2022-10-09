@@ -1,21 +1,19 @@
 package com.intellias.intellistart.interviewplanning;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.intellias.intellistart.interviewplanning.models.Booking;
+import com.intellias.intellistart.interviewplanning.models.BookingStatus;
 import com.intellias.intellistart.interviewplanning.models.CandidateTimeSlot;
 import com.intellias.intellistart.interviewplanning.models.InterviewerTimeSlot;
 import com.intellias.intellistart.interviewplanning.services.BookingService;
 import com.intellias.intellistart.interviewplanning.services.CandidateService;
 import com.intellias.intellistart.interviewplanning.services.CoordinatorService;
 import com.intellias.intellistart.interviewplanning.services.InterviewerService;
+import java.time.DayOfWeek;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.time.DayOfWeek;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 class InterviewPlanningApplicationTests {
@@ -39,10 +37,9 @@ class InterviewPlanningApplicationTests {
   @Test
   void interviewerSlotMainScenario() {
     InterviewerTimeSlot timeSlot = new InterviewerTimeSlot(
-        1L,
         DayOfWeek.FRIDAY,
-        LocalTime.of(8, 0),
-        LocalTime.of(9, 30)
+        1L,
+        2L
     );
     var slot = interviewerService.createSlot(timeSlot);
     assertThat(slot).isNotNull();
@@ -51,10 +48,10 @@ class InterviewPlanningApplicationTests {
   @Test
   void coordinatorBookingMainScenario() {
     Booking booking = new Booking(
-        new InterviewerTimeSlot(),
-        new CandidateTimeSlot(),
-        LocalTime.of(8, 0),
-        LocalTime.of(9, 30),
+        1L,
+        2L,
+        3L,
+        BookingStatus.BOOKED,
         "Subject",
         "Description"
     );
@@ -66,8 +63,7 @@ class InterviewPlanningApplicationTests {
   void candidateSlotMainScenario() {
     CandidateTimeSlot candidateTimeSlot = new CandidateTimeSlot(
         1L,
-        LocalDateTime.now(),
-        LocalTime.of(1, 30)
+        10L
     );
     var slot = candidateService.createSlot(candidateTimeSlot);
     assertThat(slot).isNotNull();

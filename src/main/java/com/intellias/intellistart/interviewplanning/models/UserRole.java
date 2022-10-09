@@ -5,6 +5,6 @@ package com.intellias.intellistart.interviewplanning.models;
  */
 
 public enum UserRole {
-    INTERVIEWER, COORDINATOR, CANDIDATE
+  INTERVIEWER, COORDINATOR, CANDIDATE
 }
 

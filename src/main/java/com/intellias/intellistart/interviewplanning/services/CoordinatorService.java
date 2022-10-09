@@ -5,7 +5,7 @@ import com.intellias.intellistart.interviewplanning.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 
 /**
- * CoordinatorService business logic.
+ * Coordinator business logic.
  */
 @Service
 public class CoordinatorService {
