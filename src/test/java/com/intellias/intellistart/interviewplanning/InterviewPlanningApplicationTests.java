@@ -60,16 +60,6 @@ class InterviewPlanningApplicationTests {
   }
 
   @Test
-  void candidateSlotMainScenario() {
-    CandidateTimeSlot candidateTimeSlot = new CandidateTimeSlot(
-        1L,
-        10L
-    );
-    var slot = candidateService.createSlot(candidateTimeSlot);
-    assertThat(slot).isNotNull();
-  }
-
-  @Test
   void getBooking() {
     var booking = bookingService.getBookingById(1L);
     assertThat(booking).isNotNull();
