@@ -1,7 +1,9 @@
 package com.intellias.intellistart.interviewplanning.repositories;
 
 import com.intellias.intellistart.interviewplanning.models.Booking;
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -9,4 +11,6 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, Long> {
+  @Query(value = "select * from bookings b where b.candidate_time_slot_id = ?1", nativeQuery = true)
+  List<Booking> getBookingsByCandidateSlotId(Long candidateSlotId);
 }
