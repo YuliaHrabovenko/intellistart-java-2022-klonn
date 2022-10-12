@@ -14,4 +14,7 @@ import org.springframework.stereotype.Repository;
 public interface BookingRepository extends JpaRepository<Booking, UUID> {
   @Query(value = "select * from bookings b where b.candidate_time_slot_id = ?1", nativeQuery = true)
   List<Booking> getBookingsByCandidateSlotId(UUID candidateSlotId);
+
+  @Query(value = "select * from bookings b where b.interviewer_time_slot_id = ?1", nativeQuery = true)
+  List<Booking> getBookingsByInterviewerSlotId(UUID candidateSlotId);
 }

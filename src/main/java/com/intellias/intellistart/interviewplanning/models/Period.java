@@ -5,7 +5,6 @@ import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -32,9 +31,9 @@ public class Period {
   )
   @Column(name = "id")
   private UUID id;
-  @Column(name = "startTime")
+  @Column(name = "start_time")
   private LocalDateTime from;
-  @Column(name = "endTime")
+  @Column(name = "end_time")
   private LocalDateTime to;
 
   public Period(LocalDateTime from, LocalDateTime to) {
