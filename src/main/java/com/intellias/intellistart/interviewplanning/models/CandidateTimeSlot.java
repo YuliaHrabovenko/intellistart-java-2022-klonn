@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.GenericGenerator;
 
 /**
  * CandidateTimeSlot model.
@@ -23,17 +24,19 @@ import lombok.NoArgsConstructor;
 @Table(name = "candidate_time_slots")
 public class CandidateTimeSlot {
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @GeneratedValue(generator = "UUID")
+  @GenericGenerator(
+      name = "UUID",
+      strategy = "org.hibernate.id.UUIDGenerator"
+  )
   @Column(name = "id")
-  private Long id;
-  @Column(name = "uuid")
-  private UUID uuid = UUID.randomUUID();
+  private UUID id;
   @Column(name = "period_id")
-  private Long periodId;
+  private UUID periodId;
   @Column(name = "candidate_id")
-  private Long candidateId;
+  private UUID candidateId;
 
-  public CandidateTimeSlot(Long periodId, Long candidateId) {
+  public CandidateTimeSlot(UUID periodId, UUID candidateId) {
     this.periodId = periodId;
     this.candidateId = candidateId;
   }
