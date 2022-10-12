@@ -17,7 +17,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class UserRepositoryTest {
   @Autowired
   TestEntityManager entityManager;
-  @Autowired UserRepository userRepository;
+  @Autowired
+  UserRepository userRepository;
 
   @Test
   public void shouldFindNoUsersIfRepositoryIsEmpty() {

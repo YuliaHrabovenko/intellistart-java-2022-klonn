@@ -235,7 +235,8 @@ public class CandidateServiceTests {
 
 //    System.out.println(updatedSlot);
 
-    assertThat(updatedSlot.getPeriodId()).isEqualTo(UUID.fromString("123e4567-e89b-42d3-a456-556642440015"));
+    assertThat(updatedSlot.getPeriodId()).isEqualTo(
+        UUID.fromString("123e4567-e89b-42d3-a456-556642440015"));
   }
 
   @Test
@@ -333,7 +334,8 @@ public class CandidateServiceTests {
 
     given(candidateTimeSlotRepository.findAll()).willReturn(candidateTimeSlots);
 
-    List<CandidateTimeSlot> slotList = candidateService.getSlotsByCandidateId(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"));
+    List<CandidateTimeSlot> slotList = candidateService.getSlotsByCandidateId(
+        UUID.fromString("123e4567-e89b-42d3-a456-556642440000"));
 
     assertThat(slotList).isNotNull();
     assertThat(slotList).hasSize(2);

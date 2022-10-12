@@ -121,6 +121,14 @@ public class CandidateService {
 
     return candidateTimeSlotRepository.save(candidateTimeSlot);
   }
+
+  /**
+   * Update candidate time slot.
+   *
+   * @param candidateTimeSlot candidate time slot
+   * @param candidateId       id of the candidate
+   * @return candidate time slot
+   */
   public CandidateTimeSlot updateSlot(CandidateTimeSlot candidateTimeSlot, UUID candidateId) {
 
     CandidateTimeSlot existingSlot = candidateTimeSlotRepository.findById(candidateId).orElseThrow(
@@ -128,8 +136,8 @@ public class CandidateService {
     );
 
     List<Booking> bookings = bookingRepository.findAll();
-    for (Booking booking: bookings){
-      if (booking.getCandidateTimeSlotId().equals(candidateId)){
+    for (Booking booking : bookings) {
+      if (booking.getCandidateTimeSlotId().equals(candidateId)) {
         throw new BookingDoneException("CandidateTimeSlot", "Id", candidateId);
       }
     }
