@@ -27,6 +27,7 @@ import com.intellias.intellistart.interviewplanning.services.CandidateService;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -59,13 +60,13 @@ public class CandidateServiceTests {
   @BeforeEach
   public void setup() {
     candidate = User.builder().
-        id(1L).
+        id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000")).
         email("candidate@gmail.com").
         role(UserRole.CANDIDATE)
         .build();
 
     period = Period.builder()
-        .id(1L)
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
         .from(LocalDateTime.of(2022, 11, 13, 15, 30))
         .to(LocalDateTime.of(2022, 11, 13, 17, 0))
         .build();
@@ -83,7 +84,7 @@ public class CandidateServiceTests {
 //    System.out.println(candidate);
 
     CandidateTimeSlot candidateTimeSlot = CandidateTimeSlot.builder()
-        .id(1L)
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
         .periodId(period.getId())
         .candidateId(candidate.getId())
         .build();
@@ -102,7 +103,7 @@ public class CandidateServiceTests {
 //    given(periodRepository.findById(period.getId())).willReturn(Optional.empty());
 
     CandidateTimeSlot candidateTimeSlot = CandidateTimeSlot.builder()
-        .id(1L)
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
         .periodId(period.getId())
         .candidateId(candidate.getId())
         .build();
@@ -116,7 +117,7 @@ public class CandidateServiceTests {
   @Test
   void givenEndPeriodTimeBiggerThanStartPeriodTime_whenCreateCandidateSlot_thenThrowsException() {
     Period period = Period.builder()
-        .id(2L)
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440002"))
         .from(LocalDateTime.of(2022, 11, 13, 17, 0))
         .to(LocalDateTime.of(2022, 11, 13, 15, 30))
         .build();
@@ -126,7 +127,7 @@ public class CandidateServiceTests {
     given(userRepository.findById(candidate.getId())).willReturn(Optional.of(candidate));
 
     CandidateTimeSlot candidateTimeSlot = CandidateTimeSlot.builder()
-        .id(1L)
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
         .periodId(period.getId())
         .candidateId(candidate.getId())
         .build();
@@ -140,7 +141,7 @@ public class CandidateServiceTests {
   @Test
   void givenOutdatedPeriod_whenCreateCandidateSlot_thenThrowsException() {
     Period period = Period.builder()
-        .id(1L)
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
         .from(LocalDateTime.of(2017, 11, 13, 15, 30))
         .to(LocalDateTime.of(2017, 11, 13, 17, 0))
         .build();
@@ -150,7 +151,7 @@ public class CandidateServiceTests {
     given(userRepository.findById(candidate.getId())).willReturn(Optional.of(candidate));
 
     CandidateTimeSlot candidateTimeSlot = CandidateTimeSlot.builder()
-        .id(1L)
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
         .periodId(period.getId())
         .candidateId(candidate.getId())
         .build();
@@ -164,7 +165,7 @@ public class CandidateServiceTests {
   @Test
   void givenUnroundedPeriod_whenCreateCandidateSlot_thenThrowsException() {
     Period period = Period.builder()
-        .id(1L)
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
         .from(LocalDateTime.of(2022, 11, 13, 15, 27))
         .to(LocalDateTime.of(2022, 11, 13, 17, 0))
         .build();
@@ -174,7 +175,7 @@ public class CandidateServiceTests {
     given(userRepository.findById(candidate.getId())).willReturn(Optional.of(candidate));
 
     CandidateTimeSlot candidateTimeSlot = CandidateTimeSlot.builder()
-        .id(1L)
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
         .periodId(period.getId())
         .candidateId(candidate.getId())
         .build();
@@ -188,7 +189,7 @@ public class CandidateServiceTests {
   @Test
   void givenSmallPeriod_whenCreateCandidateSlot_thenThrowsException() {
     Period period = Period.builder()
-        .id(1L)
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
         .from(LocalDateTime.of(2022, 11, 13, 15, 0))
         .to(LocalDateTime.of(2022, 11, 13, 16, 0))
         .build();
@@ -198,7 +199,7 @@ public class CandidateServiceTests {
     given(userRepository.findById(candidate.getId())).willReturn(Optional.of(candidate));
 
     CandidateTimeSlot candidateTimeSlot = CandidateTimeSlot.builder()
-        .id(1L)
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
         .periodId(period.getId())
         .candidateId(candidate.getId())
         .build();
@@ -213,7 +214,7 @@ public class CandidateServiceTests {
   void givenCandidateSlotObject_whenUpdateCandidateSlot_thenReturnUpdatedCandidateSlot() {
 
     CandidateTimeSlot candidateTimeSlot = CandidateTimeSlot.builder()
-        .id(1L)
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
         .periodId(period.getId())
         .candidateId(candidate.getId())
         .build();
@@ -223,7 +224,7 @@ public class CandidateServiceTests {
         Optional.of(candidateTimeSlot));
 
     Period periodNew = Period.builder()
-        .id(15L)
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440015"))
         .from(LocalDateTime.of(2022, 11, 20, 14, 0))
         .to(LocalDateTime.of(2022, 11, 20, 16, 0))
         .build();
@@ -234,14 +235,14 @@ public class CandidateServiceTests {
 
 //    System.out.println(updatedSlot);
 
-    assertThat(updatedSlot.getPeriodId()).isEqualTo(15L);
+    assertThat(updatedSlot.getPeriodId()).isEqualTo(UUID.fromString("123e4567-e89b-42d3-a456-556642440015"));
   }
 
   @Test
   void givenBookedCandidateSlotObject_whenUpdateCandidateSlot_thenThrowsException() {
 
     CandidateTimeSlot candidateTimeSlot = CandidateTimeSlot.builder()
-        .id(1L)
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
         .periodId(period.getId())
         .candidateId(candidate.getId())
         .build();
@@ -251,16 +252,16 @@ public class CandidateServiceTests {
 //    System.out.println(candidateTimeSlot);
 
     Booking booking = Booking.builder()
-        .id(1L)
-        .periodId(5L)
-        .candidateTimeSlotId(1L)
-        .interviewerTimeSlotId(2L)
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
+        .periodId(UUID.fromString("123e4567-e89b-42d3-a456-556642440005"))
+        .candidateTimeSlotId(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
+        .interviewerTimeSlotId(UUID.fromString("123e4567-e89b-42d3-a456-556642440001"))
         .build();
 
     List<Booking> bookings = List.of(booking);
     when(bookingRepository.findAll()).thenReturn(bookings);
 
-    candidateTimeSlot.setPeriodId(105L);
+    candidateTimeSlot.setPeriodId(UUID.fromString("123e4567-e89b-42d3-a456-556642440105"));
     assertThrows(BookingDoneException.class, () -> candidateService.updateSlot(candidateTimeSlot));
 
     verify(candidateTimeSlotRepository, never()).save(any(CandidateTimeSlot.class));
@@ -270,7 +271,7 @@ public class CandidateServiceTests {
   void givenCandidateTimeSlotId_whenDeleteCandidateTimeSlot_thenNothing() {
 
     CandidateTimeSlot candidateTimeSlot = CandidateTimeSlot.builder()
-        .id(1L)
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
         .periodId(period.getId())
         .candidateId(candidate.getId())
         .build();
@@ -289,7 +290,7 @@ public class CandidateServiceTests {
   void givenCandidateTimeSlotId_whenDeleteCandidateTimeSlot_thenThrowsException() {
 
     CandidateTimeSlot candidateTimeSlot = CandidateTimeSlot.builder()
-        .id(1L)
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
         .periodId(period.getId())
         .candidateId(candidate.getId())
         .build();
@@ -309,20 +310,20 @@ public class CandidateServiceTests {
     // given - precondition or setup
 
     User candidate = User.builder().
-        id(1L).
+        id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000")).
         email("candidate@gmail.com").
         role(UserRole.CANDIDATE)
         .build();
 
     CandidateTimeSlot candidateTimeSlot = CandidateTimeSlot.builder()
-        .id(1L)
-        .periodId(1L)
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
+        .periodId(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
         .candidateId(candidate.getId())
         .build();
 
     CandidateTimeSlot candidateTimeSlot2 = CandidateTimeSlot.builder()
-        .id(2L)
-        .periodId(2L)
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440001"))
+        .periodId(UUID.fromString("123e4567-e89b-42d3-a456-556642440001"))
         .candidateId(candidate.getId())
         .build();
 
@@ -332,7 +333,7 @@ public class CandidateServiceTests {
 
     given(candidateTimeSlotRepository.findAll()).willReturn(candidateTimeSlots);
 
-    List<CandidateTimeSlot> slotList = candidateService.getSlotsByCandidateId(1L);
+    List<CandidateTimeSlot> slotList = candidateService.getSlotsByCandidateId(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"));
 
     assertThat(slotList).isNotNull();
     assertThat(slotList).hasSize(2);
@@ -341,8 +342,8 @@ public class CandidateServiceTests {
   @Test
   void givenCandidateTimeSlotId_whenGetCandidateSlotBookings_thenReturnBookingList() {
     CandidateTimeSlot candidateTimeSlot = CandidateTimeSlot.builder()
-        .id(1L)
-        .periodId(1L)
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
+        .periodId(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
         .candidateId(candidate.getId())
         .build();
     candidateTimeSlotRepository.save(candidateTimeSlot);
@@ -351,17 +352,17 @@ public class CandidateServiceTests {
         Optional.of(candidateTimeSlot));
 
     Booking booking1 = Booking.builder()
-        .id(1L)
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
         .candidateTimeSlotId(candidateTimeSlot.getId())
-        .interviewerTimeSlotId(10L)
-        .periodId(5L)
+        .interviewerTimeSlotId(UUID.fromString("123e4567-e89b-42d3-a456-556642440010"))
+        .periodId(UUID.fromString("123e4567-e89b-42d3-a456-556642440005"))
         .build();
 
     Booking booking2 = Booking.builder()
-        .id(2L)
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440001"))
         .candidateTimeSlotId(candidateTimeSlot.getId())
-        .interviewerTimeSlotId(3L)
-        .periodId(2L)
+        .interviewerTimeSlotId(UUID.fromString("123e4567-e89b-42d3-a456-556642440002"))
+        .periodId(UUID.fromString("123e4567-e89b-42d3-a456-556642440001"))
         .build();
 
     given(candidateService.getBookingsByCandidateSlotId(candidateTimeSlot.getId())).willReturn(

@@ -11,6 +11,7 @@ import com.intellias.intellistart.interviewplanning.services.CandidateService;
 import com.intellias.intellistart.interviewplanning.services.CoordinatorService;
 import com.intellias.intellistart.interviewplanning.services.InterviewerService;
 import java.time.DayOfWeek;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -38,8 +39,8 @@ class InterviewPlanningApplicationTests {
   void interviewerSlotMainScenario() {
     InterviewerTimeSlot timeSlot = new InterviewerTimeSlot(
         DayOfWeek.FRIDAY,
-        1L,
-        2L
+        UUID.randomUUID(),
+        UUID.randomUUID()
     );
     var slot = interviewerService.createSlot(timeSlot);
     assertThat(slot).isNotNull();
@@ -48,9 +49,9 @@ class InterviewPlanningApplicationTests {
   @Test
   void coordinatorBookingMainScenario() {
     Booking booking = new Booking(
-        1L,
-        2L,
-        3L,
+        UUID.fromString("123e4567-e89b-42d3-a456-556642440000"),
+        UUID.fromString("123e4567-e89b-42d3-a456-556642440001"),
+        UUID.fromString("123e4567-e89b-42d3-a456-556642440002"),
         BookingStatus.BOOKED,
         "Subject",
         "Description"
@@ -61,7 +62,7 @@ class InterviewPlanningApplicationTests {
 
   @Test
   void getBooking() {
-    var booking = bookingService.getBookingById(1L);
+    var booking = bookingService.getBookingById(UUID.randomUUID());
     assertThat(booking).isNotNull();
   }
 }

@@ -13,6 +13,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.GenericGenerator;
 
 /**
  * Booking model.
@@ -25,11 +26,13 @@ import lombok.NoArgsConstructor;
 @Table(name = "bookings")
 public class Booking {
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @GeneratedValue(generator = "UUID")
+  @GenericGenerator(
+      name = "UUID",
+      strategy = "org.hibernate.id.UUIDGenerator"
+  )
   @Column(name = "id")
-  private Long id;
-  @Column(name = "uuid")
-  private UUID uuid = UUID.randomUUID();
+  private UUID id;
   @Column(name = "subject")
   private String subject;
   @Column(name = "description")
@@ -38,11 +41,11 @@ public class Booking {
   @Enumerated(EnumType.STRING)
   private BookingStatus status;
   @Column(name = "period_id")
-  private Long periodId;
+  private UUID periodId;
   @Column(name = "interviewer_time_slot_id")
-  private Long interviewerTimeSlotId;
+  private UUID interviewerTimeSlotId;
   @Column(name = "candidate_time_slot_id")
-  private Long candidateTimeSlotId;
+  private UUID candidateTimeSlotId;
 
   /**
    * Constructor.
@@ -55,9 +58,9 @@ public class Booking {
    * @param description           booking description
    */
 
-  public Booking(Long periodId,
-                 Long interviewerTimeSlotId,
-                 Long candidateTimeSlotId,
+  public Booking(UUID periodId,
+                 UUID interviewerTimeSlotId,
+                 UUID candidateTimeSlotId,
                  BookingStatus status,
                  String subject,
                  String description) {

@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.GenericGenerator;
 
 
 /**
@@ -24,11 +25,13 @@ import lombok.NoArgsConstructor;
 @Table(name = "interviewer_booking_limits")
 public class InterviewerBookingLimit {
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @GeneratedValue(generator = "UUID")
+  @GenericGenerator(
+      name = "UUID",
+      strategy = "org.hibernate.id.UUIDGenerator"
+  )
   @Column(name = "id")
-  private Long id;
-  @Column(name = "uuid")
-  private UUID uuid = UUID.randomUUID();
+  private UUID id;
   @Column(name = "week_number")
   private Long weekNumber;
   @Column(name = "week_booking_limit")
