@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 /**
@@ -126,7 +127,7 @@ public class CandidateService {
    *
    * @param id id of candidate time slot
    */
-  public void deleteSlot(long id) {
+  public void deleteSlot(UUID id) {
     Optional<CandidateTimeSlot> slot = candidateTimeSlotRepository.findById(id);
     if (slot.isEmpty()) {
       throw new ResourceNotFoundException("CandidateTimeSlot", "Id", id);
@@ -140,7 +141,7 @@ public class CandidateService {
    * @param candidateId candidate time slot id
    * @return list of candidate`s slots
    */
-  public List<CandidateTimeSlot> getSlotsByCandidateId(Long candidateId) {
+  public List<CandidateTimeSlot> getSlotsByCandidateId(UUID candidateId) {
     Optional<User> candidate = userRepository.findById(candidateId);
     if (candidate.isEmpty()) {
       throw new ResourceNotFoundException("Candidate", "Id", candidateId);
@@ -163,7 +164,7 @@ public class CandidateService {
    * @param slotId candidate slot id
    * @return list of bookings
    */
-  public List<Booking> getBookingsByCandidateSlotId(Long slotId) {
+  public List<Booking> getBookingsByCandidateSlotId(UUID slotId) {
     Optional<CandidateTimeSlot> slot = candidateTimeSlotRepository.findById(slotId);
     if (slot.isEmpty()) {
       throw new ResourceNotFoundException("CandidateTimeSlot", "Id", slotId);

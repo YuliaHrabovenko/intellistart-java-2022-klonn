@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.GenericGenerator;
 
 /**
  * Period model.
@@ -24,11 +25,13 @@ import lombok.NoArgsConstructor;
 @Table(name = "periods")
 public class Period {
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @GeneratedValue(generator = "UUID")
+  @GenericGenerator(
+      name = "UUID",
+      strategy = "org.hibernate.id.UUIDGenerator"
+  )
   @Column(name = "id")
-  private Long id;
-  @Column(name = "uuid")
-  private UUID uuid = UUID.randomUUID();
+  private UUID id;
   @Column(name = "startTime")
   private LocalDateTime from;
   @Column(name = "endTime")

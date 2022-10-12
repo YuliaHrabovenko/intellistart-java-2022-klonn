@@ -19,6 +19,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.GenericGenerator;
 
 /**
  * User model.
@@ -31,11 +32,13 @@ import lombok.NoArgsConstructor;
 @Table(name = "users")
 public class User {
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @GeneratedValue(generator = "UUID")
+  @GenericGenerator(
+      name = "UUID",
+      strategy = "org.hibernate.id.UUIDGenerator"
+  )
   @Column(name = "id")
-  private Long id;
-  @Column(name = "uuid")
-  private UUID uuid = UUID.randomUUID();
+  private UUID id;
   @Column(name = "email")
   private String email;
   @Column(name = "role")
@@ -70,7 +73,7 @@ public class User {
    * @param role  user role
    */
 
-  public User(Long id, String email, UserRole role) {
+  public User(UUID id, String email, UserRole role) {
     this.id = id;
     this.email = email;
     this.role = role;
