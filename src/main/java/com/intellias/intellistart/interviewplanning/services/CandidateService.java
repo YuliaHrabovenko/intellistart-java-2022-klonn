@@ -13,7 +13,6 @@ import com.intellias.intellistart.interviewplanning.repositories.PeriodRepositor
 import com.intellias.intellistart.interviewplanning.repositories.UserRepository;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -24,6 +23,10 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class CandidateService {
+  public static final String CANDIDATE_TIME_SLOT = "CandidateTimeSlot";
+  public static final String ID = "Id";
+  public static final String PERIOD = "Period";
+  public static final String CANDIDATE = "Candidate";
   private final UserRepository userRepository;
   private final PeriodRepository periodRepository;
   private final CandidateTimeSlotRepository candidateTimeSlotRepository;
@@ -81,18 +84,12 @@ public class CandidateService {
    * @return candidate time slot object if success
    */
   public CandidateTimeSlot createSlot(CandidateTimeSlot candidateTimeSlot) {
-    Optional<Period> period = periodRepository.findById(candidateTimeSlot.getPeriodId());
-    if (period.isEmpty()) {
-      throw new ResourceNotFoundException("Period", "Id", candidateTimeSlot.getPeriodId());
-    }
+    Period period = periodRepository.findById(candidateTimeSlot.getPeriodId()).orElseThrow(
+        () -> new ResourceNotFoundException(PERIOD, ID, candidateTimeSlot.getPeriodId())
+    );
 
-    Optional<User> candidate = userRepository.findById(candidateTimeSlot.getCandidateId());
-    if (candidate.isEmpty()) {
-      throw new ResourceNotFoundException("Candidate", "Id", candidateTimeSlot.getCandidateId());
-    }
-
-    LocalDateTime from = period.get().getFrom();
-    LocalDateTime to = period.get().getTo();
+    LocalDateTime from = period.getFrom();
+    LocalDateTime to = period.getTo();
 
     validatePeriod(from, to);
 
@@ -102,37 +99,36 @@ public class CandidateService {
   /**
    * Update candidate time slot.
    *
-   * @param candidateTimeSlot candidate time slot object
+   * @param candidateTimeSlot candidateTimeSlot candidate time slot object
+   * @param candidateSlotId   candidateTimeSlot id
    * @return candidate time slot object if success
    */
-  public CandidateTimeSlot updateSlot(CandidateTimeSlot candidateTimeSlot) {
-    Optional<CandidateTimeSlot> slot =
-        candidateTimeSlotRepository.findById(candidateTimeSlot.getId());
-    if (slot.isEmpty()) {
-      throw new ResourceNotFoundException("CandidateTimeSlot", "Id", candidateTimeSlot.getId());
+  public CandidateTimeSlot updateSlot(CandidateTimeSlot candidateTimeSlot, UUID candidateSlotId) {
+
+    CandidateTimeSlot existingSlot =
+        candidateTimeSlotRepository.findById(candidateSlotId).orElseThrow(
+            () -> new ResourceNotFoundException(CANDIDATE_TIME_SLOT, ID, candidateSlotId)
+        );
+
+    // Check if there is no bookings with this candidate slot
+    List<Booking> bookings = bookingRepository.getBookingsByCandidateSlotId(candidateSlotId);
+
+    if (!bookings.isEmpty()) {
+      throw new BookingDoneException(CANDIDATE_TIME_SLOT, ID, candidateSlotId);
     }
 
-    List<Booking> bookings = bookingRepository.findAll();
-    for (Booking booking : bookings) {
-      if (booking.getCandidateTimeSlotId().equals(candidateTimeSlot.getId())) {
-        throw new BookingDoneException("CandidateTimeSlot", "Id", candidateTimeSlot.getId());
-      }
-    }
+    // Check if new period of the candidate slot is valid
+    Period period = periodRepository.findById(candidateTimeSlot.getPeriodId()).orElseThrow(
+        () -> new ResourceNotFoundException(PERIOD, ID, candidateTimeSlot.getPeriodId())
+    );
+    LocalDateTime from = period.getFrom();
+    LocalDateTime to = period.getTo();
 
-    return candidateTimeSlotRepository.save(candidateTimeSlot);
-  }
+    validatePeriod(from, to);
 
-  /**
-   * Delete candidate time slot.
-   *
-   * @param id id of candidate time slot
-   */
-  public void deleteSlot(UUID id) {
-    Optional<CandidateTimeSlot> slot = candidateTimeSlotRepository.findById(id);
-    if (slot.isEmpty()) {
-      throw new ResourceNotFoundException("CandidateTimeSlot", "Id", id);
-    }
-    candidateTimeSlotRepository.deleteById(id);
+    existingSlot.setPeriodId(candidateTimeSlot.getPeriodId());
+
+    return candidateTimeSlotRepository.save(existingSlot);
   }
 
   /**
@@ -144,34 +140,23 @@ public class CandidateService {
   public List<CandidateTimeSlot> getSlotsByCandidateId(UUID candidateId) {
     Optional<User> candidate = userRepository.findById(candidateId);
     if (candidate.isEmpty()) {
-      throw new ResourceNotFoundException("Candidate", "Id", candidateId);
+      throw new ResourceNotFoundException(CANDIDATE, ID, candidateId);
     }
 
-    List<CandidateTimeSlot> allCandidateSlots = candidateTimeSlotRepository.findAll();
-    List<CandidateTimeSlot> candidateTimeSlots = new ArrayList<>();
-
-    for (CandidateTimeSlot slot : allCandidateSlots) {
-      if (slot.getCandidateId().equals(candidateId)) {
-        candidateTimeSlots.add(slot);
-      }
-    }
-    return candidateTimeSlots;
+    return candidateTimeSlotRepository.getCandidateSlotsByCandidateId(candidateId);
   }
 
   /**
-   * Get list of bookings by candidate slot.
+   * Delete candidate time slot.
    *
-   * @param slotId candidate slot id
-   * @return list of bookings
+   * @param slotId candidate time slot id
    */
-  public List<Booking> getBookingsByCandidateSlotId(UUID slotId) {
+  public void deleteSlot(UUID slotId) {
     Optional<CandidateTimeSlot> slot = candidateTimeSlotRepository.findById(slotId);
     if (slot.isEmpty()) {
-      throw new ResourceNotFoundException("CandidateTimeSlot", "Id", slotId);
+      throw new ResourceNotFoundException(CANDIDATE_TIME_SLOT, ID, slotId);
     }
-
-    return bookingRepository.getBookingsByCandidateSlotId(slotId);
-
+    candidateTimeSlotRepository.deleteById(slotId);
   }
 
 }

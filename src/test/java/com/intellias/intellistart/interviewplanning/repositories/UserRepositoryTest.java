@@ -1,4 +1,4 @@
-package com.intellias.intellistart.interviewplanning;
+package com.intellias.intellistart.interviewplanning.repositories;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
