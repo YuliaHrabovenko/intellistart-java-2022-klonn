@@ -23,16 +23,16 @@ class InterviewPlanningApplicationTests {
   @Autowired
   private BookingService bookingService;
 
-  @Test
-  void interviewerSlotMainScenario() {
-    InterviewerTimeSlot timeSlot = new InterviewerTimeSlot(
-        DayOfWeek.FRIDAY,
-        UUID.randomUUID(),
-        UUID.randomUUID()
-    );
-    var slot = interviewerService.createSlot(timeSlot);
-    assertThat(slot).isNotNull();
-  }
+//  @Test
+//  void interviewerSlotMainScenario() {
+//    InterviewerTimeSlot timeSlot = new InterviewerTimeSlot(
+//        DayOfWeek.FRIDAY,
+//        UUID.randomUUID(),
+//        UUID.randomUUID()
+//    );
+//    var slot = interviewerService.createSlot(timeSlot);
+//    assertThat(slot).isNotNull();
+//  }
 
 
   @Test
