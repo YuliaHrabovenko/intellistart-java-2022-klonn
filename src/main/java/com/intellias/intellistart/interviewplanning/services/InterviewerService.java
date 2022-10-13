@@ -153,12 +153,6 @@ public class InterviewerService {
    */
 
   public InterviewerTimeSlot updateSlot(InterviewerTimeSlot interviewerTimeSlot) {
-    Optional<Period> period = periodRepository
-        .findById(interviewerTimeSlot.getPeriodId());
-    if (period.isEmpty()) {
-      throw new ResourceNotFoundException(
-          "Period", "Id", interviewerTimeSlot.getPeriodId());
-    }
 
     Optional<InterviewerTimeSlot> slot = interviewerTimeSlotRepository
         .findById(interviewerTimeSlot.getId());
@@ -167,8 +161,6 @@ public class InterviewerService {
           "InterviewerTimeSlot", "Id", interviewerTimeSlot.getId());
     }
 
-    validateInterviewerPeriod(slot.get().getDayOfWeek(),
-        period.get().getFrom(), period.get().getTo());
     return interviewerTimeSlotRepository.save(interviewerTimeSlot);
   }
 
@@ -203,7 +195,7 @@ public class InterviewerService {
       }
 
       if (slot.getInterviewerId().equals(interviewerId)
-          && getWeekForSpecificTime(period.get().getFrom()) == requiredWeekNumber) {
+          && getWeekForSpecificTime(period.get().getFrom()).equals(requiredWeekNumber)) {
         interviewerTimeSlots.add(slot);
       }
 
@@ -211,8 +203,14 @@ public class InterviewerService {
     return interviewerTimeSlots;
   }
 
+  /**
+   * get booking by interviewer slot id.
+   *
+   * @param slotId slot id
+   * @return list of bookings
+   */
 
-  public List<Booking> getBookingByInterviewerSlotId(UUID slotId){
+  public List<Booking> getBookingByInterviewerSlotId(UUID slotId) {
     Optional<InterviewerTimeSlot> slot = interviewerTimeSlotRepository.findById(slotId);
     if (slot.isEmpty()) {
       throw new ResourceNotFoundException("InterviewerTimeSlot", "Id", slotId);
