@@ -2,6 +2,7 @@ package com.intellias.intellistart.interviewplanning.repositories;
 
 import com.intellias.intellistart.interviewplanning.models.InterviewerBookingLimit;
 import java.util.Optional;
+import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -10,7 +11,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface InterviewerBookingLimitRepository extends
-    JpaRepository<InterviewerBookingLimit, Long> {
+    JpaRepository<InterviewerBookingLimit, UUID> {
 
-    Optional<InterviewerBookingLimit> findByInterviewerId(Long id);
+    Optional<InterviewerBookingLimit> findByInterviewerId(UUID id);
 }

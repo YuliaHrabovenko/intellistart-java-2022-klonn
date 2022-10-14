@@ -13,6 +13,7 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 /**
@@ -58,7 +59,7 @@ public class BookingService {
    */
   public Booking createBooking(Booking booking) {
     //InterviewerTimeSlotId
-    long id = booking.getInterviewerTimeSlotId();
+    UUID id = booking.getInterviewerTimeSlotId();
 
     isInterviewerLimitExceeded(id);
 
@@ -71,7 +72,7 @@ public class BookingService {
    * @param id      Booking id
    * @return        Booking
    */
-  public Booking getBookingById(Long id) {
+  public Booking getBookingById(UUID id) {
     return bookingRepository.findById(id).orElseThrow();
   }
 
@@ -86,10 +87,10 @@ public class BookingService {
    * @param description                 Description of Booking
    */
   @Transactional
-  public void updateBooking(Long id,
-      Long periodId,
-      Long interviewerTimeSlotId,
-      Long candidateTimeSlotId,
+  public void updateBooking(UUID id,
+      UUID periodId,
+      UUID interviewerTimeSlotId,
+      UUID candidateTimeSlotId,
       BookingStatus status,
       String subject,
       String description) {
@@ -130,7 +131,7 @@ public class BookingService {
    *
    * @param id        Id of Booking
    */
-  public void deleteBooking(Long id) {
+  public void deleteBooking(UUID id) {
     if(!bookingRepository.existsById(id)){
       throw new NoSuchElementException("Booking to delete wasn't found");
     }
@@ -144,8 +145,8 @@ public class BookingService {
    * @return        false, when limit wasn't exceeded
    */
 
-  private boolean isInterviewerLimitExceeded(Long interviewerTimeSlotId){
-    Long interviewerId = interviewerTimeSlotRepository.findById(interviewerTimeSlotId)
+  private boolean isInterviewerLimitExceeded(UUID interviewerTimeSlotId){
+    UUID interviewerId = interviewerTimeSlotRepository.findById(interviewerTimeSlotId)
         .orElseThrow().getInterviewerId();
     InterviewerBookingLimit interviewerBookingLimit = interviewerBookingLimitRepository
         .findByInterviewerId(interviewerId).orElseThrow();
@@ -155,5 +156,6 @@ public class BookingService {
       throw new InterviewerBookingLimitExceededException();
     }
     return false;
+
   }
 }
