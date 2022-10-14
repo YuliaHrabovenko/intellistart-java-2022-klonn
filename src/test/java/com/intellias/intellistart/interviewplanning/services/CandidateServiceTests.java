@@ -1,4 +1,4 @@
-package com.intellias.intellistart.interviewplanning;
+package com.intellias.intellistart.interviewplanning.services;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -23,13 +23,12 @@ import com.intellias.intellistart.interviewplanning.repositories.CandidateTimeSl
 import com.intellias.intellistart.interviewplanning.repositories.PeriodRepository;
 import com.intellias.intellistart.interviewplanning.repositories.UserRepository;
 import com.intellias.intellistart.interviewplanning.services.CandidateService;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -79,7 +78,7 @@ public class CandidateServiceTests {
 
 //    System.out.println(period);
 
-    given(userRepository.findById(candidate.getId())).willReturn(Optional.of(candidate));
+//    given(userRepository.findById(candidate.getId())).willReturn(Optional.of(candidate));
 
 //    System.out.println(candidate);
 
@@ -124,7 +123,7 @@ public class CandidateServiceTests {
 
     given(periodRepository.findById(period.getId())).willReturn(Optional.of(period));
 
-    given(userRepository.findById(candidate.getId())).willReturn(Optional.of(candidate));
+//    given(userRepository.findById(candidate.getId())).willReturn(Optional.of(candidate));
 
     CandidateTimeSlot candidateTimeSlot = CandidateTimeSlot.builder()
         .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
@@ -148,7 +147,7 @@ public class CandidateServiceTests {
 
     given(periodRepository.findById(period.getId())).willReturn(Optional.of(period));
 
-    given(userRepository.findById(candidate.getId())).willReturn(Optional.of(candidate));
+//    given(userRepository.findById(candidate.getId())).willReturn(Optional.of(candidate));
 
     CandidateTimeSlot candidateTimeSlot = CandidateTimeSlot.builder()
         .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
@@ -172,7 +171,7 @@ public class CandidateServiceTests {
 
     given(periodRepository.findById(period.getId())).willReturn(Optional.of(period));
 
-    given(userRepository.findById(candidate.getId())).willReturn(Optional.of(candidate));
+//    given(userRepository.findById(candidate.getId())).willReturn(Optional.of(candidate));
 
     CandidateTimeSlot candidateTimeSlot = CandidateTimeSlot.builder()
         .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
@@ -196,7 +195,7 @@ public class CandidateServiceTests {
 
     given(periodRepository.findById(period.getId())).willReturn(Optional.of(period));
 
-    given(userRepository.findById(candidate.getId())).willReturn(Optional.of(candidate));
+//    given(userRepository.findById(candidate.getId())).willReturn(Optional.of(candidate));
 
     CandidateTimeSlot candidateTimeSlot = CandidateTimeSlot.builder()
         .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
@@ -229,9 +228,13 @@ public class CandidateServiceTests {
         .to(LocalDateTime.of(2022, 11, 20, 16, 0))
         .build();
 
+    given(periodRepository.findById(periodNew.getId())).willReturn(
+        Optional.of(periodNew));
+
     candidateTimeSlot.setPeriodId(periodNew.getId());
 
-    CandidateTimeSlot updatedSlot = candidateService.updateSlot(candidateTimeSlot);
+    CandidateTimeSlot updatedSlot =
+        candidateService.updateSlot(candidateTimeSlot, candidateTimeSlot.getId());
 
 //    System.out.println(updatedSlot);
 
@@ -260,10 +263,12 @@ public class CandidateServiceTests {
         .build();
 
     List<Booking> bookings = List.of(booking);
-    when(bookingRepository.findAll()).thenReturn(bookings);
+    when(bookingRepository.getBookingsByCandidateSlotId(candidateTimeSlot.getId())).thenReturn(
+        bookings);
 
     candidateTimeSlot.setPeriodId(UUID.fromString("123e4567-e89b-42d3-a456-556642440105"));
-    assertThrows(BookingDoneException.class, () -> candidateService.updateSlot(candidateTimeSlot));
+    assertThrows(BookingDoneException.class,
+        () -> candidateService.updateSlot(candidateTimeSlot, candidateTimeSlot.getId()));
 
     verify(candidateTimeSlotRepository, never()).save(any(CandidateTimeSlot.class));
   }
@@ -332,48 +337,15 @@ public class CandidateServiceTests {
 
     given(userRepository.findById(candidate.getId())).willReturn(Optional.of(candidate));
 
-    given(candidateTimeSlotRepository.findAll()).willReturn(candidateTimeSlots);
+    given(candidateTimeSlotRepository.getCandidateSlotsByCandidateId(candidate.getId())).willReturn(
+        candidateTimeSlots);
+
 
     List<CandidateTimeSlot> slotList = candidateService.getSlotsByCandidateId(
         UUID.fromString("123e4567-e89b-42d3-a456-556642440000"));
 
     assertThat(slotList).isNotNull();
     assertThat(slotList).hasSize(2);
-  }
-
-  @Test
-  void givenCandidateTimeSlotId_whenGetCandidateSlotBookings_thenReturnBookingList() {
-    CandidateTimeSlot candidateTimeSlot = CandidateTimeSlot.builder()
-        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
-        .periodId(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
-        .candidateId(candidate.getId())
-        .build();
-    candidateTimeSlotRepository.save(candidateTimeSlot);
-
-    given(candidateTimeSlotRepository.findById(candidateTimeSlot.getId())).willReturn(
-        Optional.of(candidateTimeSlot));
-
-    Booking booking1 = Booking.builder()
-        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
-        .candidateTimeSlotId(candidateTimeSlot.getId())
-        .interviewerTimeSlotId(UUID.fromString("123e4567-e89b-42d3-a456-556642440010"))
-        .periodId(UUID.fromString("123e4567-e89b-42d3-a456-556642440005"))
-        .build();
-
-    Booking booking2 = Booking.builder()
-        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440001"))
-        .candidateTimeSlotId(candidateTimeSlot.getId())
-        .interviewerTimeSlotId(UUID.fromString("123e4567-e89b-42d3-a456-556642440002"))
-        .periodId(UUID.fromString("123e4567-e89b-42d3-a456-556642440001"))
-        .build();
-
-    given(candidateService.getBookingsByCandidateSlotId(candidateTimeSlot.getId())).willReturn(
-        List.of(booking1, booking2));
-
-    List<Booking> bookings =
-        candidateService.getBookingsByCandidateSlotId(candidateTimeSlot.getId());
-    assertThat(bookings).isNotNull();
-    assertThat(bookings).hasSize(2);
   }
 
 }

@@ -1,8 +1,7 @@
 package com.intellias.intellistart.interviewplanning;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
-
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
 
 import com.intellias.intellistart.interviewplanning.models.Booking;
