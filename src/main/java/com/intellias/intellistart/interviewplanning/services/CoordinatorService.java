@@ -1,18 +1,15 @@
 package com.intellias.intellistart.interviewplanning.services;
 
 import com.intellias.intellistart.interviewplanning.models.Booking;
-import com.intellias.intellistart.interviewplanning.models.BookingStatus;
 import com.intellias.intellistart.interviewplanning.models.CandidateTimeSlot;
 import com.intellias.intellistart.interviewplanning.models.InterviewerTimeSlot;
-import com.intellias.intellistart.interviewplanning.models.Period;
 import com.intellias.intellistart.interviewplanning.models.User;
 import com.intellias.intellistart.interviewplanning.models.UserRole;
 import com.intellias.intellistart.interviewplanning.repositories.BookingRepository;
 import com.intellias.intellistart.interviewplanning.repositories.CandidateTimeSlotRepository;
 import com.intellias.intellistart.interviewplanning.repositories.InterviewerTimeSlotRepository;
-import com.intellias.intellistart.interviewplanning.repositories.PeriodRepository;
 import com.intellias.intellistart.interviewplanning.repositories.UserRepository;
-import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +23,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class CoordinatorService {
   private final UserRepository coordinatorRepository;
   private final BookingRepository bookingRepository;
-  private final PeriodRepository periodRepository;
   private final CandidateTimeSlotRepository candidateTimeSlotRepository;
   private final InterviewerTimeSlotRepository interviewerTimeSlotRepository;
 
@@ -35,19 +31,16 @@ public class CoordinatorService {
    *
    * @param coordinatorRepository         coordinator repository
    * @param bookingRepository             booking repository
-   * @param periodRepository              period repository
    * @param candidateTimeSlotRepository   candidate time slot repository
    * @param interviewerTimeSlotRepository interviewer time slot repository
    */
   @Autowired
   public CoordinatorService(UserRepository coordinatorRepository,
                             BookingRepository bookingRepository,
-                            PeriodRepository periodRepository,
                             CandidateTimeSlotRepository candidateTimeSlotRepository,
                             InterviewerTimeSlotRepository interviewerTimeSlotRepository) {
     this.coordinatorRepository = coordinatorRepository;
     this.bookingRepository = bookingRepository;
-    this.periodRepository = periodRepository;
     this.candidateTimeSlotRepository = candidateTimeSlotRepository;
     this.interviewerTimeSlotRepository = interviewerTimeSlotRepository;
 
@@ -66,8 +59,8 @@ public class CoordinatorService {
    */
   public Booking createBooking(UUID interviewerSlotId,
                                UUID candidateTimeSlotId,
-                               LocalDateTime from,
-                               LocalDateTime to,
+                               LocalTime from,
+                               LocalTime to,
                                String subject,
                                String description) {
     boolean existInterviewerTimeSlot = interviewerTimeSlotRepository.existsById(interviewerSlotId);
@@ -81,9 +74,6 @@ public class CoordinatorService {
       throw new IllegalStateException(
           "Candidate Time slot with id " + candidateTimeSlotId + " does not exists");
     }
-    Period period = new Period(from, to);
-    periodRepository.save(period);
-    //add validation for period in periodService
 
     if (subject.length() > 255) {
       throw new IllegalStateException("Subject is incorrect");
@@ -93,9 +83,10 @@ public class CoordinatorService {
       throw new IllegalStateException("Description is incorrect");
     }
 
-    Booking booking = new Booking(period.getId(), // not sure if it will be working
-        interviewerSlotId, candidateTimeSlotId,
-        BookingStatus.NEW, // not sure what status to set
+    Booking booking = new Booking(from,
+        to, // not sure if it will be working
+        interviewerSlotId,
+        candidateTimeSlotId,
         subject,
         description);
 
@@ -118,7 +109,8 @@ public class CoordinatorService {
     existingBooking.setId(booking.getId());
     existingBooking.setCandidateTimeSlotId(booking.getCandidateTimeSlotId());
     existingBooking.setInterviewerTimeSlotId(booking.getInterviewerTimeSlotId());
-    existingBooking.setPeriodId(booking.getPeriodId());
+    existingBooking.setFrom(booking.getFrom());
+    existingBooking.setTo(booking.getTo());
     existingBooking.setDescription(booking.getDescription());
     existingBooking.setSubject(booking.getSubject());
     return bookingRepository.save(existingBooking);
@@ -158,7 +150,8 @@ public class CoordinatorService {
       }
     }
     existingInterviewerTimeSlot.setId(interviewerTimeSlot.getId());
-    existingInterviewerTimeSlot.setPeriodId(interviewerTimeSlot.getPeriodId());
+    existingInterviewerTimeSlot.setFrom(interviewerTimeSlot.getFrom());
+    existingInterviewerTimeSlot.setTo(interviewerTimeSlot.getTo());
     existingInterviewerTimeSlot.setInterviewerId(interviewerTimeSlot.getInterviewerId());
     return interviewerTimeSlotRepository.save(existingInterviewerTimeSlot);
   }
@@ -240,7 +233,7 @@ public class CoordinatorService {
         .orElseThrow(() -> new IllegalStateException(
             "coordinator with id " + interviewerId + " does not exists"));
     if (interviewer.getRole() == UserRole.INTERVIEWER) {
-      interviewer.setRole(UserRole.CANDIDATE);
+      interviewer.setRole(UserRole.COORDINATOR);
       return coordinatorRepository.save(interviewer);
     }
     return interviewer; // do not sure if it`s ok

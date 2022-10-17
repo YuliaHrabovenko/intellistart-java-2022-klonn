@@ -1,28 +1,35 @@
 package com.intellias.intellistart.interviewplanning.models;
 
-import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
 /**
- * Period model.
+ * Week model.
  */
-@Data
 @Entity
+//@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
-@Table(name = "periods")
-public class Period {
+@Table(name = "weeks")
+public class Week {
+  @JsonIgnore
   @Id
   @GeneratedValue(generator = "UUID")
   @GenericGenerator(
@@ -31,13 +38,12 @@ public class Period {
   )
   @Column(name = "id")
   private UUID id;
-  @Column(name = "start_time")
-  private LocalDateTime from;
-  @Column(name = "end_time")
-  private LocalDateTime to;
-
-  public Period(LocalDateTime from, LocalDateTime to) {
-    this.from = from;
-    this.to = to;
-  }
+  @Column(name = "week_number")
+  private String weekNumber;
+  @JsonIgnore
+  @OneToMany(mappedBy = "week")
+  private List<InterviewerBookingLimit> interviewerBookingLimits = new ArrayList<>();
+  @JsonIgnore
+  @OneToMany(mappedBy = "week")
+  private List<InterviewerTimeSlot> interviewerTimeSlots = new ArrayList<>();
 }

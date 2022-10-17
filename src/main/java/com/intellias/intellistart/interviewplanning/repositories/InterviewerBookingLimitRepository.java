@@ -14,4 +14,5 @@ public interface InterviewerBookingLimitRepository extends
     JpaRepository<InterviewerBookingLimit, UUID> {
 
   Optional<InterviewerBookingLimit> findByInterviewerId(UUID id);
+
 }

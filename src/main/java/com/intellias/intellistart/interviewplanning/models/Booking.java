@@ -1,10 +1,9 @@
 package com.intellias.intellistart.interviewplanning.models;
 
+import java.time.LocalTime;
 import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -32,15 +31,14 @@ public class Booking {
   )
   @Column(name = "id")
   private UUID id;
+  @Column(name = "start_time")
+  private LocalTime from;
+  @Column(name = "end_time")
+  private LocalTime to;
   @Column(name = "subject")
   private String subject;
   @Column(name = "description")
   private String description;
-  @Column(name = "status")
-  @Enumerated(EnumType.STRING)
-  private BookingStatus status;
-  @Column(name = "period_id")
-  private UUID periodId;
   @Column(name = "interviewer_time_slot_id")
   private UUID interviewerTimeSlotId;
   @Column(name = "candidate_time_slot_id")
@@ -49,26 +47,22 @@ public class Booking {
   /**
    * Constructor.
    *
-   * @param periodId              id of period
-   * @param interviewerTimeSlotId interviewer time slot id
-   * @param candidateTimeSlotId   candidate time slot id
-   * @param status                status of booking
+   * @param from                  start time
+   * @param to                    end time
    * @param subject               booking subject
    * @param description           booking description
+   * @param interviewerTimeSlotId interviewer time slot id
+   * @param candidateTimeSlotId   candidate time slot id
    */
 
-  public Booking(UUID periodId,
-                 UUID interviewerTimeSlotId,
-                 UUID candidateTimeSlotId,
-                 BookingStatus status,
-                 String subject,
-                 String description) {
-    this.periodId = periodId;
-    this.interviewerTimeSlotId = interviewerTimeSlotId;
-    this.candidateTimeSlotId = candidateTimeSlotId;
-    this.status = status;
+  public Booking(LocalTime from, LocalTime to,
+                 UUID interviewerTimeSlotId, UUID candidateTimeSlotId,
+                 String subject, String description) {
+    this.from = from;
+    this.to = to;
     this.subject = subject;
     this.description = description;
+    this.interviewerTimeSlotId = interviewerTimeSlotId;
+    this.candidateTimeSlotId = candidateTimeSlotId;
   }
-
 }

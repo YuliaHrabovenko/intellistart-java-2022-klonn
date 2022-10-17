@@ -1,5 +1,7 @@
 package com.intellias.intellistart.interviewplanning.models;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -14,15 +16,17 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
 /**
  * CandidateTimeSlot model.
  */
 @Entity
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
@@ -36,18 +40,26 @@ public class CandidateTimeSlot {
   )
   @Column(name = "id")
   private UUID id;
-  @Column(name = "period_id")
-  private UUID periodId;
-  @Column(name = "candidate_id")
-  private UUID candidateId;
-
+  @Column(name = "interview_date")
+  private LocalDate date;
+  @Column(name = "start_time")
+  private LocalTime from;
+  @Column(name = "end_time")
+  private LocalTime to;
   @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
   @JoinColumn(name = "candidate_time_slot_id", referencedColumnName = "id")
   private List<Booking> bookingList = new ArrayList<>();
 
-  public CandidateTimeSlot(UUID periodId, UUID candidateId) {
-    this.periodId = periodId;
-    this.candidateId = candidateId;
+  /**
+   * Constructor.
+   *
+   * @param date exact date for interview
+   * @param from start time
+   * @param to   end time
+   */
+  public CandidateTimeSlot(LocalDate date, LocalTime from, LocalTime to) {
+    this.date = date;
+    this.from = from;
+    this.to = to;
   }
-
 }
