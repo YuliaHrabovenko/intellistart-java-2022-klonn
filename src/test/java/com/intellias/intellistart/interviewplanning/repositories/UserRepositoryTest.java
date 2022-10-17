@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.intellias.intellistart.interviewplanning.models.User;
 import com.intellias.intellistart.interviewplanning.models.UserRole;
-import com.intellias.intellistart.interviewplanning.repositories.UserRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +15,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 @DataJpaTest
 public class UserRepositoryTest {
   @Autowired
-  TestEntityManager entityManager;
+  private TestEntityManager entityManager;
   @Autowired
-  UserRepository userRepository;
+  private UserRepository userRepository;
 
   @Test
   public void shouldFindNoUsersIfRepositoryIsEmpty() {
@@ -29,7 +28,7 @@ public class UserRepositoryTest {
 
   @Test
   public void shouldSaveUser() {
-    User user = userRepository.save(new User("candidate1@gmail.com", UserRole.CANDIDATE));
+    User user = userRepository.save(new User("interviewer@gmail.com", UserRole.INTERVIEWER));
 
     assertThat(userRepository.findAll()).hasSize(1);
 //    assertThat(user).hasFieldOrPropertyWithValue("role", UserRole.CANDIDATE);
@@ -37,9 +36,6 @@ public class UserRepositoryTest {
 
   @Test
   public void shouldFindAllUsers() {
-    User user1 = new User("candidate@gmail.com", UserRole.CANDIDATE);
-    entityManager.persist(user1);
-
     User user2 = new User("coordinator@gmail.com", UserRole.COORDINATOR);
     entityManager.persist(user2);
 
@@ -48,12 +44,12 @@ public class UserRepositoryTest {
 
     Iterable<User> tutorials = userRepository.findAll();
 
-    assertThat(tutorials).hasSize(3).contains(user1, user2, user3);
+    assertThat(tutorials).hasSize(2).contains(user2, user3);
   }
 
   @Test
   public void shouldFindUserById() {
-    User user1 = new User("candidate@gmail.com", UserRole.CANDIDATE);
+    User user1 = new User("interviewer@gmail.com", UserRole.INTERVIEWER);
     entityManager.persist(user1);
 
     User user2 = new User("coordinator@gmail.com", UserRole.COORDINATOR);
@@ -66,9 +62,6 @@ public class UserRepositoryTest {
 
   @Test
   public void shouldUpdateUserById() {
-    User user1 = new User("candidate@gmail.com", UserRole.CANDIDATE);
-    entityManager.persist(user1);
-
     User user2 = new User("coordinator@gmail.com", UserRole.COORDINATOR);
     entityManager.persist(user2);
 
@@ -88,9 +81,6 @@ public class UserRepositoryTest {
 
   @Test
   public void shouldDeleteUserById() {
-    User user1 = new User("candidate@gmail.com", UserRole.CANDIDATE);
-    entityManager.persist(user1);
-
     User user2 = new User("coordinator@gmail.com", UserRole.COORDINATOR);
     entityManager.persist(user2);
 
@@ -101,12 +91,12 @@ public class UserRepositoryTest {
 
     Iterable<User> users = userRepository.findAll();
 
-    assertThat(users).hasSize(2).contains(user1, user3);
+    assertThat(users).hasSize(1).contains(user3);
   }
 
   @Test
   public void shouldDeleteAllUsers() {
-    entityManager.persist(new User("candidate@gmail.com", UserRole.CANDIDATE));
+    entityManager.persist(new User("interviewer@gmail.com", UserRole.INTERVIEWER));
     entityManager.persist(new User("coordinator@gmail.com", UserRole.COORDINATOR));
 
     userRepository.deleteAll();

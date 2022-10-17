@@ -22,6 +22,6 @@ public class BookingDoneException extends AbstractResourceRuntimeException {
                               Object fieldValue) {
     super(String.format("Booking is done for %s with %s : %s", resourceName, fieldName,
         fieldValue));
-    this.httpStatus = HttpStatus.FORBIDDEN;
+    this.httpStatus = HttpStatus.BAD_REQUEST;
   }
 }

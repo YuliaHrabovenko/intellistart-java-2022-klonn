@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  */
 @Getter
 @Setter
-@ResponseStatus(value = HttpStatus.FORBIDDEN)
+@ResponseStatus(value = HttpStatus.BAD_REQUEST)
 public class InvalidMaximumBookingCountException extends RuntimeException {
   public InvalidMaximumBookingCountException(String message) {
     super(message);
