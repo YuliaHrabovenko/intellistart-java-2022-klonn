@@ -2,9 +2,17 @@ package com.intellias.intellistart.interviewplanning.services;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
+import com.intellias.intellistart.interviewplanning.exceptions.InvalidPeriodException;
+import com.intellias.intellistart.interviewplanning.exceptions.InvalidResourceException;
+import com.intellias.intellistart.interviewplanning.exceptions.ResourceException;
 import com.intellias.intellistart.interviewplanning.models.Booking;
+import com.intellias.intellistart.interviewplanning.models.CandidateTimeSlot;
 import com.intellias.intellistart.interviewplanning.models.InterviewerTimeSlot;
 import com.intellias.intellistart.interviewplanning.models.User;
 import com.intellias.intellistart.interviewplanning.models.UserRole;
@@ -35,7 +43,6 @@ class CoordinatorServiceTest {
   @InjectMocks
   private CoordinatorService coordinatorService;
   private User interviewer;
-  private User candidate;
   private User coordinator;
   private LocalTime startTime;
   private LocalTime endTime;
@@ -58,6 +65,43 @@ class CoordinatorServiceTest {
     endTime = LocalTime.of(11, 30);
   }
 
+  @Test
+  void givenEmail_whenGrantCoordinatorRole_thenReturnUser() {
+    User coordinator = User.builder().
+        email("coordinator@gmail.com").
+        role(UserRole.COORDINATOR)
+        .build();
+
+    given(userRepository.save(coordinator)).willReturn(coordinator);
+    User user = coordinatorService.grantCoordinatorRole("coordinator@gmail.com");
+    assertEquals(UserRole.COORDINATOR, user.getRole());
+  }
+
+  @Test
+  void givenEmail_whenGrantCoordinatorRole_throwException() {
+    given(userRepository.findUserByEmail(coordinator.getEmail())).willReturn(Optional.of(coordinator));
+    assertThrows(InvalidResourceException.class,
+        () -> coordinatorService.grantCoordinatorRole(coordinator.getEmail()));
+    verify(userRepository, never()).save(any(User.class));
+  }
+
+  @Test
+  void givenEmail_whenGrantInterviewerRole_thenReturnUser() {
+    User interviewer = User.builder().
+        email("interviewer@gmail.com").
+        role(UserRole.INTERVIEWER)
+        .build();
+    given(userRepository.save(interviewer)).willReturn(interviewer);
+    User user = coordinatorService.grantInterviewerRole("interviewer@gmail.com");
+    assertEquals(UserRole.INTERVIEWER, user.getRole());
+  }
+  @Test
+  void givenEmail_whenGrantInterviewerRole_throwException() {
+    given(userRepository.findUserByEmail(interviewer.getEmail())).willReturn(Optional.of(interviewer));
+    assertThrows(InvalidResourceException.class,
+        () -> coordinatorService.grantCoordinatorRole(interviewer.getEmail()));
+    verify(userRepository, never()).save(any(User.class));
+  }
   @Test
   void SuccessUpdatingOfBooking() {
     Booking booking = new Booking(startTime,
@@ -105,44 +149,6 @@ class CoordinatorServiceTest {
     assertThat(updated.getFrom()).isEqualTo(startNew);
     assertThat(updated.getTo()).isEqualTo(endNew);
   }
-
-  @Test
-  void SuccessGrantCoordinatorRole() {
-    User grantedInterviewer = User.builder().
-        id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000")).
-        email("interviewer@gmail.com").
-        role(UserRole.COORDINATOR)
-        .build();
-
-    given(userRepository.findUserByEmail("interviewer@gmail.com")).willReturn(
-        Optional.of(interviewer));
-
-    given(userRepository.save(interviewer)).willReturn(
-        grantedInterviewer);
-
-    User user = coordinatorService.grantInterviewerRole("interviewer@gmail.com");
-
-    assertEquals(UserRole.COORDINATOR, user.getRole());
-  }
-
-//  @Test
-//  void SuccessGrantInterviewerRole() {
-//    User grantedInterviewer = User.builder().
-//        id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000")).
-//        email("interviewer@gmail.com").
-//        role(UserRole.INTERVIEWER)
-//        .build();
-//
-//    given(userRepository.findUserByEmail("candidate@gmail.com")).willReturn(
-//        Optional.of(candidate));
-//
-//    given(userRepository.save(candidate)).willReturn(
-//        grantedInterviewer);
-//
-//    User user = coordinatorService.grantInterviewerRole("candidate@gmail.com");
-//
-//    assertEquals(UserRole.INTERVIEWER, user.getRole());
-//  }
 
   @Test
   void SuccessRevokeCoordinatorRole() {
