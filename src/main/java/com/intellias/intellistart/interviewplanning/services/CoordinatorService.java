@@ -1,6 +1,7 @@
 package com.intellias.intellistart.interviewplanning.services;
 
-import com.intellias.intellistart.interviewplanning.exceptions.InvalidResourceException;
+import com.intellias.intellistart.interviewplanning.exceptions.ExceptionMessage;
+import com.intellias.intellistart.interviewplanning.exceptions.ValidationException;
 import com.intellias.intellistart.interviewplanning.models.Booking;
 import com.intellias.intellistart.interviewplanning.models.CandidateTimeSlot;
 import com.intellias.intellistart.interviewplanning.models.InterviewerTimeSlot;
@@ -185,8 +186,7 @@ public class CoordinatorService {
   public User grantCoordinatorRole(User coordinator) {
     Optional<User> user = coordinatorRepository.findUserByEmail(coordinator.getEmail());
     if (user.isPresent()) {
-      throw new InvalidResourceException(
-          "Coordinator with email " + coordinator.getEmail() + " already exists");
+      throw new ValidationException(ExceptionMessage.USER_EMAIL_EXISTS.getMessage());
     }
     coordinator.setRole(UserRole.COORDINATOR);
     return coordinatorRepository.save(coordinator);
@@ -201,8 +201,7 @@ public class CoordinatorService {
   public User grantInterviewerRole(User interviewer) {
     Optional<User> user = coordinatorRepository.findUserByEmail(interviewer.getEmail());
     if (user.isPresent()) {
-      throw new InvalidResourceException(
-          "Interviewer with email " + interviewer.getEmail() + " already exists");
+      throw new ValidationException(ExceptionMessage.USER_EMAIL_EXISTS.getMessage());
     }
     interviewer.setRole(UserRole.INTERVIEWER);
     return coordinatorRepository.save(interviewer);

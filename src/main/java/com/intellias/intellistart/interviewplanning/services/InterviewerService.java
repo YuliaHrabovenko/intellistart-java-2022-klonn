@@ -1,10 +1,9 @@
 package com.intellias.intellistart.interviewplanning.services;
 
-import com.intellias.intellistart.interviewplanning.exceptions.InvalidPeriodException;
-import com.intellias.intellistart.interviewplanning.exceptions.ResourceNotFoundException;
+import com.intellias.intellistart.interviewplanning.exceptions.ExceptionMessage;
+import com.intellias.intellistart.interviewplanning.exceptions.ValidationException;
 import com.intellias.intellistart.interviewplanning.models.InterviewerTimeSlot;
 import com.intellias.intellistart.interviewplanning.models.User;
-import com.intellias.intellistart.interviewplanning.models.Week;
 import com.intellias.intellistart.interviewplanning.repositories.BookingRepository;
 import com.intellias.intellistart.interviewplanning.repositories.InterviewerBookingLimitRepository;
 import com.intellias.intellistart.interviewplanning.repositories.InterviewerTimeSlotRepository;
@@ -13,7 +12,6 @@ import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.util.Optional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -25,9 +23,6 @@ public class InterviewerService {
   private final InterviewerTimeSlotRepository interviewerTimeSlotRepository;
   private final BookingRepository bookingRepository;
   private final InterviewerBookingLimitRepository interviewerBookingLimitRepository;
-
-  @Autowired
-  private WeekService weekService;
 
   /**
    * Constructor.
@@ -66,8 +61,7 @@ public class InterviewerService {
     //    }
 
     if (from.getMinute() % 30 != 0 || to.getMinute() % 30 != 0) {
-      throw new InvalidPeriodException(
-          "Period for interviewer`s slot must be rounded to 30 minutes");
+      throw new ValidationException(ExceptionMessage.SLOT_BOUNDARIES_NOT_ROUNDED.getMessage());
     }
 
     //    if (from.isBefore(LocalTime.now()) || to.isBefore(LocalTime.now())) {
@@ -77,19 +71,17 @@ public class InterviewerService {
     //    }
 
     if (to.isBefore(from)) {
-      throw new InvalidPeriodException(
-          "The beginning " + from + " must be before the end " + to);
+      throw new ValidationException(ExceptionMessage.START_TIME_BIGGER_THAN_END_TIME.getMessage());
     }
 
     if (Math.abs(Duration.between(from, to).toMinutes()) < 90) {
-      throw new InvalidPeriodException(
-          "Period for interviewer`s slot must be more or equal to 1.5h");
+      throw new ValidationException(ExceptionMessage.PERIOD_DURATION_IS_NOT_ENOUGH.getMessage());
     }
 
     if (from.isBefore(LocalTime.of(8, 0))
         || to.isAfter(LocalTime.of(22, 0))) {
-      throw new InvalidPeriodException(
-          "Start time can`t be less than 8:00, end time can`t be greater than 22:00");
+      throw new ValidationException(
+          ExceptionMessage.INTERVIEWER_SLOT_BOUNDARIES_EXCEEDED.getMessage());
     }
 
     //    if (from.getDayOfMonth() != to.getDayOfMonth()
@@ -99,8 +91,7 @@ public class InterviewerService {
     //    }
 
     if (day.equals(DayOfWeek.SUNDAY) || day.equals(DayOfWeek.SATURDAY)) {
-      throw new InvalidPeriodException(
-          "The day must not be a weekend");
+      throw new ValidationException(ExceptionMessage.NOT_WORKING_DAY_OF_WEEK.getMessage());
     }
 
   }
@@ -116,14 +107,12 @@ public class InterviewerService {
     Optional<User> interviewer = interviewerRepository
         .findById(interviewerTimeSlot.getInterviewerId());
     if (interviewer.isEmpty()) {
-      throw new ResourceNotFoundException(
-          "Candidate", "Id", interviewerTimeSlot.getInterviewerId());
+      throw new ValidationException(ExceptionMessage.INTERVIEWER_NOT_FOUND.getMessage());
     }
 
     LocalTime from = interviewerTimeSlot.getFrom();
     LocalTime to = interviewerTimeSlot.getTo();
     DayOfWeek day = interviewerTimeSlot.getDayOfWeek();
-    Week week = interviewerTimeSlot.getWeek();
 
     validateInterviewerPeriod(day, from, to);
 
@@ -142,12 +131,12 @@ public class InterviewerService {
     Optional<InterviewerTimeSlot> slot = interviewerTimeSlotRepository
         .findById(interviewerTimeSlot.getId());
     if (slot.isEmpty()) {
-      throw new ResourceNotFoundException(
-          "InterviewerTimeSlot", "Id", interviewerTimeSlot.getId());
+      throw new ValidationException(ExceptionMessage.INTERVIEWER_SLOT_NOT_FOUND.getMessage());
     }
 
     return interviewerTimeSlotRepository.save(interviewerTimeSlot);
   }
+
 
   //  /**
   //   * get time slots for current or next week.

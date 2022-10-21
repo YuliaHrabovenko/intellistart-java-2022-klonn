@@ -43,10 +43,6 @@ public class InterviewerBookingLimit {
   private Integer currentBookingCount = 0;
   @Column(name = "interviewer_id")
   private UUID interviewerId;
-  @JsonUnwrapped
-  @ManyToOne
-  @JoinColumn(name = "week_id")
-  private Week week;
 
   /**
    * Constructor.

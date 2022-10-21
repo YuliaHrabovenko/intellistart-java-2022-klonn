@@ -1,6 +1,7 @@
 package com.intellias.intellistart.interviewplanning.services;
 
-import com.intellias.intellistart.interviewplanning.exceptions.InterviewerBookingLimitExceededException;
+import com.intellias.intellistart.interviewplanning.exceptions.ExceptionMessage;
+import com.intellias.intellistart.interviewplanning.exceptions.ValidationException;
 import com.intellias.intellistart.interviewplanning.models.Booking;
 import com.intellias.intellistart.interviewplanning.models.InterviewerBookingLimit;
 import com.intellias.intellistart.interviewplanning.repositories.BookingRepository;
@@ -141,7 +142,8 @@ public class BookingService {
     int bookingLimit = interviewerBookingLimit.getWeekBookingLimit();
     int bookingCount = interviewerBookingLimit.getCurrentBookingCount();
     if (bookingCount >= bookingLimit) {
-      throw new InterviewerBookingLimitExceededException();
+      throw new ValidationException(
+          ExceptionMessage.INTERVIEWER_BOOKING_LIMIT_EXCEEDED.getMessage());
     }
     return false;
 

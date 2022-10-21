@@ -8,11 +8,8 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-import com.intellias.intellistart.interviewplanning.exceptions.InvalidPeriodException;
-import com.intellias.intellistart.interviewplanning.exceptions.InvalidResourceException;
-import com.intellias.intellistart.interviewplanning.exceptions.ResourceException;
+import com.intellias.intellistart.interviewplanning.exceptions.ValidationException;
 import com.intellias.intellistart.interviewplanning.models.Booking;
-import com.intellias.intellistart.interviewplanning.models.CandidateTimeSlot;
 import com.intellias.intellistart.interviewplanning.models.InterviewerTimeSlot;
 import com.intellias.intellistart.interviewplanning.models.User;
 import com.intellias.intellistart.interviewplanning.models.UserRole;
@@ -80,7 +77,7 @@ class CoordinatorServiceTest {
   @Test
   void givenEmail_whenGrantCoordinatorRole_throwException() {
     given(userRepository.findUserByEmail(coordinator.getEmail())).willReturn(Optional.of(coordinator));
-    assertThrows(InvalidResourceException.class,
+    assertThrows(ValidationException.class,
         () -> coordinatorService.grantCoordinatorRole(coordinator));
     verify(userRepository, never()).save(any(User.class));
   }
@@ -98,7 +95,7 @@ class CoordinatorServiceTest {
   @Test
   void givenEmail_whenGrantInterviewerRole_throwException() {
     given(userRepository.findUserByEmail(interviewer.getEmail())).willReturn(Optional.of(interviewer));
-    assertThrows(InvalidResourceException.class,
+    assertThrows(ValidationException.class,
         () -> coordinatorService.grantInterviewerRole(interviewer));
     verify(userRepository, never()).save(any(User.class));
   }

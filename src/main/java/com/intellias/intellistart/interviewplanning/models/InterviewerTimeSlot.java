@@ -53,10 +53,6 @@ public class InterviewerTimeSlot {
   @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
   @JoinColumn(name = "interviewer_time_slot_id", referencedColumnName = "id")
   private List<Booking> bookingList = new ArrayList<>();
-  @JsonUnwrapped
-  @ManyToOne
-  @JoinColumn(name = "week_id")
-  private Week week;
 
   /**
    * Constructor.

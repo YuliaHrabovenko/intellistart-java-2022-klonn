@@ -10,9 +10,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.intellias.intellistart.interviewplanning.exceptions.BookingDoneException;
-import com.intellias.intellistart.interviewplanning.exceptions.InvalidPeriodException;
-import com.intellias.intellistart.interviewplanning.exceptions.ResourceNotFoundException;
+import com.intellias.intellistart.interviewplanning.exceptions.NotFoundException;
+import com.intellias.intellistart.interviewplanning.exceptions.ValidationException;
 import com.intellias.intellistart.interviewplanning.models.Booking;
 import com.intellias.intellistart.interviewplanning.models.CandidateTimeSlot;
 import com.intellias.intellistart.interviewplanning.repositories.BookingRepository;
@@ -86,7 +85,7 @@ public class CandidateServiceTests {
         .date(date)
         .build();
 
-    assertThrows(InvalidPeriodException.class,
+    assertThrows(ValidationException.class,
         () -> candidateService.createSlot(candidateTimeSlot));
 
     verify(candidateTimeSlotRepository, never()).save(any(CandidateTimeSlot.class));
@@ -102,7 +101,7 @@ public class CandidateServiceTests {
         .date(LocalDate.of(2022, 10, 1))
         .build();
 
-    assertThrows(InvalidPeriodException.class,
+    assertThrows(ValidationException.class,
         () -> candidateService.createSlot(candidateTimeSlot));
 
     verify(candidateTimeSlotRepository, never()).save(any(CandidateTimeSlot.class));
@@ -121,7 +120,7 @@ public class CandidateServiceTests {
         .date(date)
         .build();
 
-    assertThrows(InvalidPeriodException.class,
+    assertThrows(ValidationException.class,
         () -> candidateService.createSlot(candidateTimeSlot));
 
     verify(candidateTimeSlotRepository, never()).save(any(CandidateTimeSlot.class));
@@ -140,7 +139,7 @@ public class CandidateServiceTests {
         .date(date)
         .build();
 
-    assertThrows(InvalidPeriodException.class,
+    assertThrows(ValidationException.class,
         () -> candidateService.createSlot(candidateTimeSlot));
 
     verify(candidateTimeSlotRepository, never()).save(any(CandidateTimeSlot.class));
@@ -203,7 +202,7 @@ public class CandidateServiceTests {
 
     candidateTimeSlot.setFrom(startTimeNew);
     candidateTimeSlot.setTo(endTimeNew);
-    assertThrows(BookingDoneException.class,
+    assertThrows(ValidationException.class,
         () -> candidateService.updateSlot(candidateTimeSlot, candidateTimeSlot.getId()));
 
     verify(candidateTimeSlotRepository, never()).save(any(CandidateTimeSlot.class));
@@ -242,7 +241,7 @@ public class CandidateServiceTests {
     given(candidateTimeSlotRepository.findById(candidateTimeSlot.getId())).willReturn(
         Optional.empty());
 
-    assertThrows(ResourceNotFoundException.class,
+    assertThrows(NotFoundException.class,
         () -> candidateService.deleteSlot(candidateTimeSlot.getId()));
 
     verify(candidateTimeSlotRepository, times(0)).deleteById(candidateTimeSlot.getId());
