@@ -179,30 +179,32 @@ public class CoordinatorService {
   /**
    * Grant the user coordinator role.
    *
-   * @param email email of the user
+   * @param coordinator user object
    * @return user object if success
    */
-  public User grantCoordinatorRole(String email) {
-    Optional<User> user = coordinatorRepository.findUserByEmail(email);
+  public User grantCoordinatorRole(User coordinator) {
+    Optional<User> user = coordinatorRepository.findUserByEmail(coordinator.getEmail());
     if (user.isPresent()) {
-      throw new InvalidResourceException("Coordinator with email " + email + " already exists");
+      throw new InvalidResourceException(
+          "Coordinator with email " + coordinator.getEmail() + " already exists");
     }
-    User coordinator = new User(email, UserRole.COORDINATOR);
+    coordinator.setRole(UserRole.COORDINATOR);
     return coordinatorRepository.save(coordinator);
   }
 
   /**
    * Grant the user interviewer role.
    *
-   * @param email email of the user
+   * @param interviewer user object
    * @return user object if success
    */
-  public User grantInterviewerRole(String email) {
-    Optional<User> user = coordinatorRepository.findUserByEmail(email);
+  public User grantInterviewerRole(User interviewer) {
+    Optional<User> user = coordinatorRepository.findUserByEmail(interviewer.getEmail());
     if (user.isPresent()) {
-      throw new InvalidResourceException("Interviewer with email " + email + " already exists");
+      throw new InvalidResourceException(
+          "Interviewer with email " + interviewer.getEmail() + " already exists");
     }
-    User interviewer = new User(email, UserRole.INTERVIEWER);
+    interviewer.setRole(UserRole.INTERVIEWER);
     return coordinatorRepository.save(interviewer);
   }
 

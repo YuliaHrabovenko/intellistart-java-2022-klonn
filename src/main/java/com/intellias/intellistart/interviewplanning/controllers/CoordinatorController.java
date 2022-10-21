@@ -68,20 +68,20 @@ public class CoordinatorController {
   }
 
   @DeleteMapping(path = "/users/interviewers/{interviewerId}")
-  public void revokeInterviewerRole(@PathVariable("interviewerId") UUID coordinatorId) {
-    coordinatorService.revokeInterviewerRole(coordinatorId);
+  public void revokeInterviewerRole(@PathVariable("interviewerId") UUID interviewerId) {
+    coordinatorService.revokeInterviewerRole(interviewerId);
   }
 
 
   @PostMapping(path = "/users/coordinators")
   @ResponseStatus(code = HttpStatus.CREATED)
-  public void grantCoordinatorRole(@RequestBody String coordinatorEmail) {
-    coordinatorService.grantCoordinatorRole(coordinatorEmail);
+  public void grantCoordinatorRole(@RequestBody User coordinator) {
+    coordinatorService.grantCoordinatorRole(coordinator);
   }
 
   @PostMapping(path = "/users/interviewers")
   @ResponseStatus(code = HttpStatus.CREATED)
-  public void grantInterviewerRole(@RequestBody String interviewerEmail) {
-    coordinatorService.grantInterviewerRole(interviewerEmail);
+  public void grantInterviewerRole(@RequestBody User interviewer) {
+    coordinatorService.grantInterviewerRole(interviewer);
   }
 }

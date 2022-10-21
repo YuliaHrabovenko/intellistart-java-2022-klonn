@@ -73,7 +73,7 @@ class CoordinatorServiceTest {
         .build();
 
     given(userRepository.save(coordinator)).willReturn(coordinator);
-    User user = coordinatorService.grantCoordinatorRole("coordinator@gmail.com");
+    User user = coordinatorService.grantCoordinatorRole(coordinator);
     assertEquals(UserRole.COORDINATOR, user.getRole());
   }
 
@@ -81,7 +81,7 @@ class CoordinatorServiceTest {
   void givenEmail_whenGrantCoordinatorRole_throwException() {
     given(userRepository.findUserByEmail(coordinator.getEmail())).willReturn(Optional.of(coordinator));
     assertThrows(InvalidResourceException.class,
-        () -> coordinatorService.grantCoordinatorRole(coordinator.getEmail()));
+        () -> coordinatorService.grantCoordinatorRole(coordinator));
     verify(userRepository, never()).save(any(User.class));
   }
 
@@ -92,14 +92,14 @@ class CoordinatorServiceTest {
         role(UserRole.INTERVIEWER)
         .build();
     given(userRepository.save(interviewer)).willReturn(interviewer);
-    User user = coordinatorService.grantInterviewerRole("interviewer@gmail.com");
+    User user = coordinatorService.grantInterviewerRole(interviewer);
     assertEquals(UserRole.INTERVIEWER, user.getRole());
   }
   @Test
   void givenEmail_whenGrantInterviewerRole_throwException() {
     given(userRepository.findUserByEmail(interviewer.getEmail())).willReturn(Optional.of(interviewer));
     assertThrows(InvalidResourceException.class,
-        () -> coordinatorService.grantCoordinatorRole(interviewer.getEmail()));
+        () -> coordinatorService.grantInterviewerRole(interviewer));
     verify(userRepository, never()).save(any(User.class));
   }
   @Test
