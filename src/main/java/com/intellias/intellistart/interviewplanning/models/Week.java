@@ -46,4 +46,9 @@ public class Week {
   @JsonIgnore
   @OneToMany(mappedBy = "week")
   private List<InterviewerTimeSlot> interviewerTimeSlots = new ArrayList<>();
+
+  public Week(String weekNumber) {
+    this.weekNumber = weekNumber;
+  }
+
 }

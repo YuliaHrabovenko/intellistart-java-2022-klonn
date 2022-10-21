@@ -1,7 +1,9 @@
 package com.intellias.intellistart.interviewplanning.services;
 
 import com.intellias.intellistart.interviewplanning.exceptions.InvalidPeriodException;
+import com.intellias.intellistart.interviewplanning.exceptions.InvalidWeekNumberException;
 import com.intellias.intellistart.interviewplanning.exceptions.ResourceNotFoundException;
+import com.intellias.intellistart.interviewplanning.models.InterviewerBookingLimit;
 import com.intellias.intellistart.interviewplanning.models.InterviewerTimeSlot;
 import com.intellias.intellistart.interviewplanning.models.User;
 import com.intellias.intellistart.interviewplanning.models.Week;
@@ -9,10 +11,13 @@ import com.intellias.intellistart.interviewplanning.repositories.BookingReposito
 import com.intellias.intellistart.interviewplanning.repositories.InterviewerBookingLimitRepository;
 import com.intellias.intellistart.interviewplanning.repositories.InterviewerTimeSlotRepository;
 import com.intellias.intellistart.interviewplanning.repositories.UserRepository;
+import com.intellias.intellistart.interviewplanning.repositories.WeekRepository;
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +30,7 @@ public class InterviewerService {
   private final InterviewerTimeSlotRepository interviewerTimeSlotRepository;
   private final BookingRepository bookingRepository;
   private final InterviewerBookingLimitRepository interviewerBookingLimitRepository;
+  private final WeekRepository weekRepository;
 
   @Autowired
   private WeekService weekService;
@@ -36,16 +42,19 @@ public class InterviewerService {
    * @param interviewerTimeSlotRepository     interviewer time slot repository
    * @param bookingRepository                 booking repository
    * @param interviewerBookingLimitRepository interviewer booking limit repository
+   * @param weekRepository                    week repository
    */
 
   public InterviewerService(UserRepository interviewerRepository,
                             InterviewerTimeSlotRepository interviewerTimeSlotRepository,
                             BookingRepository bookingRepository,
-                            InterviewerBookingLimitRepository interviewerBookingLimitRepository) {
+                            InterviewerBookingLimitRepository interviewerBookingLimitRepository,
+                            WeekRepository weekRepository) {
     this.interviewerRepository = interviewerRepository;
     this.interviewerTimeSlotRepository = interviewerTimeSlotRepository;
     this.bookingRepository = bookingRepository;
     this.interviewerBookingLimitRepository = interviewerBookingLimitRepository;
+    this.weekRepository = weekRepository;
   }
 
   /**
@@ -147,6 +156,60 @@ public class InterviewerService {
     }
 
     return interviewerTimeSlotRepository.save(interviewerTimeSlot);
+  }
+
+  public List<InterviewerBookingLimit> getBookingLimitsById(UUID interviewerId) {
+    // check if interviewer exists in database
+
+    return interviewerBookingLimitRepository.getInterviewerBookingLimitsByInterviewerId(
+        interviewerId);
+  }
+
+  public void validateIsNextWeekNumber(String weekNum, String nextWeekNum){
+    if (!nextWeekNum.equals(weekNum)) {
+      throw new InvalidWeekNumberException(
+          "Week number " + weekNum + " is not equal to the next week number " + nextWeekNum);
+    }
+  }
+
+  public void setWeekId(Week week){
+    Week existingWeek = weekRepository.getWeekByWeekNumber(week.getWeekNumber());
+
+    if (existingWeek != null) {
+      // if weekNumber is already in database, set its id to interviewerBookingLimit week object
+      week.setId(existingWeek.getId());
+    } else {
+      // create new week object with new weekNum and set its id to the interviewerBookingLimit week object
+      Week newWeek = new Week(week.getWeekNumber());
+      weekRepository.save(newWeek);
+      week.setId(newWeek.getId());
+    }
+  }
+
+  public InterviewerBookingLimit setNextWeekInterviewerBookingLimit(
+      InterviewerBookingLimit interviewerBookingLimit) {
+
+    // check if weekNumber is for the next week
+    Week week = interviewerBookingLimit.getWeek();
+    String nextWeekNumber = weekService.getNextWeekNumber().getWeekNumber();
+
+    validateIsNextWeekNumber(week.getWeekNumber(), nextWeekNumber);
+    setWeekId(week);
+
+    // if the interviewer has already a booking limit for
+    // the next week, just update the booking limit
+    InterviewerBookingLimit existingBookingLimit =
+        interviewerBookingLimitRepository.getBookingLimitByInterviewerIdAndWeekId(
+            interviewerBookingLimit.getInterviewerId(),
+            weekRepository.getWeekByWeekNumber(nextWeekNumber).getId());
+
+    if (existingBookingLimit != null) {
+      // set a new number of a week booking limit for the next week
+      existingBookingLimit.setWeekBookingLimit(interviewerBookingLimit.getWeekBookingLimit());
+      return interviewerBookingLimitRepository.save(existingBookingLimit);
+    }
+
+    return interviewerBookingLimitRepository.save(interviewerBookingLimit);
   }
 
   //  /**

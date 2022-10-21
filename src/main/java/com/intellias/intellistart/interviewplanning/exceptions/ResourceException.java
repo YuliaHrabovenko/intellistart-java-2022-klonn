@@ -10,11 +10,11 @@ import org.springframework.http.HttpStatus;
 @Getter
 @Setter
 public class ResourceException {
-  protected final String message;
-  protected final HttpStatus httpStatus;
+  protected final String errorMessage;
+  protected final HttpStatus errorCode;
 
-  public ResourceException(String message, HttpStatus httpStatus) {
-    this.message = message;
-    this.httpStatus = httpStatus;
+  public ResourceException(String errorMessage, HttpStatus errorCode) {
+    this.errorMessage = errorMessage;
+    this.errorCode = errorCode;
   }
 }

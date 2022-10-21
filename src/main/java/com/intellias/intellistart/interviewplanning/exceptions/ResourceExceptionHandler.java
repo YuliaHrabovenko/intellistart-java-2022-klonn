@@ -16,7 +16,7 @@ public class ResourceExceptionHandler {
    * @return message and status on response to user
    */
   @ExceptionHandler(value = {ResourceNotFoundException.class, BookingDoneException.class,
-      InvalidPeriodException.class})
+      InvalidPeriodException.class, InvalidWeekNumberException.class})
   public ResponseEntity<Object> handleException(AbstractResourceRuntimeException
                                                     resourceNotFoundException) {
     ResourceException resourceException = new ResourceException(

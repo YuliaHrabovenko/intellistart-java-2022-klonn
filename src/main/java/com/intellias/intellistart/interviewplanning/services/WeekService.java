@@ -33,9 +33,7 @@ public class WeekService {
     int weekNumber = date.get(woy);
 
     String yearAndWeekNum = currentYear + "" + weekNumber;
-    Week week = new Week();
-    week.setWeekNumber(yearAndWeekNum);
-    return week;
+    return new Week(yearAndWeekNum);
   }
 
   /**
@@ -46,8 +44,6 @@ public class WeekService {
   public Week getNextWeekNumber() {
     Week currentWeek = getCurrentWeekNumber();
     String nextWeekNum = Integer.parseInt(currentWeek.getWeekNumber()) + 1 + "";
-    Week nextWeek = new Week();
-    nextWeek.setWeekNumber(nextWeekNum);
-    return nextWeek;
+    return new Week(nextWeekNum);
   }
 }

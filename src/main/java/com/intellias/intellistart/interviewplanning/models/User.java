@@ -28,7 +28,7 @@ import org.hibernate.annotations.GenericGenerator;
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
-@Table(name = "users")
+@Table(name = "users", schema = "public")
 public class User {
   @Id
   @GeneratedValue(generator = "UUID")
@@ -40,15 +40,15 @@ public class User {
   private UUID id;
   @Column(name = "email")
   private String email;
-  @Column(name = "role")
   @Enumerated(EnumType.STRING)
+  @Column(name = "role")
   private UserRole role;
   @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
   @JoinColumn(name = "interviewer_id", referencedColumnName = "id")
   private Set<InterviewerTimeSlot> interviewerTimeSlots;
-  @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-  @JoinColumn(name = "candidate_id", referencedColumnName = "id")
-  private Set<CandidateTimeSlot> candidateTimeSlots;
+//  @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+//  @JoinColumn(name = "candidate_id", referencedColumnName = "id")
+//  private Set<CandidateTimeSlot> candidateTimeSlots;
   @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
   @JoinColumn(name = "interviewer_id", referencedColumnName = "id")
   private Set<InterviewerBookingLimit> interviewerBookingLimits;

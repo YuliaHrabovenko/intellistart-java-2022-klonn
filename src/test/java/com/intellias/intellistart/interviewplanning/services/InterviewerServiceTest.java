@@ -1,21 +1,27 @@
 package com.intellias.intellistart.interviewplanning.services;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 import com.intellias.intellistart.interviewplanning.exceptions.InvalidPeriodException;
+import com.intellias.intellistart.interviewplanning.exceptions.InvalidWeekNumberException;
 import com.intellias.intellistart.interviewplanning.exceptions.ResourceNotFoundException;
+import com.intellias.intellistart.interviewplanning.models.InterviewerBookingLimit;
 import com.intellias.intellistart.interviewplanning.models.InterviewerTimeSlot;
 import com.intellias.intellistart.interviewplanning.models.User;
 import com.intellias.intellistart.interviewplanning.models.UserRole;
+import com.intellias.intellistart.interviewplanning.models.Week;
 import com.intellias.intellistart.interviewplanning.repositories.BookingRepository;
 import com.intellias.intellistart.interviewplanning.repositories.InterviewerBookingLimitRepository;
 import com.intellias.intellistart.interviewplanning.repositories.InterviewerTimeSlotRepository;
 import com.intellias.intellistart.interviewplanning.repositories.UserRepository;
+import com.intellias.intellistart.interviewplanning.repositories.WeekRepository;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.Optional;
@@ -42,8 +48,14 @@ class InterviewerServiceTest {
   @Mock
   private BookingRepository bookingRepository;
 
+  @Mock
+  private WeekRepository weekRepository;
+
   @InjectMocks
   private InterviewerService interviewerService;
+
+  @InjectMocks
+  private WeekService weekService;
 
   private User interviewer;
   private LocalTime startTime;
@@ -119,6 +131,83 @@ class InterviewerServiceTest {
 
     verify(interviewerTimeSlotRepository, never()).save(any(InterviewerTimeSlot.class));
   }
+
+  @Test
+  void givenBookingLimit_whenValidateWeekNumber_thenThrowsException(){
+    Week week = weekService.getNextWeekNumber();
+    InterviewerBookingLimit interviewerBookingLimit = InterviewerBookingLimit.builder()
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
+        .week(new Week("202241"))
+        .weekBookingLimit(10)
+        .interviewerId(interviewer.getId())
+        .build();
+
+    assertThrows(InvalidWeekNumberException.class,
+        () -> interviewerService.validateIsNextWeekNumber(
+            interviewerBookingLimit.getWeek().getWeekNumber(), week.getWeekNumber()));
+
+  }
+
+  @Test
+  void givenBookingLimit_whenValidateWeekNumber_thenNothing(){
+    Week week = weekService.getNextWeekNumber();
+    InterviewerBookingLimit interviewerBookingLimit = InterviewerBookingLimit.builder()
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
+        .week(week)
+        .weekBookingLimit(10)
+        .interviewerId(interviewer.getId())
+        .build();
+
+    assertDoesNotThrow(() -> interviewerService.validateIsNextWeekNumber(
+        interviewerBookingLimit.getWeek().getWeekNumber(), week.getWeekNumber()));
+  }
+
+  @Test
+  void givenBookingLimit_whenSetWeekId_thenSetExistingWeekId(){
+    String nextWeekNumber = weekService.getNextWeekNumber().getWeekNumber();
+    Week week = Week
+        .builder()
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
+        .weekNumber(nextWeekNumber).build();
+
+    InterviewerBookingLimit interviewerBookingLimit = InterviewerBookingLimit.builder()
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
+        .week(new Week(nextWeekNumber))
+        .weekBookingLimit(10)
+        .interviewerId(interviewer.getId())
+        .build();
+
+    given(weekRepository.getWeekByWeekNumber(week.getWeekNumber())).willReturn(week);
+    interviewerService.setWeekId(interviewerBookingLimit.getWeek());
+    assertThat(interviewerBookingLimit.getWeek().getId()).
+        isEqualTo(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"));
+  }
+
+//  @Test
+//  void givenBookingLimit_whenSetWeekId_thenSetNewWeekId(){
+//    String nextWeekNumber = weekService.getNextWeekNumber().getWeekNumber();
+//    Week week = Week
+//        .builder()
+//        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
+//        .build();
+//
+//    InterviewerBookingLimit interviewerBookingLimit = InterviewerBookingLimit.builder()
+//        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
+//        .week(new Week(nextWeekNumber))
+//        .weekBookingLimit(10)
+//        .interviewerId(interviewer.getId())
+//        .build();
+//
+//    week.setWeekNumber(interviewerBookingLimit.getWeek().getWeekNumber());
+//
+//    given(weekRepository.getWeekByWeekNumber(week.getWeekNumber())).willReturn(null);
+//    given(weekRepository.save(week)).willReturn(week);
+//    interviewerService.setWeekId(interviewerBookingLimit.getWeek());
+//
+//
+//    assertThat(interviewerBookingLimit.getWeek().getId()).
+//        isEqualTo(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"));
+//  }
 
 
 //  @Test

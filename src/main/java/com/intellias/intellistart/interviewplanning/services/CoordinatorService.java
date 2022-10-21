@@ -11,6 +11,7 @@ import com.intellias.intellistart.interviewplanning.repositories.InterviewerTime
 import com.intellias.intellistart.interviewplanning.repositories.UserRepository;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -195,12 +196,21 @@ public class CoordinatorService {
    * @param email email of the user
    * @return user object if success
    */
+//  public User grantInterviewerRole(String email) {
+//    User user = coordinatorRepository.findUserByEmail(email).orElseThrow(
+//        () -> new IllegalStateException(
+//            "user with email " + email + " does not exists"));
+//    user.setRole(UserRole.INTERVIEWER);
+//    return coordinatorRepository.save(user);
+//  }
+
   public User grantInterviewerRole(String email) {
-    User user = coordinatorRepository.findUserByEmail(email).orElseThrow(
-        () -> new IllegalStateException(
-            "user with email " + email + " does not exists"));
-    user.setRole(UserRole.INTERVIEWER);
-    return coordinatorRepository.save(user);
+    Optional<User> user = coordinatorRepository.findUserByEmail(email);
+    if(user.isPresent()){
+      throw new IllegalStateException("User with email " + email + " already exists");
+    }
+    User interviewer = new User(email, UserRole.INTERVIEWER);
+    return coordinatorRepository.save(interviewer);
   }
 
   /**
@@ -258,4 +268,5 @@ public class CoordinatorService {
   public List<User> getInterviewers() {
     return coordinatorRepository.findByRole(UserRole.INTERVIEWER);
   }
+
 }
