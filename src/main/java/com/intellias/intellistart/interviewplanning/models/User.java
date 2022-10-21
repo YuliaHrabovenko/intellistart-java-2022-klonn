@@ -46,9 +46,9 @@ public class User {
   @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
   @JoinColumn(name = "interviewer_id", referencedColumnName = "id")
   private Set<InterviewerTimeSlot> interviewerTimeSlots;
-  @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-  @JoinColumn(name = "candidate_id", referencedColumnName = "id")
-  private Set<CandidateTimeSlot> candidateTimeSlots;
+  //  @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+  //  @JoinColumn(name = "candidate_id", referencedColumnName = "id")
+  //  private Set<CandidateTimeSlot> candidateTimeSlots;
   @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
   @JoinColumn(name = "interviewer_id", referencedColumnName = "id")
   private Set<InterviewerBookingLimit> interviewerBookingLimits;
