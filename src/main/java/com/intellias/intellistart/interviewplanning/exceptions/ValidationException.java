@@ -5,14 +5,14 @@ import lombok.Setter;
 import org.springframework.http.HttpStatus;
 
 /**
- * Abstract resource exception.
+ * Validation exception class.
  */
 @Getter
 @Setter
-public class AbstractResourceRuntimeException extends RuntimeException {
-  protected HttpStatus httpStatus;
+public class ValidationException extends AbstractCommonException {
 
-  public AbstractResourceRuntimeException(String message) {
+  public ValidationException(String message) {
     super(message);
+    this.httpStatus = HttpStatus.BAD_REQUEST;
   }
 }

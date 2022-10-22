@@ -7,8 +7,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-import com.intellias.intellistart.interviewplanning.exceptions.InvalidPeriodException;
-import com.intellias.intellistart.interviewplanning.exceptions.ResourceNotFoundException;
+import com.intellias.intellistart.interviewplanning.exceptions.ValidationException;
 import com.intellias.intellistart.interviewplanning.models.InterviewerTimeSlot;
 import com.intellias.intellistart.interviewplanning.models.User;
 import com.intellias.intellistart.interviewplanning.models.UserRole;
@@ -93,7 +92,7 @@ class InterviewerServiceTest {
         .interviewerId(interviewer.getId())
         .build();
 
-    assertThrows(ResourceNotFoundException.class,
+    assertThrows(ValidationException.class,
         () -> interviewerService.createSlot(interviewerTimeSlot));
 
     verify(interviewerTimeSlotRepository, never()).save(any(InterviewerTimeSlot.class));
@@ -114,7 +113,7 @@ class InterviewerServiceTest {
         .dayOfWeek(DayOfWeek.MONDAY)
         .build();
 
-    assertThrows(InvalidPeriodException.class,
+    assertThrows(ValidationException.class,
         () -> interviewerService.createSlot(interviewerTimeSlot));
 
     verify(interviewerTimeSlotRepository, never()).save(any(InterviewerTimeSlot.class));
@@ -162,7 +161,7 @@ class InterviewerServiceTest {
         .dayOfWeek(DayOfWeek.MONDAY)
         .build();
 
-    assertThrows(InvalidPeriodException.class,
+    assertThrows(ValidationException.class,
         () -> interviewerService.createSlot(interviewerTimeSlot));
 
     verify(interviewerTimeSlotRepository, never()).save(any(InterviewerTimeSlot.class));
@@ -183,7 +182,7 @@ class InterviewerServiceTest {
         .dayOfWeek(DayOfWeek.MONDAY)
         .build();
 
-    assertThrows(InvalidPeriodException.class,
+    assertThrows(ValidationException.class,
         () -> interviewerService.createSlot(interviewerTimeSlot));
 
     verify(interviewerTimeSlotRepository, never()).save(any(InterviewerTimeSlot.class));
@@ -204,7 +203,7 @@ class InterviewerServiceTest {
         .dayOfWeek(DayOfWeek.MONDAY)
         .build();
 
-    assertThrows(InvalidPeriodException.class,
+    assertThrows(ValidationException.class,
         () -> interviewerService.createSlot(interviewerTimeSlot));
 
     verify(interviewerTimeSlotRepository, never()).save(any(InterviewerTimeSlot.class));
@@ -225,7 +224,7 @@ class InterviewerServiceTest {
         .dayOfWeek(DayOfWeek.MONDAY)
         .build();
 
-    assertThrows(InvalidPeriodException.class,
+    assertThrows(ValidationException.class,
         () -> interviewerService.createSlot(interviewerTimeSlot));
 
     verify(interviewerTimeSlotRepository, never()).save(any(InterviewerTimeSlot.class));
