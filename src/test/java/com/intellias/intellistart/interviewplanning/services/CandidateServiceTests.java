@@ -61,13 +61,9 @@ public class CandidateServiceTests {
         .date(date)
         .build();
 
-    System.out.println("date = " + date);
-
     given(candidateTimeSlotRepository.save(candidateTimeSlot)).willReturn(candidateTimeSlot);
 
     CandidateTimeSlot savedSlot = candidateService.createSlot(candidateTimeSlot);
-
-    System.out.println(savedSlot);
 
     assertThat(savedSlot).isNotNull();
   }

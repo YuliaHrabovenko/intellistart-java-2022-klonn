@@ -14,6 +14,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -38,6 +40,8 @@ public class User {
   )
   @Column(name = "id")
   private UUID id;
+  @NotNull(message = "email has to be present")
+  @Email(regexp = ".+@.+\\..+", message = "Please provide a valid email address")
   @Column(name = "email")
   private String email;
   @Column(name = "role")

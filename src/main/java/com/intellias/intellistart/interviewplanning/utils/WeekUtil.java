@@ -1,5 +1,7 @@
 package com.intellias.intellistart.interviewplanning.utils;
 
+import com.intellias.intellistart.interviewplanning.exceptions.ExceptionMessage;
+import com.intellias.intellistart.interviewplanning.exceptions.ValidationException;
 import java.time.LocalDate;
 import java.time.temporal.TemporalField;
 import java.time.temporal.WeekFields;
@@ -37,5 +39,18 @@ public final class WeekUtil {
   public static String getNextWeekNumber() {
     String currentWeek = getCurrentWeekNumber();
     return Integer.parseInt(currentWeek) + 1 + "";
+  }
+
+  /**
+   * Validate if a week number is the next week number.
+   *
+   * @param weekNum     week number
+   * @param nextWeekNum next week number
+   */
+  public static void validateIsNextWeekNumber(String weekNum, String nextWeekNum) {
+    if (!weekNum.equals(nextWeekNum)) {
+      throw new ValidationException(
+          ExceptionMessage.NOT_NEXT_WEEK_NUMBER.getMessage());
+    }
   }
 }

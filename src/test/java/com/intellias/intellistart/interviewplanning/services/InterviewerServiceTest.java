@@ -8,6 +8,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 import com.intellias.intellistart.interviewplanning.exceptions.ValidationException;
+import com.intellias.intellistart.interviewplanning.models.CandidateTimeSlot;
+import com.intellias.intellistart.interviewplanning.models.InterviewerBookingLimit;
 import com.intellias.intellistart.interviewplanning.models.InterviewerTimeSlot;
 import com.intellias.intellistart.interviewplanning.models.User;
 import com.intellias.intellistart.interviewplanning.models.UserRole;
@@ -15,8 +17,11 @@ import com.intellias.intellistart.interviewplanning.repositories.BookingReposito
 import com.intellias.intellistart.interviewplanning.repositories.InterviewerBookingLimitRepository;
 import com.intellias.intellistart.interviewplanning.repositories.InterviewerTimeSlotRepository;
 import com.intellias.intellistart.interviewplanning.repositories.UserRepository;
+import com.intellias.intellistart.interviewplanning.utils.WeekUtil;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -283,24 +288,105 @@ class InterviewerServiceTest {
     assertThat(updatedSlot.getTo()).isEqualTo(endNew);
   }
 
-//  @Test
-//  void givenInterviewerBookingLimit_whenSetMaximumBookingsForNextWeek_thenReturnInterviewerBookingLimit(){
-//    InterviewerBookingLimit interviewerBookingLimit = InterviewerBookingLimit.builder()
-//        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
-//        .interviewerId(interviewer.getId())
-//        .weekBookingLimit(3)
-//        .currentBookingCount(0)
-//        .build();
-//
-//    given(userRepository.findById(interviewer.getId())).willReturn(Optional.of(interviewer));
-//    given(interviewerBookingLimitRepository.save(interviewerBookingLimit)).willReturn(interviewerBookingLimit);
-//
-//    InterviewerBookingLimit savedInterviewerBookingLimit = interviewerService.setMaximumBookingsForNextWeek(interviewerBookingLimit);
-//
-//
-//    assertThat(savedInterviewerBookingLimit.getWeekBookingLimit()).isEqualTo(3);
-//    assertThat(savedInterviewerBookingLimit.getInterviewerId()).isEqualTo(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"));
-//  }
+  @Test
+  void givenInterviewerBookingLimit_whenSetMaximumBookingsLimit_thenReturnInterviewerBookingLimit() {
+    InterviewerBookingLimit interviewerBookingLimit = InterviewerBookingLimit.builder()
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
+        .interviewerId(interviewer.getId())
+        .weekBookingLimit(3)
+        .weekNum(WeekUtil.getNextWeekNumber())
+        .build();
+
+    given(userRepository.findById(interviewer.getId())).willReturn(Optional.of(interviewer));
+    given(interviewerBookingLimitRepository.save(interviewerBookingLimit)).willReturn(
+        interviewerBookingLimit);
+
+    InterviewerBookingLimit savedInterviewerBookingLimit =
+        interviewerService.setNextWeekInterviewerBookingLimit(interviewerBookingLimit);
+
+    assertThat(savedInterviewerBookingLimit.getWeekBookingLimit()).isEqualTo(3);
+    assertThat(savedInterviewerBookingLimit.getWeekNum()).isEqualTo(WeekUtil.getNextWeekNumber());
+    assertThat(savedInterviewerBookingLimit.getInterviewerId()).isEqualTo(
+        UUID.fromString("123e4567-e89b-42d3-a456-556642440000"));
+  }
+
+  @Test
+  void givenInterviewerBookingLimit_whenChangeMaximumBookingLimit_thenReturnUpdatedInterviewerBookingLimit() {
+    InterviewerBookingLimit interviewerBookingLimit = InterviewerBookingLimit.builder()
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
+        .interviewerId(interviewer.getId())
+        .weekBookingLimit(3)
+        .weekNum(WeekUtil.getNextWeekNumber())
+        .build();
+
+    given(userRepository.findById(interviewer.getId())).willReturn(Optional.of(interviewer));
+    given(interviewerBookingLimitRepository.save(interviewerBookingLimit)).willReturn(
+        interviewerBookingLimit);
+
+    interviewerBookingLimit.setWeekBookingLimit(8);
+
+    given(interviewerBookingLimitRepository.findInterviewerBookingLimitByInterviewerIdAndWeekNum(
+        interviewerBookingLimit.getInterviewerId(),
+        interviewerBookingLimit.getWeekNum())).willReturn(interviewerBookingLimit);
+
+    InterviewerBookingLimit updatedInterviewerBookingLimit =
+        interviewerService.setNextWeekInterviewerBookingLimit(interviewerBookingLimit);
+
+    assertThat(updatedInterviewerBookingLimit.getId()).isEqualTo(
+        interviewerBookingLimit.getInterviewerId());
+    assertThat(updatedInterviewerBookingLimit.getWeekBookingLimit()).isEqualTo(8);
+  }
+
+  @Test
+  void givenInterviewerBookingLimit_whenSetMaximumBookings_thenThrowInterviewerNotFoundException() {
+    InterviewerBookingLimit interviewerBookingLimit = InterviewerBookingLimit.builder()
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
+        .interviewerId(UUID.randomUUID())
+        .weekBookingLimit(3)
+        .weekNum(WeekUtil.getNextWeekNumber())
+        .build();
+
+    assertThrows(ValidationException.class,
+        () -> interviewerService.setNextWeekInterviewerBookingLimit(interviewerBookingLimit));
+
+    verify(interviewerBookingLimitRepository, never()).save(any(InterviewerBookingLimit.class));
+  }
+
+  @Test
+  void givenInterviewerBookingLimit_whenSetMaximumBookings_thenThrowNotNextWeekException() {
+    InterviewerBookingLimit interviewerBookingLimit = InterviewerBookingLimit.builder()
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
+        .interviewerId(interviewer.getId())
+        .weekBookingLimit(3)
+        .weekNum("201840")
+        .build();
+
+    given(userRepository.findById(interviewer.getId())).willReturn(Optional.of(interviewer));
+
+    assertThrows(ValidationException.class,
+        () -> interviewerService.setNextWeekInterviewerBookingLimit(interviewerBookingLimit));
+
+    verify(interviewerBookingLimitRepository, never()).save(any(InterviewerBookingLimit.class));
+  }
+
+  @Test
+  void givenInterviewerId_whenGetInterviewerBookingLimits_thenReturnBookingLimitsList() {
+    InterviewerBookingLimit interviewerBookingLimit = InterviewerBookingLimit.builder()
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
+        .interviewerId(interviewer.getId())
+        .weekBookingLimit(3)
+        .weekNum(WeekUtil.getNextWeekNumber())
+        .build();
+
+    given(userRepository.findById(interviewer.getId())).willReturn(Optional.of(interviewer));
+    List<InterviewerBookingLimit> expectedLimits = List.of(interviewerBookingLimit);
+    given(interviewerBookingLimitRepository.findInterviewerBookingLimitsByInterviewerId(
+        interviewer.getId())).willReturn(expectedLimits);
+
+    List<InterviewerBookingLimit> receivedLimits =
+        interviewerService.getBookingLimitsByInterviewerId(interviewer.getId());
+    assertThat(receivedLimits).isEqualTo(expectedLimits);
+  }
 
   //cant get access to fields, gonna fix this in future commits
 //  @Test
