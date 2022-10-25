@@ -22,6 +22,7 @@ public enum ExceptionMessage {
   // Booking related validation messages
   INTERVIEWER_BOOKING_LIMIT_EXCEEDED("Interviewer booking limit for this week is exceeded"),
   BOOKING_ALREADY_MADE("Booking is already made for this slot"),
+  NOT_NEXT_WEEK_NUMBER("Provided week number is not the next week number"),
 
   // User info related validation messages
   USER_EMAIL_EXISTS("User with this email already exists");

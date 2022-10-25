@@ -12,7 +12,4 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface CandidateTimeSlotRepository extends JpaRepository<CandidateTimeSlot, UUID> {
-  @Query(value = "select * from candidate_time_slots cts where cts.candidate_id = ?1",
-      nativeQuery = true)
-  List<CandidateTimeSlot> getCandidateSlotsByCandidateId(UUID candidateId);
 }

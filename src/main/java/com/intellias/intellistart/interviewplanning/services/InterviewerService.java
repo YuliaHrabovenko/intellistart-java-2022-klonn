@@ -2,16 +2,25 @@ package com.intellias.intellistart.interviewplanning.services;
 
 import com.intellias.intellistart.interviewplanning.exceptions.ExceptionMessage;
 import com.intellias.intellistart.interviewplanning.exceptions.ValidationException;
+import com.intellias.intellistart.interviewplanning.models.InterviewerBookingLimit;
 import com.intellias.intellistart.interviewplanning.models.InterviewerTimeSlot;
 import com.intellias.intellistart.interviewplanning.models.User;
 import com.intellias.intellistart.interviewplanning.repositories.BookingRepository;
 import com.intellias.intellistart.interviewplanning.repositories.InterviewerBookingLimitRepository;
 import com.intellias.intellistart.interviewplanning.repositories.InterviewerTimeSlotRepository;
 import com.intellias.intellistart.interviewplanning.repositories.UserRepository;
+import com.intellias.intellistart.interviewplanning.utils.WeekUtil;
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import org.springframework.stereotype.Service;
 
 /**
@@ -97,6 +106,19 @@ public class InterviewerService {
   }
 
   /**
+   * Validate if interviewer exists in the db.
+   *
+   * @param interviewerId interviewer`s id
+   */
+  public void validateInterviewerExistsById(UUID interviewerId) {
+    Optional<User> interviewer = interviewerRepository
+        .findById(interviewerId);
+    if (interviewer.isEmpty()) {
+      throw new ValidationException(ExceptionMessage.INTERVIEWER_NOT_FOUND.getMessage());
+    }
+  }
+
+  /**
    * Create interviewer slot.
    *
    * @param interviewerTimeSlot interviewer time slot object
@@ -137,6 +159,50 @@ public class InterviewerService {
     return interviewerTimeSlotRepository.save(interviewerTimeSlot);
   }
 
+  /**
+   * Get booking limits by interviewer`s id.
+   *
+   * @param interviewerId interviewer`s id
+   * @return list of booking limits
+   */
+  public List<InterviewerBookingLimit> getBookingLimitsByInterviewerId(UUID interviewerId) {
+    // check if interviewer exists in database
+    validateInterviewerExistsById(interviewerId);
+    return interviewerBookingLimitRepository.findInterviewerBookingLimitsByInterviewerId(
+        interviewerId);
+  }
+
+  /**
+   * Set interviewer`s booking limit for the next week.
+   *
+   * @param interviewerBookingLimit interviewer booking limit object
+   * @return interviewer booking limit object
+   */
+  public InterviewerBookingLimit setNextWeekInterviewerBookingLimit(
+      InterviewerBookingLimit interviewerBookingLimit) {
+
+    // check if interviewer with this id exists in db
+    validateInterviewerExistsById(interviewerBookingLimit.getInterviewerId());
+
+    // check if weekNum is for the next week
+    String weekNum = interviewerBookingLimit.getWeekNum();
+    String nextWeekNumber = WeekUtil.getNextWeekNumber();
+    WeekUtil.validateIsNextWeekNumber(weekNum, nextWeekNumber);
+
+    // if the interviewer has already a booking limit for
+    // the next week, just update the booking limit
+    InterviewerBookingLimit existingBookingLimit =
+        interviewerBookingLimitRepository.findInterviewerBookingLimitByInterviewerIdAndWeekNum(
+            interviewerBookingLimit.getInterviewerId(), weekNum);
+
+    if (existingBookingLimit != null) {
+      // set a new number of a week booking limit for the next week
+      existingBookingLimit.setWeekBookingLimit(interviewerBookingLimit.getWeekBookingLimit());
+      return interviewerBookingLimitRepository.save(existingBookingLimit);
+    }
+
+    return interviewerBookingLimitRepository.save(interviewerBookingLimit);
+  }
 
   //  /**
   //   * get time slots for current or next week.
