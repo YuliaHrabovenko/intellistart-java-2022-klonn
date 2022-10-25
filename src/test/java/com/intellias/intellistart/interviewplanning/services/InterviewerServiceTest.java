@@ -231,30 +231,26 @@ class InterviewerServiceTest {
     verify(interviewerTimeSlotRepository, never()).save(any(InterviewerTimeSlot.class));
   }
 
-//  @Test
-//  void givenPeriodsStartsAtWeekends_whenCreateInterviewerSlot_thenThrowsException() {
-//    Period period = Period.builder()
-//        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
-//        .from(LocalTime.of(10, 0))
-//        .to(LocalTime.of(17, 0))
-//        .build();
-//
-//    given(periodRepository.findById(period.getId())).willReturn(Optional.of(period));
-//
-//    given(userRepository.findById(interviewer.getId())).willReturn(Optional.of(interviewer));
-//
-//    InterviewerTimeSlot interviewerTimeSlot = InterviewerTimeSlot.builder()
-//        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
-//        .periodId(period.getId())
-//        .interviewerId(interviewer.getId())
-//        .dayOfWeek(DayOfWeek.SUNDAY)
-//        .build();
-//
-//    assertThrows(InvalidInterviewerPeriodException.class,
-//        () -> interviewerService.createSlot(interviewerTimeSlot));
-//
-//    verify(interviewerTimeSlotRepository, never()).save(any(InterviewerTimeSlot.class));
-//  }
+  @Test
+  void givenPeriodsStartsAtWeekends_whenCreateInterviewerSlot_thenThrowsException() {
+    LocalTime start = LocalTime.of(10, 0);
+    LocalTime end = LocalTime.of(17, 0);
+
+    given(userRepository.findById(interviewer.getId())).willReturn(Optional.of(interviewer));
+
+    InterviewerTimeSlot interviewerTimeSlot = InterviewerTimeSlot.builder()
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
+        .from(start)
+        .to(end)
+        .interviewerId(interviewer.getId())
+        .dayOfWeek(DayOfWeek.SUNDAY)
+        .build();
+
+    assertThrows(InvalidPeriodException.class,
+        () -> interviewerService.createSlot(interviewerTimeSlot));
+
+    verify(interviewerTimeSlotRepository, never()).save(any(InterviewerTimeSlot.class));
+  }
 
   @Test
   void givenInterviewerSlotObject_whenUpdateInterviewerSlot_thenReturnUpdatedInterviewerSlot() {
