@@ -193,7 +193,7 @@ public class CandidateServiceTests {
         .build();
 
     List<Booking> bookings = List.of(booking);
-    when(bookingRepository.getBookingsByCandidateSlotId(candidateTimeSlot.getId())).thenReturn(
+    when(bookingRepository.findBookingsByCandidateTimeSlotId(candidateTimeSlot.getId())).thenReturn(
         bookings);
 
     candidateTimeSlot.setFrom(startTimeNew);

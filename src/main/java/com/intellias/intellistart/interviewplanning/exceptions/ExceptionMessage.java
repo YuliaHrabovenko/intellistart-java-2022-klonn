@@ -8,6 +8,7 @@ public enum ExceptionMessage {
   CANDIDATE_SLOT_NOT_FOUND("Candidate time slot with this ID doesn't exist"),
   INTERVIEWER_SLOT_NOT_FOUND("Interviewer time slot with this ID doesn't exist"),
   INTERVIEWER_NOT_FOUND("Interviewer with this ID doesn't exist"),
+  BOOKING_NOT_FOUND("Booking with this ID doesn't exist"),
 
   // VALIDATION exception error messages
   // Slot related validation messages

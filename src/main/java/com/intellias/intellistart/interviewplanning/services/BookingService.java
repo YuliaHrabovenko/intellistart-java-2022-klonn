@@ -1,6 +1,7 @@
 package com.intellias.intellistart.interviewplanning.services;
 
 import com.intellias.intellistart.interviewplanning.exceptions.ExceptionMessage;
+import com.intellias.intellistart.interviewplanning.exceptions.NotFoundException;
 import com.intellias.intellistart.interviewplanning.exceptions.ValidationException;
 import com.intellias.intellistart.interviewplanning.models.Booking;
 import com.intellias.intellistart.interviewplanning.models.InterviewerBookingLimit;
@@ -46,6 +47,7 @@ public class BookingService {
 
   }
 
+
   /**
    * Creates booking: accepts Booking, checks if interviewer hasn't exceeded his weekly limit of
    * Bookings, saves Booking and returns it.
@@ -61,6 +63,8 @@ public class BookingService {
 
     return bookingRepository.save(booking);
   }
+
+
 
   /**
    * Gets Booking by Id.
@@ -118,13 +122,13 @@ public class BookingService {
   /**
    * Deletes Booking.
    *
-   * @param id Id of Booking
+   * @param bookingId booking id
    */
-  public void deleteBooking(UUID id) {
-    if (!bookingRepository.existsById(id)) {
-      throw new NoSuchElementException("Booking to delete wasn't found");
-    }
-    bookingRepository.deleteById(id);
+  public void deleteBooking(UUID bookingId) {
+    Booking booking = bookingRepository.findById(bookingId)
+        .orElseThrow(
+            () -> new NotFoundException(ExceptionMessage.BOOKING_NOT_FOUND.getMessage()));
+    bookingRepository.delete(booking);
   }
 
   /**

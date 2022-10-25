@@ -1,13 +1,10 @@
 package com.intellias.intellistart.interviewplanning.models;
 
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -23,7 +20,6 @@ import org.hibernate.annotations.GenericGenerator;
  * Class to describe a limit of bookings for interviewer.
  */
 @Entity
-//@Data
 @Getter
 @Setter
 @AllArgsConstructor
