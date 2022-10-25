@@ -1,10 +1,8 @@
 package com.intellias.intellistart.interviewplanning.repositories;
 
 import com.intellias.intellistart.interviewplanning.models.CandidateTimeSlot;
-import java.util.List;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 /**

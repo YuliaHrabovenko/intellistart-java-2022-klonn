@@ -8,7 +8,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 import com.intellias.intellistart.interviewplanning.exceptions.ValidationException;
-import com.intellias.intellistart.interviewplanning.models.CandidateTimeSlot;
 import com.intellias.intellistart.interviewplanning.models.InterviewerBookingLimit;
 import com.intellias.intellistart.interviewplanning.models.InterviewerTimeSlot;
 import com.intellias.intellistart.interviewplanning.models.User;
@@ -20,7 +19,6 @@ import com.intellias.intellistart.interviewplanning.repositories.UserRepository;
 import com.intellias.intellistart.interviewplanning.utils.WeekUtil;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -85,6 +83,7 @@ class InterviewerServiceTest {
     System.out.println(savedSlot);
 
     assertThat(savedSlot).isNotNull();
+    assertThat(savedSlot.getFrom()).isEqualTo(interviewerTimeSlot.getFrom());
 
   }
 

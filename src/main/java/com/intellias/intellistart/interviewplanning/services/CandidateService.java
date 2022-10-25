@@ -67,7 +67,8 @@ public class CandidateService {
         );
 
     // Check if there is no bookings with this candidate slot
-    List<Booking> bookings = bookingRepository.getBookingsByCandidateSlotId(existingSlot.getId());
+    List<Booking> bookings =
+        bookingRepository.findBookingsByCandidateTimeSlotId(existingSlot.getId());
 
     if (!bookings.isEmpty()) {
       throw new ValidationException(ExceptionMessage.BOOKING_ALREADY_MADE.getMessage());
