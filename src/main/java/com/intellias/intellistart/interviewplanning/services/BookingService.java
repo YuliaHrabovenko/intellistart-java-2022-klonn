@@ -1,12 +1,15 @@
 package com.intellias.intellistart.interviewplanning.services;
 
 import com.intellias.intellistart.interviewplanning.exceptions.InterviewerBookingLimitExceededException;
+import com.intellias.intellistart.interviewplanning.exceptions.InvalidPeriodException;
 import com.intellias.intellistart.interviewplanning.models.Booking;
 import com.intellias.intellistart.interviewplanning.models.InterviewerBookingLimit;
 import com.intellias.intellistart.interviewplanning.repositories.BookingRepository;
 import com.intellias.intellistart.interviewplanning.repositories.CandidateTimeSlotRepository;
 import com.intellias.intellistart.interviewplanning.repositories.InterviewerBookingLimitRepository;
 import com.intellias.intellistart.interviewplanning.repositories.InterviewerTimeSlotRepository;
+import java.time.Duration;
+import java.time.LocalTime;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.UUID;
@@ -20,6 +23,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class BookingService {
 
+  @Autowired
   private final BookingRepository bookingRepository;
   private final InterviewerTimeSlotRepository interviewerTimeSlotRepository;
   private final InterviewerBookingLimitRepository interviewerBookingLimitRepository;
@@ -46,19 +50,32 @@ public class BookingService {
   }
 
   /**
-   * Creates booking: accepts Booking, checks if interviewer hasn't exceeded his weekly limit of
-   * Bookings, saves Booking and returns it.
+   * Creates booking: accepts Booking parameters, checks it, saves Booking and returns it.
    *
-   * @param booking Booking
-   * @return Booking
+   * @param interviewerSlotId       Interviewer time slot id
+   * @param candidateTimeSlotId     Candidate time slot id
+   * @param from                    start time
+   * @param to                      end time
+   * @param subject                 Subject of booking
+   * @param description             Description of booking
+   * @return                        saved Booking
    */
-  public Booking createBooking(Booking booking) {
-    //InterviewerTimeSlotId
-    UUID id = booking.getInterviewerTimeSlotId();
+  public Booking createBooking(UUID interviewerSlotId,
+      UUID candidateTimeSlotId,
+      LocalTime from,
+      LocalTime to,
+      String subject,
+      String description) {
 
-    isInterviewerLimitExceeded(id);
+    validateBookingFields(interviewerSlotId, candidateTimeSlotId, from, to, subject, description);
 
-    return bookingRepository.save(booking);
+    Booking booking = new Booking(
+        from, to, interviewerSlotId, candidateTimeSlotId, subject, description
+    );
+
+    bookingRepository.save(booking);
+
+    return  booking;
   }
 
   /**
@@ -68,50 +85,38 @@ public class BookingService {
    * @return Booking
    */
   public Booking getBookingById(UUID id) {
-    return bookingRepository.findById(id).orElseThrow();
+    return bookingRepository.findById(id).orElseThrow(
+        () -> new NoSuchElementException("Booking with id " + id + " wasn't found"));
   }
 
   /**
-   * Updates booking.
+   * Updates Booking.
    *
-   * @param id                    Id of Booking
-   * @param periodId              Period id
-   * @param interviewerTimeSlotId Interviewer time slot id
-   * @param candidateTimeSlotId   Candidate time slot id
-   * @param subject               Subject of Booking
-   * @param description           Description of Booking
+   * @param updatedBooking        Updated Booking
    */
   @Transactional
-  public void updateBooking(UUID id,
-                            UUID periodId,
-                            UUID interviewerTimeSlotId,
-                            UUID candidateTimeSlotId,
-                            String subject,
-                            String description) {
-    Booking booking = bookingRepository.findById(id)
-        .orElseThrow(() -> new NoSuchElementException("Booking to update wasn't found"));
+  public void updateBooking(UUID id, Booking updatedBooking) {
 
-    if (interviewerTimeSlotId != null
-        && !Objects.equals(booking.getInterviewerTimeSlotId(), interviewerTimeSlotId)
-        && interviewerTimeSlotRepository.existsById(interviewerTimeSlotId)
-        && !isInterviewerLimitExceeded(interviewerTimeSlotId)) {
-      booking.setInterviewerTimeSlotId(interviewerTimeSlotId);
-    }
-    if (candidateTimeSlotId != null
-        && !Objects.equals(booking.getCandidateTimeSlotId(), candidateTimeSlotId)
-        && candidateTimeSlotRepository.existsById(candidateTimeSlotId)) {
-      booking.setCandidateTimeSlotId(candidateTimeSlotId);
-    }
-    if (subject != null
-        && !Objects.equals(booking.getSubject(), subject)
-        && !subject.isBlank() && subject.length() > 0) {
-      booking.setSubject(subject);
-    }
-    if (description != null
-        && !Objects.equals(booking.getDescription(), description)
-        && !description.isBlank() && description.length() > 0) {
-      booking.setDescription(description);
-    }
+    Booking curBooking = bookingRepository.findById(id)
+        .orElseThrow(
+            () -> new NoSuchElementException("Booking to update with id " + id + " wasn't found"));
+
+    validateBookingFields(
+        updatedBooking.getInterviewerTimeSlotId(),
+        updatedBooking.getCandidateTimeSlotId(),
+        updatedBooking.getFrom(),
+        updatedBooking.getTo(),
+        updatedBooking.getSubject(),
+        updatedBooking.getDescription()
+    );
+
+    curBooking.setInterviewerTimeSlotId(updatedBooking.getInterviewerTimeSlotId());
+    curBooking.setCandidateTimeSlotId(updatedBooking.getCandidateTimeSlotId());
+    curBooking.setFrom(updatedBooking.getFrom());
+    curBooking.setTo(updatedBooking.getTo());
+    curBooking.setSubject(updatedBooking.getSubject());
+    curBooking.setDescription(updatedBooking.getDescription());
+
   }
 
   /**
@@ -121,9 +126,39 @@ public class BookingService {
    */
   public void deleteBooking(UUID id) {
     if (!bookingRepository.existsById(id)) {
-      throw new NoSuchElementException("Booking to delete wasn't found");
+      throw new NoSuchElementException("Booking to delete with id " + id + " wasn't found");
     }
     bookingRepository.deleteById(id);
+  }
+
+  private void validateBookingFields(UUID interviewerSlotId,
+      UUID candidateTimeSlotId,
+      LocalTime from,
+      LocalTime to,
+      String subject,
+      String description){
+
+    isInterviewerLimitExceeded(interviewerSlotId);
+
+    boolean existCandidateTimeSlot = candidateTimeSlotRepository.existsById(candidateTimeSlotId);
+    if (!existCandidateTimeSlot) {
+      throw new IllegalStateException(
+          "Candidate Time slot with id " + candidateTimeSlotId + " does not exists");
+    }
+
+    if (!subject.isBlank() && subject.length() > 255) {
+      throw new IllegalStateException("Subject cannot be empty and must be less than 255 characters");
+    }
+
+    if (Math.abs(Duration.between(from, to).toMinutes()) != 90) {
+      throw new InvalidPeriodException(
+          "Booking duration must equal to 1.5h");
+    }
+
+    if (!description.isBlank() && description.length() > 4000) {
+      throw new IllegalStateException("Description cannot be empty and must be less than 4000 characters");
+    }
+
   }
 
   /**
@@ -132,10 +167,11 @@ public class BookingService {
    * @param interviewerTimeSlotId Interviewer time slot id
    * @return false, when limit wasn't exceeded
    */
-
   private boolean isInterviewerLimitExceeded(UUID interviewerTimeSlotId) {
     UUID interviewerId = interviewerTimeSlotRepository.findById(interviewerTimeSlotId)
-        .orElseThrow().getInterviewerId();
+        .orElseThrow(
+            () -> new IllegalStateException("Interviewer Time slot with id " + interviewerTimeSlotId + " does not exists"))
+        .getInterviewerId();
     InterviewerBookingLimit interviewerBookingLimit = interviewerBookingLimitRepository
         .findByInterviewerId(interviewerId).orElseThrow();
     int bookingLimit = interviewerBookingLimit.getWeekBookingLimit();
