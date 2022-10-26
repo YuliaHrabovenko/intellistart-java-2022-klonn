@@ -1,8 +1,6 @@
 package com.intellias.intellistart.interviewplanning.services;
 
 import com.intellias.intellistart.interviewplanning.exceptions.ExceptionMessage;
-import com.intellias.intellistart.interviewplanning.exceptions.InterviewerBookingLimitExceededException;
-import com.intellias.intellistart.interviewplanning.exceptions.InvalidPeriodException;
 import com.intellias.intellistart.interviewplanning.exceptions.NotFoundException;
 import com.intellias.intellistart.interviewplanning.exceptions.ValidationException;
 import com.intellias.intellistart.interviewplanning.models.Booking;
