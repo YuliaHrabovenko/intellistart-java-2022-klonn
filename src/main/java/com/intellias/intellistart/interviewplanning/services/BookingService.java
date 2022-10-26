@@ -157,7 +157,7 @@ public class BookingService {
     }
 
     if (Math.abs(Duration.between(from, to).toMinutes()) != 90) {
-      throw new InvalidPeriodException(
+      throw new IllegalStateException(
           "Booking duration must equal to 1.5h");
     }
 
