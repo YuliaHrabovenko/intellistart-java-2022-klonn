@@ -1,8 +1,8 @@
 package com.intellias.intellistart.interviewplanning.services;
 
+import com.intellias.intellistart.interviewplanning.exceptions.ExceptionMessage;
 import com.intellias.intellistart.interviewplanning.exceptions.InterviewerBookingLimitExceededException;
 import com.intellias.intellistart.interviewplanning.exceptions.InvalidPeriodException;
-import com.intellias.intellistart.interviewplanning.exceptions.ExceptionMessage;
 import com.intellias.intellistart.interviewplanning.exceptions.NotFoundException;
 import com.intellias.intellistart.interviewplanning.exceptions.ValidationException;
 import com.intellias.intellistart.interviewplanning.models.Booking;
@@ -143,7 +143,7 @@ public class BookingService {
       LocalTime from,
       LocalTime to,
       String subject,
-      String description){
+      String description) {
 
     isInterviewerLimitExceeded(interviewerSlotId);
 
@@ -154,7 +154,8 @@ public class BookingService {
     }
 
     if (!subject.isBlank() && subject.length() > 255) {
-      throw new IllegalStateException("Subject cannot be empty and must be less than 255 characters");
+      throw new IllegalStateException(
+          "Subject cannot be empty and must be less than 255 characters");
     }
 
     if (Math.abs(Duration.between(from, to).toMinutes()) != 90) {
@@ -163,7 +164,8 @@ public class BookingService {
     }
 
     if (!description.isBlank() && description.length() > 4000) {
-      throw new IllegalStateException("Description cannot be empty and must be less than 4000 characters");
+      throw new IllegalStateException(
+          "Description cannot be empty and must be less than 4000 characters");
     }
 
   }
@@ -177,7 +179,8 @@ public class BookingService {
   private boolean isInterviewerLimitExceeded(UUID interviewerTimeSlotId) {
     UUID interviewerId = interviewerTimeSlotRepository.findById(interviewerTimeSlotId)
         .orElseThrow(
-            () -> new IllegalStateException("Interviewer Time slot with id " + interviewerTimeSlotId + " does not exists"))
+            () -> new IllegalStateException(
+                "Interviewer Time slot with id " + interviewerTimeSlotId + " does not exists"))
         .getInterviewerId();
     InterviewerBookingLimit interviewerBookingLimit = interviewerBookingLimitRepository
         .findByInterviewerId(interviewerId).orElseThrow();
