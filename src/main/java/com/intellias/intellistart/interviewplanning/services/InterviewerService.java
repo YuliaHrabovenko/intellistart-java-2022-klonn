@@ -1,8 +1,7 @@
 package com.intellias.intellistart.interviewplanning.services;
 
-import com.intellias.intellistart.interviewplanning.exceptions.InvalidMaximumBookingCountException;
-import com.intellias.intellistart.interviewplanning.exceptions.InvalidPeriodException;
-import com.intellias.intellistart.interviewplanning.exceptions.ResourceNotFoundException;
+import com.intellias.intellistart.interviewplanning.exceptions.ExceptionMessage;
+import com.intellias.intellistart.interviewplanning.exceptions.ValidationException;
 import com.intellias.intellistart.interviewplanning.models.Booking;
 import com.intellias.intellistart.interviewplanning.models.InterviewerBookingLimit;
 import com.intellias.intellistart.interviewplanning.models.InterviewerTimeSlot;
@@ -11,17 +10,13 @@ import com.intellias.intellistart.interviewplanning.repositories.BookingReposito
 import com.intellias.intellistart.interviewplanning.repositories.InterviewerBookingLimitRepository;
 import com.intellias.intellistart.interviewplanning.repositories.InterviewerTimeSlotRepository;
 import com.intellias.intellistart.interviewplanning.repositories.UserRepository;
+import com.intellias.intellistart.interviewplanning.utils.WeekUtil;
 import java.time.DayOfWeek;
 import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.temporal.WeekFields;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
-import org.springframework.beans.factory.annotation.Autowired;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
 
@@ -209,38 +204,38 @@ public class InterviewerService {
     return interviewerBookingLimitRepository.save(interviewerBookingLimit);
   }
 
-  //  /**
-  //   * get time slots for current or next week.
-  //   *
-  //   * @param interviewerId id of interviewer
-  //   * @param isForCurrentWeek field to indicate for which week return slots
-  //   * @return week time slots
-  //   */
+  /**
+   * get time slots for current or next week.
+   *
+   * @param interviewerId id of interviewer
+   * @param isForCurrentWeek field to indicate for which week return slots
+   * @return week time slots
+   */
 
   //To avoid code duplication used isForCurrentWeek field,
   // true means yes, for current, false means for the next week
   public List<InterviewerTimeSlot> getWeekTimeSlotsByInterviewerId(
       UUID interviewerId, boolean isForCurrentWeek) {
 
-    Long requiredWeekNumber = isForCurrentWeek
-        ? getCurrentWeekNumber() : getCurrentWeekNumber() + 1;
+    String requiredWeekNumber = isForCurrentWeek
+        ? WeekUtil.getCurrentWeekNumber() : WeekUtil.getNextWeekNumber();
 
     Optional<User> interviewer = interviewerRepository.findById(interviewerId);
     if (interviewer.isEmpty()) {
-      throw new ResourceNotFoundException("Interviewer", "Id", interviewer);
+      throw new ValidationException(ExceptionMessage.INTERVIEWER_NOT_FOUND.getMessage());
     }
 
-    List<InterviewerTimeSlot> allInterviewerSlots = interviewerTimeSlotRepository.findAll();
-    List<InterviewerTimeSlot> interviewerTimeSlots = new ArrayList<>();
+    List<InterviewerTimeSlot> interviewerTimeSlots =
+        interviewerTimeSlotRepository.findInterviewerTimeSlotByInterviewerId(interviewerId);
+    List<InterviewerTimeSlot> resultTimeSlots = new ArrayList<>();
 
-    for (InterviewerTimeSlot slot : allInterviewerSlots) {
-      if (slot.getInterviewerId().equals(interviewerId)
-          && getWeekForSpecificTime(LocalDateTime.from(slot.getFrom())).equals(requiredWeekNumber)) {
-        interviewerTimeSlots.add(slot);
+    for (InterviewerTimeSlot slot : interviewerTimeSlots) {
+      if (slot.getWeekNum().equals(requiredWeekNumber)) {
+        resultTimeSlots.add(slot);
       }
 
     }
-    return interviewerTimeSlots;
+    return resultTimeSlots;
   }
 
   /**
@@ -253,55 +248,35 @@ public class InterviewerService {
   public List<Booking> getBookingByInterviewerSlotId(UUID slotId) {
     Optional<InterviewerTimeSlot> slot = interviewerTimeSlotRepository.findById(slotId);
     if (slot.isEmpty()) {
-      throw new ResourceNotFoundException("InterviewerTimeSlot", "Id", slotId);
+      throw new ValidationException(ExceptionMessage.INTERVIEWER_SLOT_NOT_FOUND.getMessage());
     }
     return bookingRepository.getBookingsByInterviewerSlotId(slotId);
   }
 
-//  /**
-//   * Set maximum booking for next week.
-//   *
-//   * @param interviewerBookingLimit booking limit for next week
-//   * @return interviewer booking limit if valid
-//   */
-//
-//  public InterviewerBookingLimit setMaximumBookingsForNextWeek(
-//      InterviewerBookingLimit interviewerBookingLimit) {
-//    Optional<User> interviewer = interviewerRepository
-//        .findById(interviewerBookingLimit.getInterviewerId());
-//    if (interviewer.isEmpty()) {
-//      throw new ResourceNotFoundException(
-//          "Interviewer", "Id", interviewerBookingLimit.getInterviewerId());
-//    }
-//
-//    if (interviewerBookingLimit.getWeekBookingLimit() < 0) {
-//      throw new InvalidMaximumBookingCountException("Maximum booking count must be positive digit");
-//    }
-//
-//    return interviewerBookingLimitRepository.save(interviewerBookingLimit);
-//  }
-
+  /*
   /**
-   * Method to get current week number.
-   *
-   * @return current week number
-   */
-  private Long getCurrentWeekNumber() {
-    WeekFields weekFields = WeekFields.of(Locale.getDefault());
-    LocalDate currentLocalDate = LocalDateTime.now().toLocalDate();
-    return (long) currentLocalDate.get(weekFields.weekOfWeekBasedYear());
-  }
+  * Set maximum booking for next week.
+  *
+  * @param interviewerBookingLimit booking limit for next week
+  * @return interviewer booking limit if valid
+  * /
 
-  /**
-   * Method to get week number for specific time.
-   *
-   * @param time time to which to get week number
-   * @return week number for specific time
-   */
-  private Long getWeekForSpecificTime(LocalDateTime time) {
-    WeekFields weekFields = WeekFields.of(Locale.getDefault());
-    LocalDate timeLocalDate = time.toLocalDate();
-    return (long) timeLocalDate.get(weekFields.weekOfWeekBasedYear());
+  public InterviewerBookingLimit setMaximumBookingsForNextWeek(
+      InterviewerBookingLimit interviewerBookingLimit) {
+    Optional<User> interviewer = interviewerRepository
+        .findById(interviewerBookingLimit.getInterviewerId());
+    if (interviewer.isEmpty()) {
+      throw new ResourceNotFoundException(
+          "Interviewer", "Id", interviewerBookingLimit.getInterviewerId());
+    }
+
+    if (interviewerBookingLimit.getWeekBookingLimit() < 0) {
+      throw new InvalidMaximumBookingCountException(
+      "Maximum booking count must be positive digit");
+    }
+
+    return interviewerBookingLimitRepository.save(interviewerBookingLimit);
   }
+  */
 
 }
