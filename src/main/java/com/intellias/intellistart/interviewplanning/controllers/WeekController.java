@@ -1,8 +1,11 @@
 package com.intellias.intellistart.interviewplanning.controllers;
 
-import com.intellias.intellistart.interviewplanning.models.Week;
-import com.intellias.intellistart.interviewplanning.services.WeekService;
+import com.intellias.intellistart.interviewplanning.services.InterviewerService;
+import com.intellias.intellistart.interviewplanning.utils.WeekUtil;
+import java.util.Collections;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -13,15 +16,15 @@ import org.springframework.web.bind.annotation.RestController;
 public class WeekController {
 
   @Autowired
-  private WeekService weekService;
+  private InterviewerService interviewerService;
 
-  @GetMapping("weeks/current")
-  public Week getCurrentWeek() {
-    return weekService.getCurrentWeekNumber();
+  @GetMapping(value = "weeks/current", produces = MediaType.APPLICATION_JSON_VALUE)
+  public Map<String, String> getCurrentWeek() {
+    return Collections.singletonMap("weekNum", WeekUtil.getCurrentWeekNumber());
   }
 
-  @GetMapping("weeks/next")
-  public Week getNextWeek() {
-    return weekService.getNextWeekNumber();
+  @GetMapping(value = "weeks/next", produces = MediaType.APPLICATION_JSON_VALUE)
+  public Map<String, String> getNextWeek() {
+    return Collections.singletonMap("weekNum", WeekUtil.getNextWeekNumber());
   }
 }

@@ -1,5 +1,7 @@
 package com.intellias.intellistart.interviewplanning.services;
 
+import com.intellias.intellistart.interviewplanning.exceptions.ExceptionMessage;
+import com.intellias.intellistart.interviewplanning.exceptions.ValidationException;
 import com.intellias.intellistart.interviewplanning.models.Booking;
 import com.intellias.intellistart.interviewplanning.models.CandidateTimeSlot;
 import com.intellias.intellistart.interviewplanning.models.InterviewerTimeSlot;
@@ -11,10 +13,10 @@ import com.intellias.intellistart.interviewplanning.repositories.InterviewerTime
 import com.intellias.intellistart.interviewplanning.repositories.UserRepository;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
 
 /**
  * Coordinator business logic.
@@ -178,29 +180,31 @@ public class CoordinatorService {
   /**
    * Grant the user coordinator role.
    *
-   * @param email email of the user
+   * @param coordinator user object
    * @return user object if success
    */
-  public User grantCoordinatorRole(String email) {
-    User user = coordinatorRepository.findUserByEmail(email).orElseThrow(
-        () -> new IllegalStateException(
-            "user with email " + email + " does not exists"));
-    user.setRole(UserRole.COORDINATOR);
-    return coordinatorRepository.save(user);
+  public User grantCoordinatorRole(User coordinator) {
+    Optional<User> user = coordinatorRepository.findUserByEmail(coordinator.getEmail());
+    if (user.isPresent()) {
+      throw new ValidationException(ExceptionMessage.USER_EMAIL_EXISTS.getMessage());
+    }
+    coordinator.setRole(UserRole.COORDINATOR);
+    return coordinatorRepository.save(coordinator);
   }
 
   /**
    * Grant the user interviewer role.
    *
-   * @param email email of the user
+   * @param interviewer user object
    * @return user object if success
    */
-  public User grantInterviewerRole(String email) {
-    User user = coordinatorRepository.findUserByEmail(email).orElseThrow(
-        () -> new IllegalStateException(
-            "user with email " + email + " does not exists"));
-    user.setRole(UserRole.INTERVIEWER);
-    return coordinatorRepository.save(user);
+  public User grantInterviewerRole(User interviewer) {
+    Optional<User> user = coordinatorRepository.findUserByEmail(interviewer.getEmail());
+    if (user.isPresent()) {
+      throw new ValidationException(ExceptionMessage.USER_EMAIL_EXISTS.getMessage());
+    }
+    interviewer.setRole(UserRole.INTERVIEWER);
+    return coordinatorRepository.save(interviewer);
   }
 
   /**
@@ -244,7 +248,6 @@ public class CoordinatorService {
    *
    * @return all the users with role COORDINATOR
    */
-  @GetMapping
   public List<User> getCoordinators() {
     return coordinatorRepository.findByRole(UserRole.COORDINATOR);
   }
@@ -254,7 +257,6 @@ public class CoordinatorService {
    *
    * @return all the users with role INTERVIEWER
    */
-  @GetMapping
   public List<User> getInterviewers() {
     return coordinatorRepository.findByRole(UserRole.INTERVIEWER);
   }

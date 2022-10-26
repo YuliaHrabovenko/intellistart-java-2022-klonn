@@ -1,13 +1,13 @@
 package com.intellias.intellistart.interviewplanning.services;
 
-import com.intellias.intellistart.interviewplanning.exceptions.BookingDoneException;
-import com.intellias.intellistart.interviewplanning.exceptions.InvalidPeriodException;
-import com.intellias.intellistart.interviewplanning.exceptions.ResourceNotFoundException;
+import com.intellias.intellistart.interviewplanning.exceptions.ExceptionMessage;
+import com.intellias.intellistart.interviewplanning.exceptions.NotFoundException;
+import com.intellias.intellistart.interviewplanning.exceptions.ValidationException;
 import com.intellias.intellistart.interviewplanning.models.Booking;
 import com.intellias.intellistart.interviewplanning.models.CandidateTimeSlot;
 import com.intellias.intellistart.interviewplanning.repositories.BookingRepository;
 import com.intellias.intellistart.interviewplanning.repositories.CandidateTimeSlotRepository;
-import java.time.Duration;
+import com.intellias.intellistart.interviewplanning.utils.PeriodUtil;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -20,8 +20,6 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class CandidateService {
-  public static final String CANDIDATE_TIME_SLOT = "CandidateTimeSlot";
-  public static final String ID = "Id";
   private final CandidateTimeSlotRepository candidateTimeSlotRepository;
   private final BookingRepository bookingRepository;
 
@@ -38,33 +36,6 @@ public class CandidateService {
   }
 
   /**
-   * Validate period for candidate time slot.
-   *
-   * @param from start time
-   * @param to   end time
-   */
-  public void validatePeriod(LocalTime from, LocalTime to, LocalDate date) {
-    if (date.isBefore(LocalDate.now())) {
-      throw new InvalidPeriodException(
-          "Date " + date + " is outdated");
-    }
-
-    if (to.isBefore(from)) {
-      throw new InvalidPeriodException("Period start " + from + " should be less than end " + to);
-    }
-
-    if (from.getMinute() % 30 != 0 || to.getMinute() % 30 != 0) {
-      throw new InvalidPeriodException(
-          "Period for candidate`s slot should be rounded to 30 minutes");
-    }
-
-    if (Math.abs(Duration.between(from, to).toMinutes()) < 90) {
-      throw new InvalidPeriodException(
-          "Period for candidate`s slot should be more or equal to 1.5h");
-    }
-  }
-
-  /**
    * Create candidate time slot.
    *
    * @param candidateTimeSlot candidate time slot object
@@ -75,7 +46,8 @@ public class CandidateService {
     LocalTime to = candidateTimeSlot.getTo();
     LocalDate date = candidateTimeSlot.getDate();
 
-    validatePeriod(from, to, date);
+    PeriodUtil.validatePeriod(from, to);
+    PeriodUtil.validateDate(date);
 
     return candidateTimeSlotRepository.save(candidateTimeSlot);
   }
@@ -91,14 +63,15 @@ public class CandidateService {
 
     CandidateTimeSlot existingSlot =
         candidateTimeSlotRepository.findById(candidateSlotId).orElseThrow(
-            () -> new ResourceNotFoundException(CANDIDATE_TIME_SLOT, ID, candidateSlotId)
+            () -> new NotFoundException(ExceptionMessage.CANDIDATE_SLOT_NOT_FOUND.getMessage())
         );
 
     // Check if there is no bookings with this candidate slot
-    List<Booking> bookings = bookingRepository.getBookingsByCandidateSlotId(existingSlot.getId());
+    List<Booking> bookings =
+        bookingRepository.findBookingsByCandidateTimeSlotId(existingSlot.getId());
 
     if (!bookings.isEmpty()) {
-      throw new BookingDoneException(CANDIDATE_TIME_SLOT, ID, existingSlot.getId());
+      throw new ValidationException(ExceptionMessage.BOOKING_ALREADY_MADE.getMessage());
     }
 
     LocalTime from = candidateTimeSlot.getFrom();
@@ -106,7 +79,8 @@ public class CandidateService {
 
     LocalDate date = candidateTimeSlot.getDate();
 
-    validatePeriod(from, to, date);
+    PeriodUtil.validatePeriod(from, to);
+    PeriodUtil.validateDate(date);
 
     existingSlot.setFrom(candidateTimeSlot.getFrom());
     existingSlot.setTo(candidateTimeSlot.getTo());
@@ -138,7 +112,7 @@ public class CandidateService {
   public void deleteSlot(UUID slotId) {
     Optional<CandidateTimeSlot> slot = candidateTimeSlotRepository.findById(slotId);
     if (slot.isEmpty()) {
-      throw new ResourceNotFoundException(CANDIDATE_TIME_SLOT, ID, slotId);
+      throw new NotFoundException(ExceptionMessage.CANDIDATE_SLOT_NOT_FOUND.getMessage());
     }
     candidateTimeSlotRepository.deleteById(slotId);
   }

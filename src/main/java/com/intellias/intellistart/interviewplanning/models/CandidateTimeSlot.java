@@ -14,6 +14,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -40,10 +41,13 @@ public class CandidateTimeSlot {
   )
   @Column(name = "id")
   private UUID id;
+  @NotNull(message = "date has to be present")
   @Column(name = "interview_date")
   private LocalDate date;
+  @NotNull(message = "from has to be present")
   @Column(name = "start_time")
   private LocalTime from;
+  @NotNull(message = "to has to be present")
   @Column(name = "end_time")
   private LocalTime to;
   @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)

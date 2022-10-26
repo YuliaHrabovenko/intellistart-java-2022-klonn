@@ -14,17 +14,22 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
 /**
  * User model.
  */
 @Entity
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
@@ -38,6 +43,8 @@ public class User {
   )
   @Column(name = "id")
   private UUID id;
+  @NotNull(message = "email has to be present")
+  @Email(regexp = ".+@.+\\..+", message = "Please provide a valid email address")
   @Column(name = "email")
   private String email;
   @Column(name = "role")
@@ -46,9 +53,6 @@ public class User {
   @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
   @JoinColumn(name = "interviewer_id", referencedColumnName = "id")
   private Set<InterviewerTimeSlot> interviewerTimeSlots;
-  @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-  @JoinColumn(name = "candidate_id", referencedColumnName = "id")
-  private Set<CandidateTimeSlot> candidateTimeSlots;
   @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
   @JoinColumn(name = "interviewer_id", referencedColumnName = "id")
   private Set<InterviewerBookingLimit> interviewerBookingLimits;

@@ -2,6 +2,9 @@ package com.intellias.intellistart.interviewplanning.services;
 
 import com.intellias.intellistart.interviewplanning.exceptions.InterviewerBookingLimitExceededException;
 import com.intellias.intellistart.interviewplanning.exceptions.InvalidPeriodException;
+import com.intellias.intellistart.interviewplanning.exceptions.ExceptionMessage;
+import com.intellias.intellistart.interviewplanning.exceptions.NotFoundException;
+import com.intellias.intellistart.interviewplanning.exceptions.ValidationException;
 import com.intellias.intellistart.interviewplanning.models.Booking;
 import com.intellias.intellistart.interviewplanning.models.InterviewerBookingLimit;
 import com.intellias.intellistart.interviewplanning.repositories.BookingRepository;
@@ -49,6 +52,7 @@ public class BookingService {
 
   }
 
+
   /**
    * Creates booking: accepts Booking parameters, checks it, saves Booking and returns it.
    *
@@ -77,6 +81,8 @@ public class BookingService {
 
     return  booking;
   }
+
+
 
   /**
    * Gets Booking by Id.
@@ -122,13 +128,14 @@ public class BookingService {
   /**
    * Deletes Booking.
    *
-   * @param id Id of Booking
+   * @param bookingId booking id
    */
-  public void deleteBooking(UUID id) {
-    if (!bookingRepository.existsById(id)) {
-      throw new NoSuchElementException("Booking to delete with id " + id + " wasn't found");
-    }
-    bookingRepository.deleteById(id);
+
+  public void deleteBooking(UUID bookingId) {
+    Booking booking = bookingRepository.findById(bookingId)
+        .orElseThrow(
+            () -> new NotFoundException(ExceptionMessage.BOOKING_NOT_FOUND.getMessage()));
+    bookingRepository.delete(booking);
   }
 
   private void validateBookingFields(UUID interviewerSlotId,
@@ -177,7 +184,8 @@ public class BookingService {
     int bookingLimit = interviewerBookingLimit.getWeekBookingLimit();
     int bookingCount = interviewerBookingLimit.getCurrentBookingCount();
     if (bookingCount >= bookingLimit) {
-      throw new InterviewerBookingLimitExceededException();
+      throw new ValidationException(
+          ExceptionMessage.INTERVIEWER_BOOKING_LIMIT_EXCEEDED.getMessage());
     }
     return false;
 

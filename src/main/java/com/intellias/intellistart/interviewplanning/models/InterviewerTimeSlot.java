@@ -1,6 +1,5 @@
 package com.intellias.intellistart.interviewplanning.models;
 
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -13,9 +12,9 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -42,21 +41,24 @@ public class InterviewerTimeSlot {
   )
   @Column(name = "id")
   private UUID id;
+  @NotNull(message = "dayOfWeek has to be present")
   @Column(name = "day_of_week")
   private DayOfWeek dayOfWeek;
+  @NotNull(message = "from has to be present")
   @Column(name = "start_time")
   private LocalTime from;
+  @NotNull(message = "to has to be present")
   @Column(name = "end_time")
   private LocalTime to;
+  @NotNull(message = "weekNumber has to be present")
+  @Column(name = "week_number")
+  private String weekNum;
+  @NotNull(message = "interviewerId has to be present")
   @Column(name = "interviewer_id")
   private UUID interviewerId;
   @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
   @JoinColumn(name = "interviewer_time_slot_id", referencedColumnName = "id")
   private List<Booking> bookingList = new ArrayList<>();
-  @JsonUnwrapped
-  @ManyToOne
-  @JoinColumn(name = "week_id")
-  private Week week;
 
   /**
    * Constructor.

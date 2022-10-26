@@ -7,17 +7,21 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
 /**
  * Booking model.
  */
 @Entity
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
@@ -31,16 +35,22 @@ public class Booking {
   )
   @Column(name = "id")
   private UUID id;
+  @NotNull(message = "from has to be present")
   @Column(name = "start_time")
   private LocalTime from;
+  @NotNull(message = "to has to be present")
   @Column(name = "end_time")
   private LocalTime to;
+  @NotNull(message = "subject has to be present")
   @Column(name = "subject")
   private String subject;
+  @NotNull(message = "description has to be present")
   @Column(name = "description")
   private String description;
+  @NotNull(message = "interviewerTimeSlotId has to be present")
   @Column(name = "interviewer_time_slot_id")
   private UUID interviewerTimeSlotId;
+  @NotNull(message = "candidateTimeSlotId has to be present")
   @Column(name = "candidate_time_slot_id")
   private UUID candidateTimeSlotId;
 

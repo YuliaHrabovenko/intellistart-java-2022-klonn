@@ -2,8 +2,16 @@ package com.intellias.intellistart.interviewplanning.services;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willDoNothing;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
+import com.intellias.intellistart.interviewplanning.exceptions.NotFoundException;
+import com.intellias.intellistart.interviewplanning.exceptions.ValidationException;
 import com.intellias.intellistart.interviewplanning.models.Booking;
 import com.intellias.intellistart.interviewplanning.models.InterviewerTimeSlot;
 import com.intellias.intellistart.interviewplanning.models.User;
@@ -34,8 +42,11 @@ class CoordinatorServiceTest {
 
   @InjectMocks
   private CoordinatorService coordinatorService;
+
+  @InjectMocks
+  private BookingService bookingService;
+
   private User interviewer;
-  private User candidate;
   private User coordinator;
   private LocalTime startTime;
   private LocalTime endTime;
@@ -59,6 +70,47 @@ class CoordinatorServiceTest {
   }
 
   @Test
+  void givenEmail_whenGrantCoordinatorRole_thenReturnUser() {
+    User coordinator = User.builder().
+        email("coordinator@gmail.com").
+        role(UserRole.COORDINATOR)
+        .build();
+
+    given(userRepository.save(coordinator)).willReturn(coordinator);
+    User user = coordinatorService.grantCoordinatorRole(coordinator);
+    assertEquals(UserRole.COORDINATOR, user.getRole());
+  }
+
+  @Test
+  void givenEmail_whenGrantCoordinatorRole_throwException() {
+    given(userRepository.findUserByEmail(coordinator.getEmail())).willReturn(
+        Optional.of(coordinator));
+    assertThrows(ValidationException.class,
+        () -> coordinatorService.grantCoordinatorRole(coordinator));
+    verify(userRepository, never()).save(any(User.class));
+  }
+
+  @Test
+  void givenEmail_whenGrantInterviewerRole_thenReturnUser() {
+    User interviewer = User.builder().
+        email("interviewer@gmail.com").
+        role(UserRole.INTERVIEWER)
+        .build();
+    given(userRepository.save(interviewer)).willReturn(interviewer);
+    User user = coordinatorService.grantInterviewerRole(interviewer);
+    assertEquals(UserRole.INTERVIEWER, user.getRole());
+  }
+
+  @Test
+  void givenEmail_whenGrantInterviewerRole_throwException() {
+    given(userRepository.findUserByEmail(interviewer.getEmail())).willReturn(
+        Optional.of(interviewer));
+    assertThrows(ValidationException.class,
+        () -> coordinatorService.grantInterviewerRole(interviewer));
+    verify(userRepository, never()).save(any(User.class));
+  }
+
+  @Test
   void SuccessUpdatingOfBooking() {
     Booking booking = new Booking(startTime,
         endTime,
@@ -76,6 +128,46 @@ class CoordinatorServiceTest {
     booking1 = coordinatorService.updateBooking(booking,
         UUID.fromString("123e4567-e89b-42d3-a456-556642440000"));
     assertThat(booking1).isNotNull();
+  }
+
+  @Test
+  void givenBookingId_whenDeleteBooking_thenNothing() {
+
+    Booking booking = Booking.builder()
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
+        .from(LocalTime.of(15, 30))
+        .to(LocalTime.of(17, 0))
+        .subject("Subject")
+        .description("Description")
+        .build();
+    given(bookingRepository.findById(booking.getId())).willReturn(
+        Optional.of(booking));
+
+    willDoNothing().given(bookingRepository).delete(booking);
+
+    bookingService.deleteBooking(booking.getId());
+
+    verify(bookingRepository, times(1)).delete(booking);
+  }
+
+  @Test
+  void givenBookingId_whenDeleteBooking_thenThrowsException() {
+
+    Booking booking = Booking.builder()
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
+        .from(LocalTime.of(15, 30))
+        .to(LocalTime.of(17, 0))
+        .subject("Subject")
+        .description("Description")
+        .build();
+
+    given(bookingRepository.findById(booking.getId())).willReturn(
+        Optional.empty());
+
+    assertThrows(NotFoundException.class,
+        () -> bookingService.deleteBooking(booking.getId()));
+
+    verify(bookingRepository, times(0)).delete(booking);
   }
 
   @Test
@@ -105,44 +197,6 @@ class CoordinatorServiceTest {
     assertThat(updated.getFrom()).isEqualTo(startNew);
     assertThat(updated.getTo()).isEqualTo(endNew);
   }
-
-  @Test
-  void SuccessGrantCoordinatorRole() {
-    User grantedInterviewer = User.builder().
-        id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000")).
-        email("interviewer@gmail.com").
-        role(UserRole.COORDINATOR)
-        .build();
-
-    given(userRepository.findUserByEmail("interviewer@gmail.com")).willReturn(
-        Optional.of(interviewer));
-
-    given(userRepository.save(interviewer)).willReturn(
-        grantedInterviewer);
-
-    User user = coordinatorService.grantInterviewerRole("interviewer@gmail.com");
-
-    assertEquals(UserRole.COORDINATOR, user.getRole());
-  }
-
-//  @Test
-//  void SuccessGrantInterviewerRole() {
-//    User grantedInterviewer = User.builder().
-//        id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000")).
-//        email("interviewer@gmail.com").
-//        role(UserRole.INTERVIEWER)
-//        .build();
-//
-//    given(userRepository.findUserByEmail("candidate@gmail.com")).willReturn(
-//        Optional.of(candidate));
-//
-//    given(userRepository.save(candidate)).willReturn(
-//        grantedInterviewer);
-//
-//    User user = coordinatorService.grantInterviewerRole("candidate@gmail.com");
-//
-//    assertEquals(UserRole.INTERVIEWER, user.getRole());
-//  }
 
   @Test
   void SuccessRevokeCoordinatorRole() {
