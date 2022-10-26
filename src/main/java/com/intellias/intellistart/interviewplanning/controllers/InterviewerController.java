@@ -1,6 +1,7 @@
 package com.intellias.intellistart.interviewplanning.controllers;
 
 import com.intellias.intellistart.interviewplanning.models.InterviewerBookingLimit;
+import com.intellias.intellistart.interviewplanning.models.InterviewerTimeSlot;
 import com.intellias.intellistart.interviewplanning.services.InterviewerService;
 import java.util.List;
 import java.util.UUID;
@@ -33,5 +34,21 @@ public class InterviewerController {
   public InterviewerBookingLimit createInterviewerBookingLimit(
       @Valid @RequestBody InterviewerBookingLimit interviewerBookingLimit) {
     return interviewerService.setNextWeekInterviewerBookingLimit(interviewerBookingLimit);
+  }
+
+  @PostMapping(path = "/interviewers/{interviewer_id}/slots")
+  @ResponseStatus(code = HttpStatus.CREATED)
+  public InterviewerTimeSlot createInterviewerTimeSlot(
+      @PathVariable("interviewer_id") UUID interviewerId,
+      @RequestBody InterviewerTimeSlot timeSlot) {
+    return interviewerService.createSlot(timeSlot, interviewerId);
+  }
+
+  @PostMapping("/interviewers/{interviewer_id}/slots/{slot_id}")
+  public InterviewerTimeSlot updateInterviewerTimeSlot(
+      @PathVariable("interviewer_id") UUID interviewerId,
+      @PathVariable("slot_id") UUID slotId,
+      @RequestBody InterviewerTimeSlot timeSlot) {
+    return interviewerService.updateSlot(timeSlot, interviewerId, slotId);
   }
 }

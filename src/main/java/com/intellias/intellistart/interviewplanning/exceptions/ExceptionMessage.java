@@ -19,6 +19,8 @@ public enum ExceptionMessage {
   INTERVIEWER_SLOT_BOUNDARIES_EXCEEDED(
       "Start time can`t be less than 8:00, end time can`t be greater than 22:00"),
   NOT_WORKING_DAY_OF_WEEK("The day must not be a weekend"),
+  NOT_NEXT_WEEK("The week must be the next to the curren"),
+
 
   // Booking related validation messages
   INTERVIEWER_BOOKING_LIMIT_EXCEEDED("Interviewer booking limit for this week is exceeded"),
