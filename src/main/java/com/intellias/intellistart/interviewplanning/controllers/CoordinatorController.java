@@ -48,8 +48,15 @@ public class CoordinatorController {
   @PostMapping(path = "/bookings")
   @ResponseStatus(code = HttpStatus.CREATED)
   public void createBooking(@RequestBody Booking booking) {
-    bookingService.createBooking(booking);
+    bookingService.createBooking(booking.getInterviewerTimeSlotId(),
+        booking.getCandidateTimeSlotId(),
+        booking.getFrom(),
+        booking.getTo(),
+        booking.getSubject(),
+        booking.getDescription());
   }
+
+
 
   // all bottom methods are tested and it`s working correctly
   @GetMapping(path = "/users/coordinators")
