@@ -40,9 +40,9 @@ public class BookingService {
    */
   @Autowired
   public BookingService(BookingRepository bookingRepository,
-                        InterviewerTimeSlotRepository interviewerTimeSlotRepository,
-                        InterviewerBookingLimitRepository interviewerBookingLimitRepository,
-                        CandidateTimeSlotRepository candidateTimeSlotRepository) {
+      InterviewerTimeSlotRepository interviewerTimeSlotRepository,
+      InterviewerBookingLimitRepository interviewerBookingLimitRepository,
+      CandidateTimeSlotRepository candidateTimeSlotRepository) {
     this.bookingRepository = bookingRepository;
     this.interviewerTimeSlotRepository = interviewerTimeSlotRepository;
     this.interviewerBookingLimitRepository = interviewerBookingLimitRepository;
@@ -54,13 +54,13 @@ public class BookingService {
   /**
    * Creates booking: accepts Booking parameters, checks it, saves Booking and returns it.
    *
-   * @param interviewerSlotId       Interviewer time slot id
-   * @param candidateTimeSlotId     Candidate time slot id
-   * @param from                    start time
-   * @param to                      end time
-   * @param subject                 Subject of booking
-   * @param description             Description of booking
-   * @return                        saved Booking
+   * @param interviewerSlotId   Interviewer time slot id
+   * @param candidateTimeSlotId Candidate time slot id
+   * @param from                start time
+   * @param to                  end time
+   * @param subject             Subject of booking
+   * @param description         Description of booking
+   * @return saved Booking
    */
   public Booking createBooking(UUID interviewerSlotId,
       UUID candidateTimeSlotId,
@@ -77,9 +77,8 @@ public class BookingService {
 
     bookingRepository.save(booking);
 
-    return  booking;
+    return booking;
   }
-
 
 
   /**
@@ -96,7 +95,7 @@ public class BookingService {
   /**
    * Updates Booking.
    *
-   * @param updatedBooking        Updated Booking
+   * @param updatedBooking Updated Booking
    */
   @Transactional
   public void updateBooking(UUID id, Booking updatedBooking) {
@@ -157,8 +156,8 @@ public class BookingService {
     }
 
     if (Math.abs(Duration.between(from, to).toMinutes()) != 90) {
-      throw new IllegalStateException(
-          "Booking duration must equal to 1.5h");
+      throw new ValidationException(
+          ExceptionMessage.WRONG_BOOKING_DURATION.getMessage());
     }
 
     if (!description.isBlank() && description.length() > 4000) {

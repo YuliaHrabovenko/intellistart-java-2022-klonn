@@ -4,8 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.intellias.intellistart.interviewplanning.exceptions.InterviewerBookingLimitExceededException;
-import com.intellias.intellistart.interviewplanning.exceptions.InvalidPeriodException;
+import com.intellias.intellistart.interviewplanning.exceptions.ValidationException;
 import com.intellias.intellistart.interviewplanning.models.Booking;
 import com.intellias.intellistart.interviewplanning.models.InterviewerBookingLimit;
 import java.time.DayOfWeek;
@@ -100,19 +99,19 @@ class BookingServiceTest {
 
   @Test
   void createBooking_allDataValid() {
-      given(interviewerTimeSlotRepository.findById(interviewerSlotUUID))
-          .willReturn(Optional.of(interviewerTimeSlot));
+    given(interviewerTimeSlotRepository.findById(interviewerSlotUUID))
+        .willReturn(Optional.of(interviewerTimeSlot));
 
-      given(interviewerBookingLimitRepository.findByInterviewerId(interviewerTimeSlot.getInterviewerId()))
-          .willReturn(Optional.of(interviewerBookingLimit));
+    given(interviewerBookingLimitRepository.findByInterviewerId(interviewerTimeSlot.getInterviewerId()))
+        .willReturn(Optional.of(interviewerBookingLimit));
 
-      given(candidateTimeSlotRepository.existsById(candidateSlotUUID))
-          .willReturn(true);
+    given(candidateTimeSlotRepository.existsById(candidateSlotUUID))
+        .willReturn(true);
 
-      Booking booking = bookingService.createBooking(interviewerSlotUUID, candidateSlotUUID,
-          from, to, "Subject1", "Desc1");
+    Booking booking = bookingService.createBooking(interviewerSlotUUID, candidateSlotUUID,
+        from, to, "Subject1", "Desc1");
 
-      assertThat(booking).isNotNull();
+    assertThat(booking).isNotNull();
 
   }
 
@@ -126,7 +125,7 @@ class BookingServiceTest {
     given(interviewerBookingLimitRepository.findByInterviewerId(interviewerTimeSlot.getInterviewerId()))
         .willReturn(Optional.of(interviewerBookingLimit));
 
-    assertThrows(InterviewerBookingLimitExceededException.class,
+    assertThrows(ValidationException.class,
         () -> bookingService.createBooking(interviewerSlotUUID, candidateSlotUUID,
             from, to, "Subject1", "Desc1"));
   }
@@ -144,7 +143,7 @@ class BookingServiceTest {
     given(candidateTimeSlotRepository.existsById(candidateSlotUUID))
         .willReturn(true);
 
-    assertThrows(InvalidPeriodException.class,
+    assertThrows(ValidationException.class,
         () -> bookingService.createBooking(interviewerSlotUUID, candidateSlotUUID,
             from, to, "Subject1", "Desc1"));
   }
@@ -154,17 +153,11 @@ class BookingServiceTest {
     Booking curBooking = new Booking(from, to, interviewerSlotUUID,
         candidateSlotUUID, "Subject1", "Desc1");
 
-    UUID id = UUID.fromString("123e4567-e89b-42d3-a456-556642440000");
-
-    curBooking.setId(id);
-
     from = LocalTime.of(14, 00);
     to = LocalTime.of(15, 30);
 
     Booking updatedBooking = new Booking(from, to, interviewerSlotUUID,
         candidateSlotUUID, "Subject2", "Desc2");
-
-    updatedBooking.setId(id);
 
     given(bookingRepository.findById(curBooking.getId()))
         .willReturn(Optional.of(curBooking));
@@ -180,6 +173,11 @@ class BookingServiceTest {
 
     bookingService.updateBooking(curBooking.getId(), updatedBooking);
 
-    assertEquals(updatedBooking, curBooking);
+    assertEquals(updatedBooking.getSubject(), curBooking.getSubject());
+    assertEquals(updatedBooking.getDescription(), curBooking.getDescription());
+    assertEquals(updatedBooking.getInterviewerTimeSlotId(), curBooking.getInterviewerTimeSlotId());
+    assertEquals(updatedBooking.getCandidateTimeSlotId(), curBooking.getCandidateTimeSlotId());
+    assertEquals(updatedBooking.getFrom(), curBooking.getFrom());
+    assertEquals(updatedBooking.getTo(), curBooking.getTo());
   }
 }
