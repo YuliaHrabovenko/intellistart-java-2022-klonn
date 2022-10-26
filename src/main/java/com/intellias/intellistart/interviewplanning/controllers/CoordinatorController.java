@@ -29,7 +29,7 @@ public class CoordinatorController {
 
   @Autowired
   public CoordinatorController(CoordinatorService coordinatorService,
-                               BookingService bookingService) {
+      BookingService bookingService) {
     this.coordinatorService = coordinatorService;
     this.bookingService = bookingService;
   }
@@ -55,7 +55,6 @@ public class CoordinatorController {
         booking.getSubject(),
         booking.getDescription());
   }
-
 
 
   // all bottom methods are tested and it`s working correctly
