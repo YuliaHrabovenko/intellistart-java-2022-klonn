@@ -2,6 +2,7 @@ package com.intellias.intellistart.interviewplanning.services;
 
 import com.intellias.intellistart.interviewplanning.exceptions.ExceptionMessage;
 import com.intellias.intellistart.interviewplanning.exceptions.ValidationException;
+import com.intellias.intellistart.interviewplanning.models.Booking;
 import com.intellias.intellistart.interviewplanning.models.InterviewerBookingLimit;
 import com.intellias.intellistart.interviewplanning.models.InterviewerTimeSlot;
 import com.intellias.intellistart.interviewplanning.models.User;
@@ -9,10 +10,9 @@ import com.intellias.intellistart.interviewplanning.repositories.BookingReposito
 import com.intellias.intellistart.interviewplanning.repositories.InterviewerBookingLimitRepository;
 import com.intellias.intellistart.interviewplanning.repositories.InterviewerTimeSlotRepository;
 import com.intellias.intellistart.interviewplanning.repositories.UserRepository;
+import com.intellias.intellistart.interviewplanning.utils.PeriodUtil;
 import com.intellias.intellistart.interviewplanning.utils.WeekUtil;
-import java.time.DayOfWeek;
-import java.time.Duration;
-import java.time.LocalTime;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -48,59 +48,6 @@ public class InterviewerService {
   }
 
   /**
-   * Interviewer time period validation.
-   *
-   * @param day  period day
-   * @param from period start time
-   * @param to   period end time
-   */
-
-  public void validateInterviewerPeriod(DayOfWeek day, LocalTime from, LocalTime to) {
-
-    //    Long periodWeekNumber = getWeekForSpecificTime(from);
-
-    //    if (periodWeekNumber != currentWeekNumber + 1) {
-    //      throw new InvalidInterviewerPeriodException(
-    //          "Period for interviewer`s slot must be for the next week, not current");
-    //    }
-
-    if (from.getMinute() % 30 != 0 || to.getMinute() % 30 != 0) {
-      throw new ValidationException(ExceptionMessage.SLOT_BOUNDARIES_NOT_ROUNDED.getMessage());
-    }
-
-    //    if (from.isBefore(LocalTime.now()) || to.isBefore(LocalTime.now())) {
-    //      throw new InvalidInterviewerPeriodException(
-    //          "Period which starts at " + from + " and ends "
-    //              + to + " must be later then current time");
-    //    }
-
-    if (to.isBefore(from)) {
-      throw new ValidationException(ExceptionMessage.START_TIME_BIGGER_THAN_END_TIME.getMessage());
-    }
-
-    if (Math.abs(Duration.between(from, to).toMinutes()) < 90) {
-      throw new ValidationException(ExceptionMessage.PERIOD_DURATION_IS_NOT_ENOUGH.getMessage());
-    }
-
-    if (from.isBefore(LocalTime.of(8, 0))
-        || to.isAfter(LocalTime.of(22, 0))) {
-      throw new ValidationException(
-          ExceptionMessage.INTERVIEWER_SLOT_BOUNDARIES_EXCEEDED.getMessage());
-    }
-
-    //    if (from.getDayOfMonth() != to.getDayOfMonth()
-    //        || from.getYear() != to.getYear() || !from.getMonth().equals(to.getMonth())) {
-    //      throw new InvalidInterviewerPeriodException(
-    //          "Both start and end must be at the same day");
-    //    }
-
-    if (day.equals(DayOfWeek.SUNDAY) || day.equals(DayOfWeek.SATURDAY)) {
-      throw new ValidationException(ExceptionMessage.NOT_WORKING_DAY_OF_WEEK.getMessage());
-    }
-
-  }
-
-  /**
    * Validate if interviewer exists in the db.
    *
    * @param interviewerId interviewer`s id
@@ -114,24 +61,89 @@ public class InterviewerService {
   }
 
   /**
+   * Validate if new time slot is not overlapping existing slots.
+   *
+   * @param interviewerTimeSlot interviewer time slot
+   * @param slots               list of existing slots
+   */
+  public void validateTimeOfTimeSlot(InterviewerTimeSlot interviewerTimeSlot,
+                                     List<InterviewerTimeSlot> slots) {
+
+    for (InterviewerTimeSlot timeslot : slots) {
+      if (interviewerTimeSlot.getFrom().isAfter(timeslot.getFrom())
+          && interviewerTimeSlot.getTo().isBefore(timeslot.getTo())
+          // new time slot is in the middle
+
+          || interviewerTimeSlot.getFrom().equals(timeslot.getFrom())
+          && interviewerTimeSlot.getTo().equals(timeslot.getTo())
+          // new time slot is equals to existing one
+
+          || interviewerTimeSlot.getFrom().equals(timeslot.getFrom())
+          && interviewerTimeSlot.getTo().isBefore(timeslot.getTo())
+          // new time slot beginning equals to beginning of existing one and ending is before
+
+          || interviewerTimeSlot.getFrom().isAfter(timeslot.getFrom())
+          && interviewerTimeSlot.getTo().equals(timeslot.getTo())
+          // new time slot is ending is equals to ending of existing one and beginning is inside
+
+          || interviewerTimeSlot.getFrom().isBefore(timeslot.getFrom())
+          && interviewerTimeSlot.getTo().isAfter(timeslot.getTo())
+          // new time slot is bigger than existing one
+
+          || interviewerTimeSlot.getTo().isAfter(timeslot.getFrom())
+          && interviewerTimeSlot.getTo().isBefore(timeslot.getTo())
+          && interviewerTimeSlot.getFrom().isBefore(timeslot.getFrom())
+          // ending of time slot is inside another one and beginning is before
+          // beginning of existing one
+
+          || interviewerTimeSlot.getTo().isAfter(timeslot.getFrom())
+          && interviewerTimeSlot.getTo().isBefore(timeslot.getTo())
+          && interviewerTimeSlot.getFrom().equals(timeslot.getFrom())
+          // ending of time slot is inside another one and beginning is equals to
+          // beginning of existing one
+
+          || interviewerTimeSlot.getFrom().isAfter(timeslot.getFrom())
+          && interviewerTimeSlot.getFrom().isBefore(timeslot.getTo())
+          && interviewerTimeSlot.getTo().equals(timeslot.getTo())
+          // beginning of the time slot is inside another one and ending is equals to
+          // ending of existing one
+
+          || interviewerTimeSlot.getFrom().isAfter(timeslot.getFrom())
+          && interviewerTimeSlot.getFrom().isBefore(timeslot.getTo())
+          && interviewerTimeSlot.getTo().isAfter(timeslot.getTo())) {
+        // beginning of the time slot is inside another one and ending is after
+        // ending of existing one
+
+        throw new ValidationException(ExceptionMessage.OVERLAPPING_PERIOD.getMessage());
+      }
+    }
+  }
+
+  /**
    * Create interviewer slot.
    *
    * @param interviewerTimeSlot interviewer time slot object
    * @return new interviewer time slot if valid
    */
+  public InterviewerTimeSlot createSlot(InterviewerTimeSlot interviewerTimeSlot,
+                                        UUID interviewerId) {
+    // check if time is before weekends
+    WeekUtil.validateDayOfWeek(LocalDate.now().getDayOfWeek());
+    validateInterviewerExistsById(interviewerId);
 
-  public InterviewerTimeSlot createSlot(InterviewerTimeSlot interviewerTimeSlot) {
-    Optional<User> interviewer = interviewerRepository
-        .findById(interviewerTimeSlot.getInterviewerId());
-    if (interviewer.isEmpty()) {
-      throw new ValidationException(ExceptionMessage.INTERVIEWER_NOT_FOUND.getMessage());
+    List<InterviewerTimeSlot> slots =
+        interviewerTimeSlotRepository.findByInterviewerId(interviewerId);
+    if (!slots.isEmpty()) {
+      validateTimeOfTimeSlot(interviewerTimeSlot, slots);
     }
 
-    LocalTime from = interviewerTimeSlot.getFrom();
-    LocalTime to = interviewerTimeSlot.getTo();
-    DayOfWeek day = interviewerTimeSlot.getDayOfWeek();
 
-    validateInterviewerPeriod(day, from, to);
+    WeekUtil.validateDayOfWeek(interviewerTimeSlot.getDayOfWeek());
+    WeekUtil.validateIsNextWeekNumber(interviewerTimeSlot.getWeekNum(),
+        WeekUtil.getNextWeekNumber());
+    PeriodUtil.validatePeriod(interviewerTimeSlot.getFrom(), interviewerTimeSlot.getTo());
+
+    interviewerTimeSlot.setInterviewerId(interviewerId);
 
     return interviewerTimeSlotRepository.save(interviewerTimeSlot);
   }
@@ -142,17 +154,44 @@ public class InterviewerService {
    * @param interviewerTimeSlot interviewer time slot object
    * @return updated interviewer time slot if valid
    */
+  public InterviewerTimeSlot updateSlot(InterviewerTimeSlot interviewerTimeSlot,
+                                        UUID interviewerId,
+                                        UUID slotId) {
+    // check if time is before weekends
+    WeekUtil.validateDayOfWeek(LocalDate.now().getDayOfWeek());
+    validateInterviewerExistsById(interviewerId);
+    InterviewerTimeSlot existingSlot =
+        interviewerTimeSlotRepository.findById(slotId).orElseThrow(
+            () -> new ValidationException(
+                ExceptionMessage.INTERVIEWER_SLOT_NOT_FOUND.getMessage()));
 
-  public InterviewerTimeSlot updateSlot(InterviewerTimeSlot interviewerTimeSlot) {
-
-    Optional<InterviewerTimeSlot> slot = interviewerTimeSlotRepository
-        .findById(interviewerTimeSlot.getId());
-    if (slot.isEmpty()) {
-      throw new ValidationException(ExceptionMessage.INTERVIEWER_SLOT_NOT_FOUND.getMessage());
+    List<InterviewerTimeSlot> slots =
+        interviewerTimeSlotRepository.findByInterviewerId(interviewerId);
+    if (slots.size() > 1) {
+      validateTimeOfTimeSlot(interviewerTimeSlot, slots);
     }
 
-    return interviewerTimeSlotRepository.save(interviewerTimeSlot);
+    // Check if there is no bookings with interviewer slot
+    List<Booking> bookings = bookingRepository.getBookingsByInterviewerSlotId(existingSlot.getId());
+
+    if (!bookings.isEmpty()) {
+      throw new ValidationException(ExceptionMessage.BOOKING_ALREADY_MADE.getMessage());
+    }
+
+    WeekUtil.validateDayOfWeek(interviewerTimeSlot.getDayOfWeek());
+    WeekUtil.validateIsNextWeekNumber(interviewerTimeSlot.getWeekNum(),
+        WeekUtil.getNextWeekNumber());
+    PeriodUtil.validatePeriod(interviewerTimeSlot.getFrom(), interviewerTimeSlot.getTo());
+
+    existingSlot.setWeekNum(interviewerTimeSlot.getWeekNum());
+    existingSlot.setDayOfWeek(interviewerTimeSlot.getDayOfWeek());
+    existingSlot.setFrom(interviewerTimeSlot.getFrom());
+    existingSlot.setTo(interviewerTimeSlot.getTo());
+    existingSlot.setInterviewerId(interviewerId);
+
+    return interviewerTimeSlotRepository.save(existingSlot);
   }
+
 
   /**
    * Get booking limits by interviewer`s id.

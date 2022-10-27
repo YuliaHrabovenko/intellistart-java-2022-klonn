@@ -53,7 +53,7 @@ public class InterviewerTimeSlot {
   @NotNull(message = "weekNumber has to be present")
   @Column(name = "week_number")
   private String weekNum;
-  @NotNull(message = "interviewerId has to be present")
+
   @Column(name = "interviewer_id")
   private UUID interviewerId;
   @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
