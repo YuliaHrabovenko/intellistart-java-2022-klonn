@@ -12,18 +12,22 @@ public enum ExceptionMessage {
 
   // VALIDATION exception error messages
   // Slot related validation messages
+  NOT_VALID_SLOT_DATA("New slot must be in the same week and day"),
   DATE_IS_OUTDATED("This date is outdated"),
   START_TIME_BIGGER_THAN_END_TIME("Start time should be less than end time"),
   SLOT_BOUNDARIES_NOT_ROUNDED("Slot boundaries should be rounded to 30 minutes"),
   PERIOD_DURATION_IS_NOT_ENOUGH("Period should be more or equal to 1.5h"),
-  INTERVIEWER_SLOT_BOUNDARIES_EXCEEDED(
+  SLOT_BOUNDARIES_EXCEEDED(
       "Start time can`t be less than 8:00, end time can`t be greater than 22:00"),
+  NOT_NEXT_WEEK("The week must be next to the curren"),
+  OVERLAPPING_PERIOD("Time slot interval can't overlap existing time slot"),
   NOT_WORKING_DAY_OF_WEEK("The day must not be a weekend"),
 
   // Booking related validation messages
   INTERVIEWER_BOOKING_LIMIT_EXCEEDED("Interviewer booking limit for this week is exceeded"),
   BOOKING_ALREADY_MADE("Booking is already made for this slot"),
   NOT_NEXT_WEEK_NUMBER("Provided week number is not the next week number"),
+  WRONG_BOOKING_DURATION("Booking duration must equal to 1.5h"),
 
   // User info related validation messages
   USER_EMAIL_EXISTS("User with this email already exists");
