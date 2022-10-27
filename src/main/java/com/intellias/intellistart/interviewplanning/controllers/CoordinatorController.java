@@ -29,7 +29,7 @@ public class CoordinatorController {
 
   @Autowired
   public CoordinatorController(CoordinatorService coordinatorService,
-                               BookingService bookingService) {
+      BookingService bookingService) {
     this.coordinatorService = coordinatorService;
     this.bookingService = bookingService;
   }
@@ -39,16 +39,26 @@ public class CoordinatorController {
     bookingService.deleteBooking(bookingId);
   }
 
-  //  @PostMapping(path = "/bookings/{bookingId}")
-  //  public void updateBooking(@PathVariable("bookingId") UUID bookingId,
-  //                            @RequestBody Booking booking){
-  //    bookingService.updateBooking(booking, bookingId);
-  //  }
-
+  /**
+   * Create booking endpoint.
+   *
+   * @param booking Booking
+   */
   @PostMapping(path = "/bookings")
   @ResponseStatus(code = HttpStatus.CREATED)
   public void createBooking(@RequestBody Booking booking) {
-    bookingService.createBooking(booking);
+    bookingService.createBooking(booking.getInterviewerTimeSlotId(),
+        booking.getCandidateTimeSlotId(),
+        booking.getFrom(),
+        booking.getTo(),
+        booking.getSubject(),
+        booking.getDescription());
+  }
+
+  @PostMapping(path = "/bookings/{bookingId}")
+  public void updateBooking(@PathVariable("bookingId") UUID id,
+      @RequestBody Booking booking) {
+    bookingService.updateBooking(id, booking);
   }
 
   // all bottom methods are tested and it`s working correctly
