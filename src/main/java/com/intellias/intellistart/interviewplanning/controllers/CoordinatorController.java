@@ -4,7 +4,9 @@ import com.intellias.intellistart.interviewplanning.models.Booking;
 import com.intellias.intellistart.interviewplanning.models.User;
 import com.intellias.intellistart.interviewplanning.services.BookingService;
 import com.intellias.intellistart.interviewplanning.services.CoordinatorService;
+import com.intellias.intellistart.interviewplanning.services.CoordinatorService.DayInfo;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -72,7 +74,6 @@ public class CoordinatorController {
     coordinatorService.revokeInterviewerRole(interviewerId);
   }
 
-
   @PostMapping(path = "/users/coordinators")
   @ResponseStatus(code = HttpStatus.CREATED)
   public void grantCoordinatorRole(@RequestBody User coordinator) {
@@ -84,4 +85,10 @@ public class CoordinatorController {
   public void grantInterviewerRole(@RequestBody User interviewer) {
     coordinatorService.grantInterviewerRole(interviewer);
   }
+
+  @GetMapping(path = "/weeks/{weekNum}/dashboard")
+  public Map<String, DayInfo[]> getDashboard(@PathVariable("weekNum") String weekNum) {
+    return coordinatorService.getAllSlotsAndBookingsGroupedByDay(weekNum);
+  }
+
 }

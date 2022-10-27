@@ -3,6 +3,7 @@ package com.intellias.intellistart.interviewplanning.controllers;
 import com.intellias.intellistart.interviewplanning.models.CandidateTimeSlot;
 import com.intellias.intellistart.interviewplanning.services.CandidateService;
 import java.util.UUID;
+import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,13 +25,15 @@ public class CandidateController {
 
   @PostMapping("/candidates/current/slots")
   @ResponseStatus(code = HttpStatus.CREATED)
-  public CandidateTimeSlot createCandidateSlot(@RequestBody CandidateTimeSlot candidateTimeSlot) {
+  public CandidateTimeSlot createCandidateSlot(
+      @Valid @RequestBody CandidateTimeSlot candidateTimeSlot) {
     return candidateService.createSlot(candidateTimeSlot);
   }
 
   @PostMapping("/candidates/current/slots/{slot_id}")
   public CandidateTimeSlot updateCandidateSlot(@PathVariable("slot_id") UUID slotId,
-                                               @RequestBody CandidateTimeSlot candidateTimeSlot) {
+                                               @Valid @RequestBody
+                                               CandidateTimeSlot candidateTimeSlot) {
     return candidateService.updateSlot(candidateTimeSlot, slotId);
   }
   //  @GetMapping("/candidates/current/slots")

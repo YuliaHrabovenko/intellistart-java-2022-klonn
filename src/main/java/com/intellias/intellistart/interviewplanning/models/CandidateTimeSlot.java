@@ -1,5 +1,6 @@
 package com.intellias.intellistart.interviewplanning.models;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -46,8 +47,10 @@ public class CandidateTimeSlot {
   private LocalDate date;
   @NotNull(message = "from has to be present")
   @Column(name = "start_time")
+  @JsonFormat(pattern = "HH:mm")
   private LocalTime from;
   @NotNull(message = "to has to be present")
+  @JsonFormat(pattern = "HH:mm")
   @Column(name = "end_time")
   private LocalTime to;
   @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)

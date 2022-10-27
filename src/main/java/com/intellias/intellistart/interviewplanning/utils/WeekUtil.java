@@ -6,6 +6,8 @@ import com.intellias.intellistart.interviewplanning.exceptions.ExceptionMessage;
 import com.intellias.intellistart.interviewplanning.exceptions.ValidationException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.temporal.IsoFields;
+import java.time.temporal.TemporalAdjusters;
 import java.time.temporal.TemporalField;
 import java.time.temporal.WeekFields;
 
@@ -42,6 +44,19 @@ public final class WeekUtil {
   public static String getNextWeekNumber() {
     String currentWeek = getCurrentWeekNumber();
     return Integer.parseInt(currentWeek) + 1 + "";
+  }
+
+  /**
+   * Get the first date of a week by a year and a week number.
+   *
+   * @param year    a year
+   * @param weekNum a week number
+   * @return the first date of a week
+   */
+  public static LocalDate getFirstDateOfWeekByYearWeekNum(int year, int weekNum) {
+    return LocalDate.ofYearDay(year, 50)
+        .with(IsoFields.WEEK_OF_WEEK_BASED_YEAR, weekNum)
+        .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
   }
 
   /**

@@ -1,5 +1,6 @@
 package com.intellias.intellistart.interviewplanning.models;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -46,9 +47,11 @@ public class InterviewerTimeSlot {
   private DayOfWeek dayOfWeek;
   @NotNull(message = "from has to be present")
   @Column(name = "start_time")
+  @JsonFormat(pattern = "HH:mm")
   private LocalTime from;
   @NotNull(message = "to has to be present")
   @Column(name = "end_time")
+  @JsonFormat(pattern = "HH:mm")
   private LocalTime to;
   @NotNull(message = "weekNumber has to be present")
   @Column(name = "week_number")

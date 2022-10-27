@@ -1,5 +1,6 @@
 package com.intellias.intellistart.interviewplanning.models;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalTime;
 import java.util.UUID;
 import javax.persistence.Column;
@@ -10,7 +11,6 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -36,9 +36,11 @@ public class Booking {
   @Column(name = "id")
   private UUID id;
   @NotNull(message = "from has to be present")
+  @JsonFormat(pattern = "HH:mm")
   @Column(name = "start_time")
   private LocalTime from;
   @NotNull(message = "to has to be present")
+  @JsonFormat(pattern = "HH:mm")
   @Column(name = "end_time")
   private LocalTime to;
   @NotNull(message = "subject has to be present")
