@@ -15,6 +15,8 @@ public interface BookingRepository extends JpaRepository<Booking, UUID> {
 
   List<Booking> findBookingsByCandidateTimeSlotId(UUID candidateTimeSlotId);
 
+  List<Booking> findBookingsByInterviewerTimeSlotId(UUID interviewerTimeSlotId);
+
   @Query(value = "select * from bookings b where b.interviewer_time_slot_id = ?1",
       nativeQuery = true)
   List<Booking> getBookingsByInterviewerSlotId(UUID candidateSlotId);

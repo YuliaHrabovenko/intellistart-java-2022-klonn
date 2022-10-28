@@ -15,4 +15,6 @@ public interface InterviewerTimeSlotRepository extends JpaRepository<Interviewer
   List<InterviewerTimeSlot> findByDayOfWeekAndInterviewerIdAndWeekNum(DayOfWeek dayOfWeek,
                                                                       UUID interviewerId,
                                                                       String weekNum);
+
+  List<InterviewerTimeSlot> findInterviewerTimeSlotsByWeekNum(String weekNum);
 }
