@@ -1,7 +1,6 @@
 package com.intellias.intellistart.interviewplanning.repositories;
 
 import com.intellias.intellistart.interviewplanning.models.InterviewerTimeSlot;
-import java.util.List;
 import java.time.DayOfWeek;
 import java.util.List;
 import java.util.UUID;
@@ -15,6 +14,7 @@ import org.springframework.stereotype.Repository;
 public interface InterviewerTimeSlotRepository extends JpaRepository<InterviewerTimeSlot, UUID> {
 
   List<InterviewerTimeSlot> findInterviewerTimeSlotByInterviewerId(UUID interviewerId);
+
   List<InterviewerTimeSlot> findByDayOfWeekAndInterviewerIdAndWeekNum(DayOfWeek dayOfWeek,
                                                                       UUID interviewerId,
                                                                       String weekNum);
