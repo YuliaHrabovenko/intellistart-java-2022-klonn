@@ -36,6 +36,22 @@ public class InterviewerController {
     return interviewerService.setNextWeekInterviewerBookingLimit(interviewerBookingLimit);
   }
 
+  @PostMapping(path = "/interviewers/{interviewer_id}/slots")
+  @ResponseStatus(code = HttpStatus.CREATED)
+  public InterviewerTimeSlot createInterviewerTimeSlot(
+      @PathVariable("interviewer_id") UUID interviewerId,
+      @Valid @RequestBody InterviewerTimeSlot timeSlot) {
+    return interviewerService.createSlot(timeSlot, interviewerId);
+  }
+
+  @PostMapping("/interviewers/{interviewer_id}/slots/{slot_id}")
+  public InterviewerTimeSlot updateInterviewerTimeSlot(
+      @PathVariable("interviewer_id") UUID interviewerId,
+      @PathVariable("slot_id") UUID slotId,
+      @Valid @RequestBody InterviewerTimeSlot timeSlot) {
+    return interviewerService.updateSlot(timeSlot, interviewerId, slotId);
+  }
+
   @GetMapping("/weeks/current/interviewers/{interviewerId}/slots")
   @ResponseStatus(code = HttpStatus.OK)
   public List<InterviewerTimeSlot> getCurrentWeekSlots(@PathVariable("interviewerId")

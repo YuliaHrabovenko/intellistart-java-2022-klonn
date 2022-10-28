@@ -1,5 +1,6 @@
 package com.intellias.intellistart.interviewplanning.services;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.intellias.intellistart.interviewplanning.exceptions.ExceptionMessage;
 import com.intellias.intellistart.interviewplanning.exceptions.ValidationException;
 import com.intellias.intellistart.interviewplanning.models.Booking;
@@ -11,10 +12,20 @@ import com.intellias.intellistart.interviewplanning.repositories.BookingReposito
 import com.intellias.intellistart.interviewplanning.repositories.CandidateTimeSlotRepository;
 import com.intellias.intellistart.interviewplanning.repositories.InterviewerTimeSlotRepository;
 import com.intellias.intellistart.interviewplanning.repositories.UserRepository;
-import java.time.LocalTime;
+import com.intellias.intellistart.interviewplanning.utils.WeekUtil;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -46,90 +57,6 @@ public class CoordinatorService {
     this.candidateTimeSlotRepository = candidateTimeSlotRepository;
     this.interviewerTimeSlotRepository = interviewerTimeSlotRepository;
 
-  }
-
-  /**
-   * Create booking.
-   *
-   * @param interviewerSlotId   interviewer time slot id
-   * @param candidateTimeSlotId candidate time slot id
-   * @param from                start time
-   * @param to                  end time
-   * @param subject             subject of booking
-   * @param description         decriptions of booking
-   * @return Booking object if success
-   */
-  public Booking createBooking(UUID interviewerSlotId,
-                               UUID candidateTimeSlotId,
-                               LocalTime from,
-                               LocalTime to,
-                               String subject,
-                               String description) {
-    boolean existInterviewerTimeSlot = interviewerTimeSlotRepository.existsById(interviewerSlotId);
-    if (!existInterviewerTimeSlot) {
-      throw new IllegalStateException(
-          "Interviewer Time slot with id " + interviewerSlotId + " does not exists");
-    }
-
-    boolean existCandidateTimeSlot = candidateTimeSlotRepository.existsById(candidateTimeSlotId);
-    if (!existCandidateTimeSlot) {
-      throw new IllegalStateException(
-          "Candidate Time slot with id " + candidateTimeSlotId + " does not exists");
-    }
-
-    if (subject.length() > 255) {
-      throw new IllegalStateException("Subject is incorrect");
-    }
-
-    if (description.length() > 4000) {
-      throw new IllegalStateException("Description is incorrect");
-    }
-
-    Booking booking = new Booking(from,
-        to, // not sure if it will be working
-        interviewerSlotId,
-        candidateTimeSlotId,
-        subject,
-        description);
-
-    return bookingRepository.save(booking);
-  }
-
-  /**
-   * Update booking.
-   *
-   * @param booking   Booking object
-   * @param bookingId booking id
-   * @return Booking object if success
-   */
-  public Booking updateBooking(Booking booking, UUID bookingId) { // need to be fixed
-
-    Booking existingBooking = bookingRepository.findById(bookingId).orElseThrow(
-        () -> new IllegalStateException(
-            "booking with id" + bookingId + " does not exists"));
-
-    existingBooking.setId(booking.getId());
-    existingBooking.setCandidateTimeSlotId(booking.getCandidateTimeSlotId());
-    existingBooking.setInterviewerTimeSlotId(booking.getInterviewerTimeSlotId());
-    existingBooking.setFrom(booking.getFrom());
-    existingBooking.setTo(booking.getTo());
-    existingBooking.setDescription(booking.getDescription());
-    existingBooking.setSubject(booking.getSubject());
-    return bookingRepository.save(existingBooking);
-  }
-
-  /**
-   * Delete booking.
-   *
-   * @param bookingId booking id
-   */
-  public void deleteBooking(UUID bookingId) {
-    boolean exists = bookingRepository.existsById(bookingId);
-    if (!exists) {
-      throw new IllegalStateException(
-          "Booking with id " + bookingId + " does not exists");
-    }
-    bookingRepository.deleteById(bookingId);
   }
 
   /**
@@ -244,7 +171,7 @@ public class CoordinatorService {
   }
 
   /**
-   * Get coordinators.
+   * Get granted coordinators.
    *
    * @return all the users with role COORDINATOR
    */
@@ -253,11 +180,112 @@ public class CoordinatorService {
   }
 
   /**
-   * Get interviewers.
+   * Get granted interviewers.
    *
    * @return all the users with role INTERVIEWER
    */
   public List<User> getInterviewers() {
     return coordinatorRepository.findByRole(UserRole.INTERVIEWER);
+  }
+
+  public Map<DayOfWeek, List<InterviewerTimeSlot>> getInterviewerSlotsByDayOfWeek(String weekNum) {
+    return interviewerTimeSlotRepository.findInterviewerTimeSlotsByWeekNum(weekNum).stream()
+        .collect(Collectors.groupingBy(InterviewerTimeSlot::getDayOfWeek));
+  }
+
+  /**
+   * Get candidate slots by date.
+   *
+   * @param firstDateOfWeek first date of week
+   * @return map of slots by date
+   */
+  public Map<LocalDate, List<CandidateTimeSlot>> getCandidateSlotsByDate(
+      LocalDate firstDateOfWeek) {
+    return candidateTimeSlotRepository.findCandidateTimeSlotsByDateBetween(firstDateOfWeek,
+        firstDateOfWeek.plusDays(4L)).stream().collect(
+        Collectors.groupingBy(CandidateTimeSlot::getDate));
+  }
+
+  /**
+   * Get dates of week.
+   *
+   * @param firstDateOfWeek first date of a week
+   * @return array of dates
+   */
+  public LocalDate[] getWeekDates(LocalDate firstDateOfWeek) {
+    LocalDate[] dates = new LocalDate[5];
+    dates[0] = firstDateOfWeek;
+    long count = 1L;
+    for (int i = 1; i < 5; i++) {
+      dates[i] = firstDateOfWeek.plusDays(count);
+      count++;
+    }
+    return dates;
+  }
+
+  /**
+   * Get all both interviewers' and candidates' slots and bookings.
+   *
+   * @param weekNum week number
+   * @return map of slots and bookings by days
+   */
+  public Map<String, DayInfo[]> getAllSlotsAndBookingsGroupedByDay(String weekNum) {
+    int year = Integer.parseInt(weekNum.substring(0, 4));
+    int weekNumInt = Integer.parseInt(weekNum.substring(4));
+    LocalDate firstDateOfWeek = WeekUtil.getFirstDateOfWeekByYearWeekNum(year, weekNumInt);
+
+    DayOfWeek[] dayOfWeeks = {DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY,
+        DayOfWeek.THURSDAY, DayOfWeek.FRIDAY};
+
+    LocalDate[] dates = getWeekDates(firstDateOfWeek);
+
+    Map<DayOfWeek, List<InterviewerTimeSlot>> interviewerSlotsByDayOfWeek =
+        getInterviewerSlotsByDayOfWeek(weekNum);
+
+    Map<LocalDate, List<CandidateTimeSlot>> candidateSlotsByDate =
+        getCandidateSlotsByDate(firstDateOfWeek);
+
+    DayInfo[] daysInfo = {
+        new DayInfo(), new DayInfo(), new DayInfo(), new DayInfo(), new DayInfo()
+    };
+    for (int i = 0; i < daysInfo.length; i++) {
+      daysInfo[i].setDayOfWeek(dayOfWeeks[i]);
+      daysInfo[i].setDate(dates[i]);
+      List<InterviewerTimeSlot> interviewerTimeSlots =
+          interviewerSlotsByDayOfWeek.get(dayOfWeeks[i]);
+      if (interviewerTimeSlots != null) {
+        List<Booking> bookings = interviewerTimeSlots.stream().map(
+            InterviewerTimeSlot::getBookingList).flatMap(List::stream).collect(Collectors.toList());
+        daysInfo[i].setInterviewerTimeSlots(interviewerTimeSlots);
+        if (!bookings.isEmpty()) {
+          daysInfo[i].setBookings(
+              bookings.stream().collect(Collectors.toMap(Booking::getId, b -> b)));
+        }
+      }
+      List<CandidateTimeSlot> candidateTimeSlots = candidateSlotsByDate.get(dates[i]);
+      if (candidateTimeSlots != null) {
+        daysInfo[i].setCandidateTimeSlots(candidateSlotsByDate.get(dates[i]));
+      }
+    }
+    Map<String, DayInfo[]> resultMap = new LinkedHashMap<>();
+    resultMap.put("days", daysInfo);
+    return resultMap;
+  }
+
+  /**
+   * Static inner class for dashboard data serialization.
+   */
+  @Setter
+  @Getter
+  @NoArgsConstructor
+  @ToString
+  public static class DayInfo {
+    private DayOfWeek dayOfWeek;
+    private LocalDate date;
+    @JsonIgnoreProperties("dayOfWeek")
+    private List<InterviewerTimeSlot> interviewerTimeSlots = new ArrayList<>();
+    @JsonIgnoreProperties("date")
+    private List<CandidateTimeSlot> candidateTimeSlots = new ArrayList<>();
+    private Map<UUID, Booking> bookings = new LinkedHashMap<>();
   }
 }
