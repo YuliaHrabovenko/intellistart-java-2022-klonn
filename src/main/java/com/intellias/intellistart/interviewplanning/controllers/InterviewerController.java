@@ -49,7 +49,7 @@ public class InterviewerController {
       @PathVariable("interviewer_id") UUID interviewerId,
       @PathVariable("slot_id") UUID slotId,
       @Valid @RequestBody InterviewerTimeSlot timeSlot) {
-    return interviewerService.updateSlot(timeSlot, interviewerId, slotId);
+    return interviewerService.updateSlotForNextWeek(timeSlot, interviewerId, slotId);
   }
 
   @GetMapping("/weeks/current/interviewers/{interviewerId}/slots")
