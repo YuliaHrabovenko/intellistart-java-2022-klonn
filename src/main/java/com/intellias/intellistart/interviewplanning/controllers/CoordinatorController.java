@@ -75,14 +75,14 @@ public class CoordinatorController {
 
   @PostMapping(path = "/users/coordinators")
   @ResponseStatus(code = HttpStatus.CREATED)
-  public void grantCoordinatorRole(@RequestBody User coordinator) {
-    coordinatorService.grantCoordinatorRole(coordinator);
+  public User grantCoordinatorRole(@RequestBody User coordinator) {
+    return coordinatorService.grantCoordinatorRole(coordinator);
   }
 
   @PostMapping(path = "/users/interviewers")
   @ResponseStatus(code = HttpStatus.CREATED)
-  public void grantInterviewerRole(@RequestBody User interviewer) {
-    coordinatorService.grantInterviewerRole(interviewer);
+  public User grantInterviewerRole(@RequestBody User interviewer) {
+    return coordinatorService.grantInterviewerRole(interviewer);
   }
 
   @GetMapping(path = "/weeks/{weekNum}/dashboard")
