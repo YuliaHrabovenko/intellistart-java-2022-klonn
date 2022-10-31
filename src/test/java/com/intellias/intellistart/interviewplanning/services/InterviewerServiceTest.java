@@ -445,82 +445,83 @@ class InterviewerServiceTest {
     assertThat(receivedLimits).isEqualTo(expectedLimits);
   }
 
-  //cant get access to fields, gonna fix this in future commits
-//  @Test
-//  void givenInterviewerIdAndIsForCurrentWeekTrue_whenGetWeekTimeSlotsByInterviewerId_thenReturnInterviewerTimeSlotList() {
-//
-//    User interviewer = User.builder().
-//        id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
-//        .email("candidate@gmail.com")
-//        .role(UserRole.INTERVIEWER)
-//        .build();
-//
-//    InterviewerTimeSlot interviewerTimeSlot = InterviewerTimeSlot.builder()
-//        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
-//        .periodId(period.getId())
-//        .interviewerId(interviewer.getId())
-//        .dayOfWeek(DayOfWeek.MONDAY)
-//        .build();
-//
-//    InterviewerTimeSlot interviewerTimeSlot1 = InterviewerTimeSlot.builder()
-//        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440002"))
-//        .periodId(period.getId())
-//        .interviewerId(interviewer.getId())
-//        .dayOfWeek(DayOfWeek.WEDNESDAY)
-//        .build();
-//
-//    List<InterviewerTimeSlot> interviewerTimeSlots = List.of(interviewerTimeSlot, interviewerTimeSlot1);
-//
-//    given(userRepository.findById(interviewer.getId())).willReturn(Optional.of(interviewer));
-//
-//    given(interviewerTimeSlotRepository.findAll()).willReturn(interviewerTimeSlots);
-//
-//    for (InterviewerTimeSlot slot : interviewerTimeSlots){
-//      given(periodRepository.findById(slot.getPeriodId())).willReturn(Optional.of(period));
-//    }
-//
-//    List<InterviewerTimeSlot> slotList = interviewerService.getWeekTimeSlotsByInterviewerId(
-//        interviewer.getId(), true);
-//
-//    assertThat(slotList).isNotNull();
-//    assertThat(slotList).hasSize(2);
-//  }
-//
-//
-//  @Test
-//  void givenInterviewerIdAndIsForCurrentWeekFalse_whenGetWeekTimeSlotsByInterviewerId_thenReturnInterviewerTimeSlotList() {
-//
-//    User interviewer = User.builder().
-//        id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
-//        .email("candidate@gmail.com")
-//        .role(UserRole.INTERVIEWER)
-//        .build();
-//
-//    InterviewerTimeSlot interviewerTimeSlot = InterviewerTimeSlot.builder()
-//        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
-//        .periodId(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
-//        .interviewerId(interviewer.getId())
-//        .dayOfWeek(DayOfWeek.MONDAY)
-//        .build();
-//
-//    InterviewerTimeSlot interviewerTimeSlot1 = InterviewerTimeSlot.builder()
-//        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
-//        .periodId(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
-//        .interviewerId(interviewer.getId())
-//        .dayOfWeek(DayOfWeek.WEDNESDAY)
-//        .build();
-//
-//    List<InterviewerTimeSlot> interviewerTimeSlots = List.of(interviewerTimeSlot, interviewerTimeSlot1);
-//
-//    given(userRepository.findById(interviewer.getId())).willReturn(Optional.of(interviewer));
-//
-//    given(interviewerTimeSlotRepository.findAll()).willReturn(interviewerTimeSlots);
-//
-//    List<InterviewerTimeSlot> slotList = interviewerService.getWeekTimeSlotsByInterviewerId(
-//        UUID.fromString("123e4567-e89b-42d3-a456-556642440000"), false);
-//
-//    assertThat(slotList).isNotNull();
-//    assertThat(slotList).hasSize(2);
-//  }
+  @Test
+  void givenInterviewerIdAndIsForCurrentWeekTrue_whenGetWeekTimeSlotsByInterviewerId_thenReturnInterviewerTimeSlotList() {
+
+    User interviewer = User.builder().
+        id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
+        .email("interrviewer@gmail.com")
+        .role(UserRole.INTERVIEWER)
+        .build();
+
+    InterviewerTimeSlot interviewerTimeSlot = InterviewerTimeSlot.builder()
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440001"))
+        .from(startTime)
+        .to(endTime)
+        .dayOfWeek(DayOfWeek.FRIDAY)
+        .interviewerId(interviewer.getId())
+        .weekNum(WeekUtil.getCurrentWeekNumber())
+        .build();
+
+    InterviewerTimeSlot interviewerTimeSlot1 = InterviewerTimeSlot.builder()
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440002"))
+        .from(startTime)
+        .to(endTime)
+        .dayOfWeek(DayOfWeek.THURSDAY)
+        .interviewerId(interviewer.getId())
+        .weekNum(WeekUtil.getCurrentWeekNumber())
+        .build();
+
+    List<InterviewerTimeSlot> interviewerTimeSlots = List.of(interviewerTimeSlot, interviewerTimeSlot1);
+
+    given(userRepository.findById(interviewer.getId())).willReturn(Optional.of(interviewer));
+
+    given(interviewerTimeSlotRepository.findInterviewerTimeSlotByInterviewerId(interviewer.getId())).willReturn(interviewerTimeSlots);
+
+    List<InterviewerTimeSlot> timeSlotsForCurrentWeek = interviewerService.getWeekTimeSlotsByInterviewerId(interviewer.getId(), true);
+
+    assertThat(timeSlotsForCurrentWeek).isNotNull();
+    assertThat(timeSlotsForCurrentWeek).hasSize(2);
+  }
+
+
+  @Test
+  void givenInterviewerIdAndIsForCurrentWeekFalse_whenGetWeekTimeSlotsByInterviewerId_thenReturnInterviewerTimeSlotList() {
+
+    User interviewer = User.builder().
+        id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
+        .email("interrviewer@gmail.com")
+        .role(UserRole.INTERVIEWER)
+        .build();
+
+    InterviewerTimeSlot interviewerTimeSlot = InterviewerTimeSlot.builder()
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440001"))
+        .from(startTime)
+        .to(endTime)
+        .dayOfWeek(DayOfWeek.FRIDAY)
+        .interviewerId(interviewer.getId())
+        .weekNum(WeekUtil.getNextWeekNumber())
+        .build();
+
+    InterviewerTimeSlot interviewerTimeSlot1 = InterviewerTimeSlot.builder()
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440002"))
+        .from(startTime)
+        .to(endTime)
+        .dayOfWeek(DayOfWeek.THURSDAY)
+        .interviewerId(interviewer.getId())
+        .weekNum(WeekUtil.getNextWeekNumber())
+        .build();
+
+    List<InterviewerTimeSlot> interviewerTimeSlots = List.of(interviewerTimeSlot, interviewerTimeSlot1);
+
+    given(userRepository.findById(interviewer.getId())).willReturn(Optional.of(interviewer));
+
+    given(interviewerTimeSlotRepository.findInterviewerTimeSlotByInterviewerId(interviewer.getId())).willReturn(interviewerTimeSlots);
+
+    List<InterviewerTimeSlot> timeSlotsForNextWeek = interviewerService.getWeekTimeSlotsByInterviewerId(interviewer.getId(), false);
+
+    assertThat(timeSlotsForNextWeek).isNotNull();
+    assertThat(timeSlotsForNextWeek).hasSize(2);
+  }
 
 }

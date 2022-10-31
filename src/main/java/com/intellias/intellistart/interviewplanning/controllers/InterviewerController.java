@@ -51,4 +51,19 @@ public class InterviewerController {
       @Valid @RequestBody InterviewerTimeSlot timeSlot) {
     return interviewerService.updateSlotForNextWeek(timeSlot, interviewerId, slotId);
   }
+
+  @GetMapping("/weeks/current/interviewers/{interviewerId}/slots")
+  @ResponseStatus(code = HttpStatus.OK)
+  public List<InterviewerTimeSlot> getCurrentWeekSlots(@PathVariable("interviewerId")
+                                                             UUID interviewerId) {
+    return interviewerService.getWeekTimeSlotsByInterviewerId(interviewerId, true);
+  }
+
+
+  @GetMapping("/weeks/next/interviewers/{interviewerId}/slots")
+  @ResponseStatus(code = HttpStatus.OK)
+  public List<InterviewerTimeSlot> getNextWeekSlots(@PathVariable("interviewerId")
+                                                           UUID interviewerId) {
+    return interviewerService.getWeekTimeSlotsByInterviewerId(interviewerId, false);
+  }
 }
