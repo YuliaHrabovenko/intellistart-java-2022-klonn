@@ -2,6 +2,7 @@ package com.intellias.intellistart.interviewplanning.services;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.intellias.intellistart.interviewplanning.exceptions.ExceptionMessage;
+import com.intellias.intellistart.interviewplanning.exceptions.NotFoundException;
 import com.intellias.intellistart.interviewplanning.exceptions.ValidationException;
 import com.intellias.intellistart.interviewplanning.models.Booking;
 import com.intellias.intellistart.interviewplanning.models.CandidateTimeSlot;
@@ -138,36 +139,32 @@ public class CoordinatorService {
    * Revoke coordinator role.
    *
    * @param coordinatorId id of the user
-   * @return user object if success
    */
-  public User revokeCoordinatorRole(UUID coordinatorId) {
+  public void revokeCoordinatorRole(UUID coordinatorId) {
     User coordinator = coordinatorRepository.findById(coordinatorId)
-        .orElseThrow(() -> new IllegalStateException(
-            "coordinator with id " + coordinatorId + " does not exists"));
-    if (coordinator.getRole() == UserRole.COORDINATOR) {
-      coordinator.setRole(null);
-      return coordinatorRepository.save(coordinator);
-      // don't really sure what role to set
-      // and also don`t know how to prevent coordinator to revoke himself
+        .orElseThrow(
+            () -> new NotFoundException(ExceptionMessage.COORDINATOR_NOT_FOUND.getMessage()));
+    if (coordinator.getRole() != UserRole.COORDINATOR) {
+      throw new ValidationException(ExceptionMessage.NOT_COORDINATOR.getMessage());
+      //don`t know how to prevent coordinator to revoke himself
     }
-    return coordinator; // do not sure if it`s ok
+    coordinatorRepository.deleteById(coordinatorId);
   }
 
   /**
    * Revoke interviewer role.
    *
    * @param interviewerId id of the user
-   * @return user object if success
    */
-  public User revokeInterviewerRole(UUID interviewerId) {
-    User interviewer = coordinatorRepository.findById(interviewerId)
-        .orElseThrow(() -> new IllegalStateException(
-            "coordinator with id " + interviewerId + " does not exists"));
-    if (interviewer.getRole() == UserRole.INTERVIEWER) {
-      interviewer.setRole(UserRole.COORDINATOR);
-      return coordinatorRepository.save(interviewer);
+  public void revokeInterviewerRole(UUID interviewerId) {
+    User coordinator = coordinatorRepository.findById(interviewerId)
+        .orElseThrow(
+            () -> new NotFoundException(ExceptionMessage.INTERVIEWER_NOT_FOUND.getMessage()));
+    if (coordinator.getRole() != UserRole.INTERVIEWER) {
+      throw new ValidationException(ExceptionMessage.NOT_INTERVIEWER.getMessage());
+      //don`t know how to prevent coordinator to revoke himself
     }
-    return interviewer; // do not sure if it`s ok
+    coordinatorRepository.deleteById(interviewerId);
   }
 
   /**

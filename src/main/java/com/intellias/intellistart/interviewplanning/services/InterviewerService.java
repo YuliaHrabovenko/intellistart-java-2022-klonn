@@ -92,9 +92,11 @@ public class InterviewerService {
   }
 
   /**
-   * Update Interviewer time slot.
+   * Update Interviewer time slot not only for next week.
    *
-   * @param interviewerTimeSlot interviewer time slot object
+   * @param interviewerTimeSlot interviewer time slot
+   * @param interviewerId       interviewer id
+   * @param slotId              slot id
    * @return updated interviewer time slot if valid
    */
   public InterviewerTimeSlot updateSlot(InterviewerTimeSlot interviewerTimeSlot,
@@ -110,18 +112,9 @@ public class InterviewerService {
         () -> new ValidationException(
             ExceptionMessage.INTERVIEWER_SLOT_NOT_FOUND.getMessage()));
 
-    // checking if week number and day is the same of new time slot and one that will be updating
-    if (!existingSlot.getWeekNum().equals(interviewerTimeSlot.getWeekNum())
-        || !existingSlot.getDayOfWeek().equals(interviewerTimeSlot.getDayOfWeek())) {
-      throw new ValidationException(ExceptionMessage.NOT_VALID_SLOT_DATA.getMessage());
-    }
-
     //validation new data
     WeekUtil.validateDayOfWeek(interviewerTimeSlot.getDayOfWeek());
-    WeekUtil.validateIsNextWeekNumber(interviewerTimeSlot.getWeekNum(),
-        WeekUtil.getNextWeekNumber());
     PeriodUtil.validatePeriod(interviewerTimeSlot.getFrom(), interviewerTimeSlot.getTo());
-
 
     // check if there is no bookings with interviewer slot
     List<Booking> bookings = bookingRepository.getBookingsByInterviewerSlotId(existingSlot.getId());
@@ -152,6 +145,21 @@ public class InterviewerService {
     return interviewerTimeSlotRepository.save(existingSlot);
   }
 
+  /**
+   * Updating interviewer time slot with checking if slot is in next week.
+   *
+   * @param interviewerTimeSlot interviewer time slot
+   * @param interviewerId       interviewer id
+   * @param slotId              slot id
+   * @return updated interviewer time slot if valid
+   */
+  public InterviewerTimeSlot updateSlotForNextWeek(InterviewerTimeSlot interviewerTimeSlot,
+                                                   UUID interviewerId,
+                                                   UUID slotId) {
+    WeekUtil.validateIsNextWeekNumber(interviewerTimeSlot.getWeekNum(),
+        WeekUtil.getNextWeekNumber());
+    return updateSlot(interviewerTimeSlot, interviewerId, slotId);
+  }
 
   /**
    * Get booking limits by interviewer`s id.
