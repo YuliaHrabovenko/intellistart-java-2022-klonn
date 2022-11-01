@@ -4,7 +4,9 @@ import com.intellias.intellistart.interviewplanning.models.Booking;
 import com.intellias.intellistart.interviewplanning.models.User;
 import com.intellias.intellistart.interviewplanning.services.BookingService;
 import com.intellias.intellistart.interviewplanning.services.CoordinatorService;
+import com.intellias.intellistart.interviewplanning.services.CoordinatorService.DayInfo;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,7 +64,6 @@ public class CoordinatorController {
     bookingService.updateBooking(id, booking);
   }
 
-  // all bottom methods are tested and it`s working correctly
   @GetMapping(path = "/users/coordinators")
   public List<User> getCoordinators() {
     return coordinatorService.getCoordinators();
@@ -83,16 +84,21 @@ public class CoordinatorController {
     coordinatorService.revokeInterviewerRole(interviewerId);
   }
 
-
   @PostMapping(path = "/users/coordinators")
   @ResponseStatus(code = HttpStatus.CREATED)
-  public void grantCoordinatorRole(@Valid @RequestBody User coordinator) {
-    coordinatorService.grantCoordinatorRole(coordinator);
+  public User grantCoordinatorRole(@RequestBody User coordinator) {
+    return coordinatorService.grantCoordinatorRole(coordinator);
   }
 
   @PostMapping(path = "/users/interviewers")
   @ResponseStatus(code = HttpStatus.CREATED)
-  public void grantInterviewerRole(@Valid @RequestBody User interviewer) {
-    coordinatorService.grantInterviewerRole(interviewer);
+  public User grantInterviewerRole(@RequestBody User interviewer) {
+    return coordinatorService.grantInterviewerRole(interviewer);
   }
+
+  @GetMapping(path = "/weeks/{weekNum}/dashboard")
+  public Map<String, DayInfo[]> getDashboard(@PathVariable("weekNum") String weekNum) {
+    return coordinatorService.getAllSlotsAndBookingsGroupedByDay(weekNum);
+  }
+
 }
