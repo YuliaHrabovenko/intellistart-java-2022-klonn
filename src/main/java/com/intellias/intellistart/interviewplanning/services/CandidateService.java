@@ -13,6 +13,7 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -29,6 +30,7 @@ public class CandidateService {
    * @param candidateTimeSlotRepository candidate time slot repository
    * @param bookingRepository           booking repository
    */
+  @Autowired
   public CandidateService(CandidateTimeSlotRepository candidateTimeSlotRepository,
                           BookingRepository bookingRepository) {
     this.candidateTimeSlotRepository = candidateTimeSlotRepository;

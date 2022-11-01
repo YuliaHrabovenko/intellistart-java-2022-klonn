@@ -47,12 +47,12 @@ public class Booking {
   private LocalTime to;
   @NotNull(message = "subject has to be present")
   @NotBlank
-  @Size(max = 255, message = "Subject's length can't be higher that 255 characters")
+  @Size(max = 255, message = "Subject's length can't be higher than 255 characters")
   @Column(name = "subject")
   private String subject;
   @NotNull(message = "description has to be present")
   @NotBlank
-  @Size(max = 4000, message = "Description's length can't be higher that 4000 characters")
+  @Size(max = 4000, message = "Description's length can't be higher than 4000 characters")
   @Column(name = "description")
   private String description;
   @NotNull(message = "interviewerTimeSlotId has to be present")

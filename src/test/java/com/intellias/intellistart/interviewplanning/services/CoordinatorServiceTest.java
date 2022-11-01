@@ -22,6 +22,7 @@ import com.intellias.intellistart.interviewplanning.repositories.CandidateTimeSl
 import com.intellias.intellistart.interviewplanning.repositories.InterviewerTimeSlotRepository;
 import com.intellias.intellistart.interviewplanning.repositories.UserRepository;
 import com.intellias.intellistart.interviewplanning.services.CoordinatorService.DayInfo;
+import com.intellias.intellistart.interviewplanning.utils.WeekUtil;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -51,6 +52,9 @@ class CoordinatorServiceTest {
 
   @InjectMocks
   private CoordinatorService coordinatorService;
+
+  @Mock
+  private InterviewerService interviewerService;
 
   @InjectMocks
   private BookingService bookingService;
@@ -206,6 +210,47 @@ class CoordinatorServiceTest {
   }
 
   @Test
+  void givenInterviewerSlotWithNotValidWeekNum_whenUpdateInterviewerSlot_thenThrowException() {
+    InterviewerTimeSlot interviewerTimeSlot = InterviewerTimeSlot.builder()
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
+        .from(startTime)
+        .to(endTime)
+        .dayOfWeek(DayOfWeek.MONDAY)
+        .weekNum("201840")
+        .interviewerId(interviewer.getId())
+        .build();
+
+    assertThrows(ValidationException.class,
+        () -> coordinatorService.updateInterviewerTimeSlot(interviewerTimeSlot,
+            interviewerTimeSlot.getInterviewerId(), interviewerTimeSlot.getId()));
+
+  }
+
+  @Test
+  void givenInterviewerSlot_whenUpdateInterviewerSlot_thenReturnUpdatedSlot() {
+    InterviewerTimeSlot interviewerTimeSlot = InterviewerTimeSlot.builder()
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440002"))
+        .from(startTime)
+        .to(endTime)
+        .interviewerId(interviewer.getId())
+        .dayOfWeek(DayOfWeek.MONDAY)
+        .weekNum(WeekUtil.getNextWeekNumber())
+        .build();
+
+    given(interviewerService.updateSlot(interviewerTimeSlot,
+        interviewer.getId(),
+        UUID.fromString("123e4567-e89b-42d3-a456-556642440002"))).willReturn(interviewerTimeSlot);
+
+    InterviewerTimeSlot updatedSlot =
+        coordinatorService.updateInterviewerTimeSlot(interviewerTimeSlot,
+            interviewer.getId(),
+            UUID.fromString("123e4567-e89b-42d3-a456-556642440002"));
+
+    assertThat(updatedSlot.getFrom()).isEqualTo(updatedSlot.getFrom());
+    assertThat(updatedSlot.getTo()).isEqualTo(updatedSlot.getTo());
+  }
+
+  @Test
   void givenWeekNum_whenGetSlotsAndBookings_thenReturnSlotsAndBookings() {
     String weekNum = "202243";
 
@@ -257,35 +302,6 @@ class CoordinatorServiceTest {
     assertThat(expected[3].getDate()).isEqualTo(daysInfo[3].getDate());
   }
 
-
-  @Test
-  void SuccessUpdateInterviewerTimeSlot() {
-
-    LocalTime start = LocalTime.of(10, 0);
-    LocalTime end = LocalTime.of(11, 30);
-
-    InterviewerTimeSlot interviewerTimeSlot = InterviewerTimeSlot.builder()
-        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
-        .from(start)
-        .to(end)
-        .interviewerId(interviewer.getId())
-        .build();
-
-    LocalTime startNew = LocalTime.of(14, 0);
-    LocalTime endNew = LocalTime.of(16, 0);
-
-    given(interviewerTimeSlotRepository.findById(interviewerTimeSlot.getId())).willReturn(
-        Optional.of(interviewerTimeSlot));
-
-    given(interviewerTimeSlotRepository.save(interviewerTimeSlot)).willReturn(interviewerTimeSlot);
-    interviewerTimeSlot.setFrom(startNew);
-    interviewerTimeSlot.setTo(endNew);
-    InterviewerTimeSlot updated =
-        coordinatorService.updateInterviewerTimeSlot(interviewerTimeSlot, interviewer.getId());
-    assertThat(updated.getFrom()).isEqualTo(startNew);
-    assertThat(updated.getTo()).isEqualTo(endNew);
-  }
-
   @Test
   void givenCoordinatorId_whenRevokeCoordinatorRole_thenNothing() {
     given(userRepository.findById(
@@ -324,6 +340,7 @@ class CoordinatorServiceTest {
     coordinatorService.revokeInterviewerRole(interviewer.getId());
     verify(userRepository, times(1)).deleteById(interviewer.getId());
   }
+
   @Test
   void givenInterviewerId_whenRevokeInterviewerRole_thenThrowException() {
     User interviewerWithCoordinatorRole = User.builder().
