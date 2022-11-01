@@ -20,7 +20,8 @@ public enum ExceptionMessage {
   PERIOD_DURATION_IS_NOT_ENOUGH("Period should be more or equal to 1.5h"),
   SLOT_BOUNDARIES_EXCEEDED(
       "Start time can`t be less than 8:00, end time can`t be greater than 22:00"),
-  NOT_NEXT_WEEK("The week must be next to the curren"),
+  NOT_NEXT_WEEK("The week must be next to the current"),
+  NOT_CURRENT_OR_NEXT_WEEK("The week number can be for the current or next week only"),
   OVERLAPPING_PERIOD("Time slot interval can't overlap existing time slot"),
   NOT_WORKING_DAY_OF_WEEK("The day must not be a weekend"),
 

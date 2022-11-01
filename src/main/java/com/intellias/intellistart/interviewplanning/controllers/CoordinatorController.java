@@ -1,6 +1,7 @@
 package com.intellias.intellistart.interviewplanning.controllers;
 
 import com.intellias.intellistart.interviewplanning.models.Booking;
+import com.intellias.intellistart.interviewplanning.models.InterviewerTimeSlot;
 import com.intellias.intellistart.interviewplanning.models.User;
 import com.intellias.intellistart.interviewplanning.services.BookingService;
 import com.intellias.intellistart.interviewplanning.services.CoordinatorService;
@@ -27,7 +28,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class CoordinatorController {
 
   private final CoordinatorService coordinatorService;
-
   private final BookingService bookingService;
 
   @Autowired
@@ -49,8 +49,8 @@ public class CoordinatorController {
    */
   @PostMapping(path = "/bookings")
   @ResponseStatus(code = HttpStatus.CREATED)
-  public void createBooking(@Valid @RequestBody Booking booking) {
-    bookingService.createBooking(booking.getInterviewerTimeSlotId(),
+  public Booking createBooking(@Valid @RequestBody Booking booking) {
+    return bookingService.createBooking(booking.getInterviewerTimeSlotId(),
         booking.getCandidateTimeSlotId(),
         booking.getFrom(),
         booking.getTo(),
@@ -59,9 +59,9 @@ public class CoordinatorController {
   }
 
   @PostMapping(path = "/bookings/{bookingId}")
-  public void updateBooking(@PathVariable("bookingId") UUID id,
-      @Valid @RequestBody Booking booking) {
-    bookingService.updateBooking(id, booking);
+  public Booking updateBooking(@PathVariable("bookingId") UUID id,
+                            @Valid @RequestBody Booking booking) {
+    return bookingService.updateBooking(id, booking);
   }
 
   @GetMapping(path = "/users/coordinators")
@@ -86,14 +86,23 @@ public class CoordinatorController {
 
   @PostMapping(path = "/users/coordinators")
   @ResponseStatus(code = HttpStatus.CREATED)
-  public User grantCoordinatorRole(@RequestBody User coordinator) {
+  public User grantCoordinatorRole(@Valid @RequestBody User coordinator) {
     return coordinatorService.grantCoordinatorRole(coordinator);
   }
 
   @PostMapping(path = "/users/interviewers")
   @ResponseStatus(code = HttpStatus.CREATED)
-  public User grantInterviewerRole(@RequestBody User interviewer) {
+  public User grantInterviewerRole(@Valid @RequestBody User interviewer) {
     return coordinatorService.grantInterviewerRole(interviewer);
+  }
+
+  @PostMapping("/interviewers/{interviewer_id}/slots/{slot_id}")
+  public InterviewerTimeSlot updateInterviewerTimeSlot(
+      @PathVariable("interviewer_id") UUID interviewerId,
+      @PathVariable("slot_id") UUID slotId,
+      @Valid @RequestBody InterviewerTimeSlot timeSlot) {
+    return coordinatorService.updateInterviewerTimeSlot(timeSlot, interviewerId,
+        slotId);
   }
 
   @GetMapping(path = "/weeks/{weekNum}/dashboard")

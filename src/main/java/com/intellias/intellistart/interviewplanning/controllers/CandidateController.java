@@ -20,8 +20,12 @@ import org.springframework.web.bind.annotation.RestController;
 //@RequestMapping("/candidates/current/slots")
 public class CandidateController {
 
+  private final CandidateService candidateService;
+
   @Autowired
-  private CandidateService candidateService;
+  public CandidateController(CandidateService candidateService) {
+    this.candidateService = candidateService;
+  }
 
   @PostMapping("/candidates/current/slots")
   @ResponseStatus(code = HttpStatus.CREATED)

@@ -15,9 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class WeekController {
 
-  @Autowired
-  private InterviewerService interviewerService;
-
   @GetMapping(value = "weeks/current", produces = MediaType.APPLICATION_JSON_VALUE)
   public Map<String, String> getCurrentWeek() {
     return Collections.singletonMap("weekNum", WeekUtil.getCurrentWeekNumber());

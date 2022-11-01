@@ -1,6 +1,7 @@
 package com.intellias.intellistart.interviewplanning.services;
 
 import com.intellias.intellistart.interviewplanning.exceptions.ExceptionMessage;
+import com.intellias.intellistart.interviewplanning.exceptions.NotFoundException;
 import com.intellias.intellistart.interviewplanning.exceptions.ValidationException;
 import com.intellias.intellistart.interviewplanning.models.Booking;
 import com.intellias.intellistart.interviewplanning.models.InterviewerBookingLimit;
@@ -12,14 +13,11 @@ import com.intellias.intellistart.interviewplanning.repositories.InterviewerTime
 import com.intellias.intellistart.interviewplanning.repositories.UserRepository;
 import com.intellias.intellistart.interviewplanning.utils.PeriodUtil;
 import com.intellias.intellistart.interviewplanning.utils.WeekUtil;
-import java.time.DayOfWeek;
-import java.time.Duration;
 import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -41,6 +39,7 @@ public class InterviewerService {
    * @param interviewerBookingLimitRepository interviewer booking limit repository
    */
 
+  @Autowired
   public InterviewerService(UserRepository interviewerRepository,
                             InterviewerTimeSlotRepository interviewerTimeSlotRepository,
                             BookingRepository bookingRepository,
@@ -60,7 +59,7 @@ public class InterviewerService {
     Optional<User> interviewer = interviewerRepository
         .findById(interviewerId);
     if (interviewer.isEmpty()) {
-      throw new ValidationException(ExceptionMessage.INTERVIEWER_NOT_FOUND.getMessage());
+      throw new NotFoundException(ExceptionMessage.INTERVIEWER_NOT_FOUND.getMessage());
     }
   }
 
@@ -108,12 +107,11 @@ public class InterviewerService {
                                         UUID slotId) {
     // check if time is before weekends
     WeekUtil.validateDayOfWeek(LocalDate.now().getDayOfWeek());
-
     validateInterviewerExistsById(interviewerId);
     interviewerTimeSlot.setInterviewerId(interviewerId);
 
     InterviewerTimeSlot existingSlot = interviewerTimeSlotRepository.findById(slotId).orElseThrow(
-        () -> new ValidationException(
+        () -> new NotFoundException(
             ExceptionMessage.INTERVIEWER_SLOT_NOT_FOUND.getMessage()));
 
     //validation new data
@@ -174,7 +172,7 @@ public class InterviewerService {
   public List<InterviewerBookingLimit> getBookingLimitsByInterviewerId(UUID interviewerId) {
     // check if interviewer exists in database
     validateInterviewerExistsById(interviewerId);
-    return interviewerBookingLimitRepository.findInterviewerBookingLimitsByInterviewerId(
+    return interviewerBookingLimitRepository.findByInterviewerId(
         interviewerId);
   }
 
@@ -213,7 +211,7 @@ public class InterviewerService {
   /**
    * get time slots for current or next week.
    *
-   * @param interviewerId id of interviewer
+   * @param interviewerId    id of interviewer
    * @param isForCurrentWeek field to indicate for which week return slots
    * @return week time slots
    */
@@ -228,61 +226,10 @@ public class InterviewerService {
 
     Optional<User> interviewer = interviewerRepository.findById(interviewerId);
     if (interviewer.isEmpty()) {
-      throw new ValidationException(ExceptionMessage.INTERVIEWER_NOT_FOUND.getMessage());
+      throw new NotFoundException(ExceptionMessage.INTERVIEWER_NOT_FOUND.getMessage());
     }
-
-    List<InterviewerTimeSlot> interviewerTimeSlots =
-        interviewerTimeSlotRepository.findInterviewerTimeSlotByInterviewerId(interviewerId);
-    List<InterviewerTimeSlot> resultTimeSlots = new ArrayList<>();
-
-    for (InterviewerTimeSlot slot : interviewerTimeSlots) {
-      if (slot.getWeekNum().equals(requiredWeekNumber)) {
-        resultTimeSlots.add(slot);
-      }
-
-    }
-    return resultTimeSlots;
+    return interviewerTimeSlotRepository.findInterviewerTimeSlotsByInterviewerIdAndWeekNum(
+            interviewerId, requiredWeekNumber);
   }
-
-  /**
-   * get booking by interviewer slot id.
-   *
-   * @param slotId slot id
-   * @return list of bookings
-   */
-
-  public List<Booking> getBookingByInterviewerSlotId(UUID slotId) {
-    Optional<InterviewerTimeSlot> slot = interviewerTimeSlotRepository.findById(slotId);
-    if (slot.isEmpty()) {
-      throw new ValidationException(ExceptionMessage.INTERVIEWER_SLOT_NOT_FOUND.getMessage());
-    }
-    return bookingRepository.getBookingsByInterviewerSlotId(slotId);
-  }
-
-  /*
-  /**
-  * Set maximum booking for next week.
-  *
-  * @param interviewerBookingLimit booking limit for next week
-  * @return interviewer booking limit if valid
-  * /
-
-  public InterviewerBookingLimit setMaximumBookingsForNextWeek(
-      InterviewerBookingLimit interviewerBookingLimit) {
-    Optional<User> interviewer = interviewerRepository
-        .findById(interviewerBookingLimit.getInterviewerId());
-    if (interviewer.isEmpty()) {
-      throw new ResourceNotFoundException(
-          "Interviewer", "Id", interviewerBookingLimit.getInterviewerId());
-    }
-
-    if (interviewerBookingLimit.getWeekBookingLimit() < 0) {
-      throw new InvalidMaximumBookingCountException(
-      "Maximum booking count must be positive digit");
-    }
-
-    return interviewerBookingLimitRepository.save(interviewerBookingLimit);
-  }
-  */
 
 }
