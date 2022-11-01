@@ -127,7 +127,6 @@ public class BookingService {
    *
    * @param bookingId booking id
    */
-
   public void deleteBooking(UUID bookingId) {
     Booking booking = bookingRepository.findById(bookingId)
         .orElseThrow(

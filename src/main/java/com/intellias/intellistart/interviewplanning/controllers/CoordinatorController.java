@@ -32,7 +32,7 @@ public class CoordinatorController {
 
   @Autowired
   public CoordinatorController(CoordinatorService coordinatorService,
-      BookingService bookingService) {
+                               BookingService bookingService) {
     this.coordinatorService = coordinatorService;
     this.bookingService = bookingService;
   }
