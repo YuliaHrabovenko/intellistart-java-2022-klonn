@@ -9,10 +9,12 @@ import com.intellias.intellistart.interviewplanning.repositories.BookingReposito
 import com.intellias.intellistart.interviewplanning.repositories.CandidateTimeSlotRepository;
 import com.intellias.intellistart.interviewplanning.repositories.InterviewerBookingLimitRepository;
 import com.intellias.intellistart.interviewplanning.repositories.InterviewerTimeSlotRepository;
+import com.intellias.intellistart.interviewplanning.utils.PeriodUtil;
+import com.intellias.intellistart.interviewplanning.utils.WeekUtil;
 import java.time.Duration;
 import java.time.LocalTime;
-import java.util.NoSuchElementException;
-import java.util.Objects;
+import java.util.Comparator;
+import java.util.List;
 import java.util.UUID;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,7 +71,7 @@ public class BookingService {
       String subject,
       String description) {
 
-    validateBookingFields(interviewerSlotId, candidateTimeSlotId, from, to, subject, description);
+    validateBookingFields(interviewerSlotId, candidateTimeSlotId, from, to);
 
     Booking booking = new Booking(
         from, to, interviewerSlotId, candidateTimeSlotId, subject, description
@@ -89,7 +91,7 @@ public class BookingService {
    */
   public Booking getBookingById(UUID id) {
     return bookingRepository.findById(id).orElseThrow(
-        () -> new NoSuchElementException("Booking with id " + id + " wasn't found"));
+        () -> new NotFoundException(ExceptionMessage.BOOKING_NOT_FOUND.getMessage()));
   }
 
   /**
@@ -102,15 +104,13 @@ public class BookingService {
 
     Booking curBooking = bookingRepository.findById(id)
         .orElseThrow(
-            () -> new NoSuchElementException("Booking to update with id " + id + " wasn't found"));
+            () -> new NotFoundException(ExceptionMessage.BOOKING_NOT_FOUND.getMessage()));
 
     validateBookingFields(
         updatedBooking.getInterviewerTimeSlotId(),
         updatedBooking.getCandidateTimeSlotId(),
         updatedBooking.getFrom(),
-        updatedBooking.getTo(),
-        updatedBooking.getSubject(),
-        updatedBooking.getDescription()
+        updatedBooking.getTo()
     );
 
     curBooking.setInterviewerTimeSlotId(updatedBooking.getInterviewerTimeSlotId());
@@ -138,49 +138,50 @@ public class BookingService {
   private void validateBookingFields(UUID interviewerSlotId,
       UUID candidateTimeSlotId,
       LocalTime from,
-      LocalTime to,
-      String subject,
-      String description) {
+      LocalTime to) {
 
     isInterviewerLimitExceeded(interviewerSlotId);
 
     boolean existCandidateTimeSlot = candidateTimeSlotRepository.existsById(candidateTimeSlotId);
     if (!existCandidateTimeSlot) {
-      throw new IllegalStateException(
-          "Candidate Time slot with id " + candidateTimeSlotId + " does not exists");
+      throw new NotFoundException(ExceptionMessage.CANDIDATE_SLOT_NOT_FOUND.getMessage());
     }
 
-    if (!subject.isBlank() && subject.length() > 255) {
-      throw new IllegalStateException(
-          "Subject cannot be empty and must be less than 255 characters");
-    }
+    PeriodUtil.validatePeriod(from, to);
 
     if (Math.abs(Duration.between(from, to).toMinutes()) != 90) {
       throw new ValidationException(
           ExceptionMessage.WRONG_BOOKING_DURATION.getMessage());
     }
 
-    if (!description.isBlank() && description.length() > 4000) {
-      throw new IllegalStateException(
-          "Description cannot be empty and must be less than 4000 characters");
-    }
 
   }
 
-  /**
-   * Checks if interviewer's limit wasn't exceeded.
-   *
-   * @param interviewerTimeSlotId Interviewer time slot id
-   * @return false, when limit wasn't exceeded
-   */
   private boolean isInterviewerLimitExceeded(UUID interviewerTimeSlotId) {
+    //Getting BookingLimitRepository
     UUID interviewerId = interviewerTimeSlotRepository.findById(interviewerTimeSlotId)
         .orElseThrow(
-            () -> new IllegalStateException(
-                "Interviewer Time slot with id " + interviewerTimeSlotId + " does not exists"))
+            () -> new NotFoundException(ExceptionMessage.INTERVIEWER_SLOT_NOT_FOUND.getMessage()))
         .getInterviewerId();
-    InterviewerBookingLimit interviewerBookingLimit = interviewerBookingLimitRepository
+    List<InterviewerBookingLimit> interviewerBookingLimits = interviewerBookingLimitRepository
         .findByInterviewerId(interviewerId).orElseThrow();
+    InterviewerBookingLimit isNextWeekLimitExist = interviewerBookingLimitRepository
+        .findInterviewerBookingLimitByInterviewerIdAndWeekNum(interviewerId,
+            WeekUtil.getNextWeekNumber());
+
+    int counter = interviewerBookingLimits.size();
+    if (isNextWeekLimitExist != null) {
+      counter--;
+    }
+    //If there are no limits
+    if (counter == 0) {
+      return false;
+    }
+    //Sorting the list and getting first (not next week) limit
+    interviewerBookingLimits.sort(
+        Comparator.comparingInt(o -> Integer.parseInt(o.getWeekNum())));
+    InterviewerBookingLimit interviewerBookingLimit = interviewerBookingLimits.get(counter - 1);
+
     int bookingLimit = interviewerBookingLimit.getWeekBookingLimit();
     int bookingCount = interviewerBookingLimit.getCurrentBookingCount();
     if (bookingCount >= bookingLimit) {

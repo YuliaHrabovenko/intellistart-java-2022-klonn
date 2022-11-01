@@ -6,6 +6,7 @@ import com.intellias.intellistart.interviewplanning.services.BookingService;
 import com.intellias.intellistart.interviewplanning.services.CoordinatorService;
 import java.util.List;
 import java.util.UUID;
+import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -46,7 +47,7 @@ public class CoordinatorController {
    */
   @PostMapping(path = "/bookings")
   @ResponseStatus(code = HttpStatus.CREATED)
-  public void createBooking(@RequestBody Booking booking) {
+  public void createBooking(@Valid @RequestBody Booking booking) {
     bookingService.createBooking(booking.getInterviewerTimeSlotId(),
         booking.getCandidateTimeSlotId(),
         booking.getFrom(),
@@ -57,7 +58,7 @@ public class CoordinatorController {
 
   @PostMapping(path = "/bookings/{bookingId}")
   public void updateBooking(@PathVariable("bookingId") UUID id,
-      @RequestBody Booking booking) {
+      @Valid @RequestBody Booking booking) {
     bookingService.updateBooking(id, booking);
   }
 
@@ -85,13 +86,13 @@ public class CoordinatorController {
 
   @PostMapping(path = "/users/coordinators")
   @ResponseStatus(code = HttpStatus.CREATED)
-  public void grantCoordinatorRole(@RequestBody User coordinator) {
+  public void grantCoordinatorRole(@Valid @RequestBody User coordinator) {
     coordinatorService.grantCoordinatorRole(coordinator);
   }
 
   @PostMapping(path = "/users/interviewers")
   @ResponseStatus(code = HttpStatus.CREATED)
-  public void grantInterviewerRole(@RequestBody User interviewer) {
+  public void grantInterviewerRole(@Valid @RequestBody User interviewer) {
     coordinatorService.grantInterviewerRole(interviewer);
   }
 }
