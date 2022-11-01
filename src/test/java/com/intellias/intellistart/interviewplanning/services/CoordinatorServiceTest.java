@@ -287,43 +287,59 @@ class CoordinatorServiceTest {
   }
 
   @Test
-  void SuccessRevokeCoordinatorRole() {
-    User coordinatorWithoutCoordinatorRole = User.builder().
-        id(UUID.fromString("123e4567-e89b-42d3-a456-556642440002")).
-        email("coordinator@gmail.com").
-        role(UserRole.COORDINATOR)
-        .build();
-
+  void givenCoordinatorId_whenRevokeCoordinatorRole_thenNothing() {
     given(userRepository.findById(
         UUID.fromString("123e4567-e89b-42d3-a456-556642440002"))).willReturn(
         Optional.of(coordinator));
 
-    given(userRepository.save(coordinator)).willReturn(coordinatorWithoutCoordinatorRole);
-
-    User user = null;
-    user = coordinatorService.revokeCoordinatorRole(
-        UUID.fromString("123e4567-e89b-42d3-a456-556642440002"));
-    assertEquals(UserRole.COORDINATOR, user.getRole());
+    coordinatorService.revokeCoordinatorRole(coordinator.getId());
+    verify(userRepository, times(1)).deleteById(coordinator.getId());
   }
 
   @Test
-  void SuccessRevokeInterviewerRole() {
-    User interviewerWithoutInterviewerRole = User.builder().
-        id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000")).
+  void givenCoordinatorId_whenRevokeCoordinatorRole_thenThrowException() {
+    User coordinatorWithInterviewerRole = User.builder().
+        id(UUID.fromString("123e4567-e89b-42d3-a456-556642440001")).
+        email("interviewer@gmail.com").
+        role(UserRole.INTERVIEWER)
+        .build();
+
+    given(userRepository.findById(
+        UUID.fromString("123e4567-e89b-42d3-a456-556642440001"))).willReturn(
+        Optional.of(coordinatorWithInterviewerRole));
+
+
+    assertThrows(ValidationException.class,
+        () -> coordinatorService.revokeCoordinatorRole(coordinatorWithInterviewerRole.getId()));
+
+    verify(userRepository, never()).save(any(User.class));
+  }
+
+  @Test
+  void givenInterviewerId_whenRevokeInterviewerRole_thenNothing() {
+    given(userRepository.findById(
+        UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))).willReturn(
+        Optional.of(interviewer));
+
+    coordinatorService.revokeInterviewerRole(interviewer.getId());
+    verify(userRepository, times(1)).deleteById(interviewer.getId());
+  }
+  @Test
+  void givenInterviewerId_whenRevokeInterviewerRole_thenThrowException() {
+    User interviewerWithCoordinatorRole = User.builder().
+        id(UUID.fromString("123e4567-e89b-42d3-a456-556642440003")).
         email("interviewer@gmail.com").
         role(UserRole.COORDINATOR)
         .build();
 
     given(userRepository.findById(
-        UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))).willReturn(
-        Optional.of(interviewer));
+        UUID.fromString("123e4567-e89b-42d3-a456-556642440003"))).willReturn(
+        Optional.of(interviewerWithCoordinatorRole));
 
-    given(userRepository.save(interviewer)).willReturn(interviewerWithoutInterviewerRole);
-    User user = null;
-    user = coordinatorService.revokeInterviewerRole(
-        UUID.fromString("123e4567-e89b-42d3-a456-556642440000"));
-    assertEquals(UserRole.COORDINATOR, user.getRole());
+    assertThrows(ValidationException.class,
+        () -> coordinatorService.revokeInterviewerRole(interviewerWithCoordinatorRole.getId()));
 
+    verify(userRepository, never()).save(any(User.class));
   }
 
   @Test
