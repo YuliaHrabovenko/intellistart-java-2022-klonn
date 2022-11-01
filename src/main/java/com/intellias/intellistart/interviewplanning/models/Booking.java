@@ -8,7 +8,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -44,9 +46,13 @@ public class Booking {
   @Column(name = "end_time")
   private LocalTime to;
   @NotNull(message = "subject has to be present")
+  @NotBlank
+  @Size(max = 255, message = "Subject's length can't be higher that 255 characters")
   @Column(name = "subject")
   private String subject;
   @NotNull(message = "description has to be present")
+  @NotBlank
+  @Size(max = 4000, message = "Description's length can't be higher that 4000 characters")
   @Column(name = "description")
   private String description;
   @NotNull(message = "interviewerTimeSlotId has to be present")

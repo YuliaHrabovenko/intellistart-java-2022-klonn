@@ -8,6 +8,7 @@ import com.intellias.intellistart.interviewplanning.services.CoordinatorService.
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -41,16 +42,26 @@ public class CoordinatorController {
     bookingService.deleteBooking(bookingId);
   }
 
-  //  @PostMapping(path = "/bookings/{bookingId}")
-  //  public void updateBooking(@PathVariable("bookingId") UUID bookingId,
-  //                            @RequestBody Booking booking){
-  //    bookingService.updateBooking(booking, bookingId);
-  //  }
-
+  /**
+   * Create booking endpoint.
+   *
+   * @param booking Booking
+   */
   @PostMapping(path = "/bookings")
   @ResponseStatus(code = HttpStatus.CREATED)
-  public void createBooking(@RequestBody Booking booking) {
-    bookingService.createBooking(booking);
+  public void createBooking(@Valid @RequestBody Booking booking) {
+    bookingService.createBooking(booking.getInterviewerTimeSlotId(),
+        booking.getCandidateTimeSlotId(),
+        booking.getFrom(),
+        booking.getTo(),
+        booking.getSubject(),
+        booking.getDescription());
+  }
+
+  @PostMapping(path = "/bookings/{bookingId}")
+  public void updateBooking(@PathVariable("bookingId") UUID id,
+      @Valid @RequestBody Booking booking) {
+    bookingService.updateBooking(id, booking);
   }
 
   @GetMapping(path = "/users/coordinators")
