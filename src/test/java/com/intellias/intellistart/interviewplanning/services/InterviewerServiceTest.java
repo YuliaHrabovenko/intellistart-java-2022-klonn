@@ -7,8 +7,8 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-import com.intellias.intellistart.interviewplanning.exceptions.InvalidPeriodException;
-import com.intellias.intellistart.interviewplanning.exceptions.ResourceNotFoundException;
+import com.intellias.intellistart.interviewplanning.exceptions.ValidationException;
+import com.intellias.intellistart.interviewplanning.models.InterviewerBookingLimit;
 import com.intellias.intellistart.interviewplanning.models.InterviewerTimeSlot;
 import com.intellias.intellistart.interviewplanning.models.User;
 import com.intellias.intellistart.interviewplanning.models.UserRole;
@@ -16,8 +16,10 @@ import com.intellias.intellistart.interviewplanning.repositories.BookingReposito
 import com.intellias.intellistart.interviewplanning.repositories.InterviewerBookingLimitRepository;
 import com.intellias.intellistart.interviewplanning.repositories.InterviewerTimeSlotRepository;
 import com.intellias.intellistart.interviewplanning.repositories.UserRepository;
+import com.intellias.intellistart.interviewplanning.utils.WeekUtil;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -64,19 +66,19 @@ class InterviewerServiceTest {
   @Test
   void givenInterviewerTimeSlot_whenCreateInterviewerSlot_thenReturnInterviewerTimeSlot() {
 
-    given(userRepository.findById(interviewer.getId())).willReturn(Optional.of(interviewer));
-
     InterviewerTimeSlot interviewerTimeSlot = InterviewerTimeSlot.builder()
         .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
         .from(startTime)
         .to(endTime)
         .interviewerId(interviewer.getId())
         .dayOfWeek(DayOfWeek.MONDAY)
+        .weekNum(WeekUtil.getNextWeekNumber())
         .build();
-
+    given(userRepository.findById(interviewer.getId())).willReturn(Optional.of(interviewer));
     given(interviewerTimeSlotRepository.save(interviewerTimeSlot)).willReturn(interviewerTimeSlot);
 
-    InterviewerTimeSlot savedSlot = interviewerService.createSlot(interviewerTimeSlot);
+    InterviewerTimeSlot savedSlot =
+        interviewerService.createSlot(interviewerTimeSlot, interviewer.getId());
 
     System.out.println(savedSlot);
 
@@ -93,8 +95,8 @@ class InterviewerServiceTest {
         .interviewerId(interviewer.getId())
         .build();
 
-    assertThrows(ResourceNotFoundException.class,
-        () -> interviewerService.createSlot(interviewerTimeSlot));
+    assertThrows(ValidationException.class,
+        () -> interviewerService.createSlot(interviewerTimeSlot, interviewer.getId()));
 
     verify(interviewerTimeSlotRepository, never()).save(any(InterviewerTimeSlot.class));
   }
@@ -112,15 +114,14 @@ class InterviewerServiceTest {
         .to(end)
         .interviewerId(interviewer.getId())
         .dayOfWeek(DayOfWeek.MONDAY)
+        .weekNum(WeekUtil.getNextWeekNumber())
         .build();
 
-    assertThrows(InvalidPeriodException.class,
-        () -> interviewerService.createSlot(interviewerTimeSlot));
+    assertThrows(ValidationException.class,
+        () -> interviewerService.createSlot(interviewerTimeSlot, interviewer.getId()));
 
     verify(interviewerTimeSlotRepository, never()).save(any(InterviewerTimeSlot.class));
   }
-
-
 //  @Test
 //  void givenOutdatedPeriod_whenCreateInterviewerSlot_thenThrowsException() {
 //    Period period = Period.builder()
@@ -152,18 +153,18 @@ class InterviewerServiceTest {
     LocalTime start = LocalTime.of(15, 27);
     LocalTime end = LocalTime.of(17, 0);
 
-    given(userRepository.findById(interviewer.getId())).willReturn(Optional.of(interviewer));
-
     InterviewerTimeSlot interviewerTimeSlot = InterviewerTimeSlot.builder()
         .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
         .from(start)
         .to(end)
         .interviewerId(interviewer.getId())
         .dayOfWeek(DayOfWeek.MONDAY)
+        .weekNum(WeekUtil.getNextWeekNumber())
         .build();
+    given(userRepository.findById(interviewer.getId())).willReturn(Optional.of(interviewer));
 
-    assertThrows(InvalidPeriodException.class,
-        () -> interviewerService.createSlot(interviewerTimeSlot));
+    assertThrows(ValidationException.class,
+        () -> interviewerService.createSlot(interviewerTimeSlot, interviewer.getId()));
 
     verify(interviewerTimeSlotRepository, never()).save(any(InterviewerTimeSlot.class));
   }
@@ -173,7 +174,6 @@ class InterviewerServiceTest {
     LocalTime start = LocalTime.of(15, 0);
     LocalTime end = LocalTime.of(16, 0);
 
-    given(userRepository.findById(interviewer.getId())).willReturn(Optional.of(interviewer));
 
     InterviewerTimeSlot interviewerTimeSlot = InterviewerTimeSlot.builder()
         .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
@@ -181,10 +181,12 @@ class InterviewerServiceTest {
         .to(end)
         .interviewerId(interviewer.getId())
         .dayOfWeek(DayOfWeek.MONDAY)
+        .weekNum(WeekUtil.getNextWeekNumber())
         .build();
+    given(userRepository.findById(interviewer.getId())).willReturn(Optional.of(interviewer));
 
-    assertThrows(InvalidPeriodException.class,
-        () -> interviewerService.createSlot(interviewerTimeSlot));
+    assertThrows(ValidationException.class,
+        () -> interviewerService.createSlot(interviewerTimeSlot, interviewer.getId()));
 
     verify(interviewerTimeSlotRepository, never()).save(any(InterviewerTimeSlot.class));
   }
@@ -194,18 +196,18 @@ class InterviewerServiceTest {
     LocalTime start = LocalTime.of(7, 0);
     LocalTime end = LocalTime.of(16, 0);
 
-    given(userRepository.findById(interviewer.getId())).willReturn(Optional.of(interviewer));
-
     InterviewerTimeSlot interviewerTimeSlot = InterviewerTimeSlot.builder()
         .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
         .from(start)
         .to(end)
         .interviewerId(interviewer.getId())
         .dayOfWeek(DayOfWeek.MONDAY)
+        .weekNum(WeekUtil.getNextWeekNumber())
         .build();
 
-    assertThrows(InvalidPeriodException.class,
-        () -> interviewerService.createSlot(interviewerTimeSlot));
+    given(userRepository.findById(interviewer.getId())).willReturn(Optional.of(interviewer));
+    assertThrows(ValidationException.class,
+        () -> interviewerService.createSlot(interviewerTimeSlot, interviewer.getId()));
 
     verify(interviewerTimeSlotRepository, never()).save(any(InterviewerTimeSlot.class));
   }
@@ -215,7 +217,6 @@ class InterviewerServiceTest {
     LocalTime start = LocalTime.of(10, 0);
     LocalTime end = LocalTime.of(23, 0);
 
-    given(userRepository.findById(interviewer.getId())).willReturn(Optional.of(interviewer));
 
     InterviewerTimeSlot interviewerTimeSlot = InterviewerTimeSlot.builder()
         .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
@@ -223,38 +224,96 @@ class InterviewerServiceTest {
         .to(end)
         .interviewerId(interviewer.getId())
         .dayOfWeek(DayOfWeek.MONDAY)
+        .weekNum(WeekUtil.getNextWeekNumber())
         .build();
+    given(userRepository.findById(interviewer.getId())).willReturn(Optional.of(interviewer));
 
-    assertThrows(InvalidPeriodException.class,
-        () -> interviewerService.createSlot(interviewerTimeSlot));
+    assertThrows(ValidationException.class,
+        () -> interviewerService.createSlot(interviewerTimeSlot, interviewer.getId()));
 
     verify(interviewerTimeSlotRepository, never()).save(any(InterviewerTimeSlot.class));
   }
 
-//  @Test
-//  void givenPeriodsStartsAtWeekends_whenCreateInterviewerSlot_thenThrowsException() {
-//    Period period = Period.builder()
-//        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
-//        .from(LocalTime.of(10, 0))
-//        .to(LocalTime.of(17, 0))
-//        .build();
-//
-//    given(periodRepository.findById(period.getId())).willReturn(Optional.of(period));
-//
-//    given(userRepository.findById(interviewer.getId())).willReturn(Optional.of(interviewer));
-//
-//    InterviewerTimeSlot interviewerTimeSlot = InterviewerTimeSlot.builder()
-//        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
-//        .periodId(period.getId())
-//        .interviewerId(interviewer.getId())
-//        .dayOfWeek(DayOfWeek.SUNDAY)
-//        .build();
-//
-//    assertThrows(InvalidInterviewerPeriodException.class,
-//        () -> interviewerService.createSlot(interviewerTimeSlot));
-//
-//    verify(interviewerTimeSlotRepository, never()).save(any(InterviewerTimeSlot.class));
-//  }
+  @Test
+  void givenPeriodsStartsAtWeekends_whenCreateInterviewerSlot_thenThrowsException() {
+    LocalTime start = LocalTime.of(10, 0);
+    LocalTime end = LocalTime.of(23, 0);
+
+
+    InterviewerTimeSlot interviewerTimeSlot = InterviewerTimeSlot.builder()
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
+        .from(start)
+        .to(end)
+        .interviewerId(interviewer.getId())
+        .dayOfWeek(DayOfWeek.SATURDAY)
+        .weekNum(WeekUtil.getNextWeekNumber())
+        .build();
+    given(userRepository.findById(interviewer.getId())).willReturn(Optional.of(interviewer));
+
+    assertThrows(ValidationException.class,
+        () -> interviewerService.createSlot(interviewerTimeSlot, interviewer.getId()));
+
+    verify(interviewerTimeSlotRepository, never()).save(any(InterviewerTimeSlot.class));
+  }
+
+  @Test
+  void givenInterviewerSlotObjectWithNotValidInterviewerId_whenUpdateInterviewerSlot_thenThrowException() {
+
+    InterviewerTimeSlot interviewerTimeSlot = InterviewerTimeSlot.builder()
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440001"))
+        .from(startTime)
+        .to(endTime)
+        .interviewerId(UUID.fromString("123e4567-e89b-42d3-a456-556642440002"))
+        .dayOfWeek(DayOfWeek.MONDAY)
+        .weekNum(WeekUtil.getNextWeekNumber())
+        .build();
+    given(userRepository.findById(interviewer.getId())).willReturn(Optional.of(interviewer));
+
+    given(interviewerTimeSlotRepository.findById(
+        UUID.fromString("123e4567-e89b-42d3-a456-556642440002"))).willReturn(
+        Optional.empty());
+
+    LocalTime startNew = LocalTime.of(14, 0);
+    LocalTime endNew = LocalTime.of(16, 0);
+
+    interviewerTimeSlot.setFrom(startNew);
+    interviewerTimeSlot.setTo(endNew);
+
+    assertThrows(ValidationException.class,
+        () -> interviewerService.updateSlot(interviewerTimeSlot, interviewer.getId(),
+            UUID.fromString("123e4567-e89b-42d3-a456-556642440002")));
+
+    verify(interviewerTimeSlotRepository, never()).save(any(InterviewerTimeSlot.class));
+  }
+
+  @Test
+  void givenInterviewerSlotObjectWithNotValidInterviewerTimeSlot_whenUpdateInterviewerSlot_thenThrowException() {
+
+    InterviewerTimeSlot interviewerTimeSlot = InterviewerTimeSlot.builder()
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440001"))
+        .from(startTime)
+        .to(endTime)
+        .interviewerId(UUID.fromString("123e4567-e89b-42d3-a456-556642440002"))
+        .dayOfWeek(DayOfWeek.MONDAY)
+        .weekNum(WeekUtil.getNextWeekNumber())
+        .build();
+    given(userRepository.findById(interviewer.getId())).willReturn(Optional.of(interviewer));
+    given(interviewerTimeSlotRepository.findById(
+        UUID.fromString("123e4567-e89b-42d3-a456-556642440002"))).willReturn(
+        Optional.empty());
+
+    LocalTime startNew = LocalTime.of(14, 0);
+    LocalTime endNew = LocalTime.of(16, 0);
+
+    interviewerTimeSlot.setFrom(startNew);
+    interviewerTimeSlot.setTo(endNew);
+
+    assertThrows(ValidationException.class,
+        () -> interviewerService.updateSlot(interviewerTimeSlot, interviewer.getId(),
+            UUID.fromString("123e4567-e89b-42d3-a456-556642440002")));
+
+    verify(interviewerTimeSlotRepository, never()).save(any(InterviewerTimeSlot.class));
+  }
 
   @Test
   void givenInterviewerSlotObject_whenUpdateInterviewerSlot_thenReturnUpdatedInterviewerSlot() {
@@ -265,120 +324,204 @@ class InterviewerServiceTest {
         .to(endTime)
         .interviewerId(interviewer.getId())
         .dayOfWeek(DayOfWeek.MONDAY)
+        .weekNum(WeekUtil.getNextWeekNumber())
         .build();
-
-    given(interviewerTimeSlotRepository.save(interviewerTimeSlot)).willReturn(interviewerTimeSlot);
-
-    given(interviewerTimeSlotRepository.findById(interviewerTimeSlot.getId())).willReturn(
+    given(userRepository.findById(interviewer.getId())).willReturn(Optional.of(interviewer));
+    given(interviewerTimeSlotRepository.findById(
+        UUID.fromString("123e4567-e89b-42d3-a456-556642440002"))).willReturn(
         Optional.of(interviewerTimeSlot));
-
+    given(interviewerTimeSlotRepository.save(interviewerTimeSlot)).willReturn(interviewerTimeSlot);
     LocalTime startNew = LocalTime.of(14, 0);
     LocalTime endNew = LocalTime.of(16, 0);
 
     interviewerTimeSlot.setFrom(startNew);
     interviewerTimeSlot.setTo(endNew);
 
-    InterviewerTimeSlot updatedSlot = interviewerService.updateSlot(interviewerTimeSlot);
+    InterviewerTimeSlot updatedSlot =
+        interviewerService.updateSlot(interviewerTimeSlot, interviewer.getId(),
+            UUID.fromString("123e4567-e89b-42d3-a456-556642440002"));
 
     assertThat(updatedSlot.getFrom()).isEqualTo(startNew);
     assertThat(updatedSlot.getTo()).isEqualTo(endNew);
   }
 
-//  @Test
-//  void givenInterviewerBookingLimit_whenSetMaximumBookingsForNextWeek_thenReturnInterviewerBookingLimit(){
-//    InterviewerBookingLimit interviewerBookingLimit = InterviewerBookingLimit.builder()
-//        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
-//        .interviewerId(interviewer.getId())
-//        .weekBookingLimit(3)
-//        .currentBookingCount(0)
-//        .build();
-//
-//    given(userRepository.findById(interviewer.getId())).willReturn(Optional.of(interviewer));
-//    given(interviewerBookingLimitRepository.save(interviewerBookingLimit)).willReturn(interviewerBookingLimit);
-//
-//    InterviewerBookingLimit savedInterviewerBookingLimit = interviewerService.setMaximumBookingsForNextWeek(interviewerBookingLimit);
-//
-//
-//    assertThat(savedInterviewerBookingLimit.getWeekBookingLimit()).isEqualTo(3);
-//    assertThat(savedInterviewerBookingLimit.getInterviewerId()).isEqualTo(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"));
-//  }
+  @Test
+  void givenInterviewerBookingLimit_whenSetMaximumBookingsLimit_thenReturnInterviewerBookingLimit() {
+    InterviewerBookingLimit interviewerBookingLimit = InterviewerBookingLimit.builder()
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
+        .interviewerId(interviewer.getId())
+        .weekBookingLimit(3)
+        .weekNum(WeekUtil.getNextWeekNumber())
+        .build();
 
-  //cant get access to fields, gonna fix this in future commits
-//  @Test
-//  void givenInterviewerIdAndIsForCurrentWeekTrue_whenGetWeekTimeSlotsByInterviewerId_thenReturnInterviewerTimeSlotList() {
-//
-//    User interviewer = User.builder().
-//        id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
-//        .email("candidate@gmail.com")
-//        .role(UserRole.INTERVIEWER)
-//        .build();
-//
-//    InterviewerTimeSlot interviewerTimeSlot = InterviewerTimeSlot.builder()
-//        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
-//        .periodId(period.getId())
-//        .interviewerId(interviewer.getId())
-//        .dayOfWeek(DayOfWeek.MONDAY)
-//        .build();
-//
-//    InterviewerTimeSlot interviewerTimeSlot1 = InterviewerTimeSlot.builder()
-//        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440002"))
-//        .periodId(period.getId())
-//        .interviewerId(interviewer.getId())
-//        .dayOfWeek(DayOfWeek.WEDNESDAY)
-//        .build();
-//
-//    List<InterviewerTimeSlot> interviewerTimeSlots = List.of(interviewerTimeSlot, interviewerTimeSlot1);
-//
-//    given(userRepository.findById(interviewer.getId())).willReturn(Optional.of(interviewer));
-//
-//    given(interviewerTimeSlotRepository.findAll()).willReturn(interviewerTimeSlots);
-//
-//    for (InterviewerTimeSlot slot : interviewerTimeSlots){
-//      given(periodRepository.findById(slot.getPeriodId())).willReturn(Optional.of(period));
-//    }
-//
-//    List<InterviewerTimeSlot> slotList = interviewerService.getWeekTimeSlotsByInterviewerId(
-//        interviewer.getId(), true);
-//
-//    assertThat(slotList).isNotNull();
-//    assertThat(slotList).hasSize(2);
-//  }
-//
-//
-//  @Test
-//  void givenInterviewerIdAndIsForCurrentWeekFalse_whenGetWeekTimeSlotsByInterviewerId_thenReturnInterviewerTimeSlotList() {
-//
-//    User interviewer = User.builder().
-//        id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
-//        .email("candidate@gmail.com")
-//        .role(UserRole.INTERVIEWER)
-//        .build();
-//
-//    InterviewerTimeSlot interviewerTimeSlot = InterviewerTimeSlot.builder()
-//        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
-//        .periodId(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
-//        .interviewerId(interviewer.getId())
-//        .dayOfWeek(DayOfWeek.MONDAY)
-//        .build();
-//
-//    InterviewerTimeSlot interviewerTimeSlot1 = InterviewerTimeSlot.builder()
-//        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
-//        .periodId(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
-//        .interviewerId(interviewer.getId())
-//        .dayOfWeek(DayOfWeek.WEDNESDAY)
-//        .build();
-//
-//    List<InterviewerTimeSlot> interviewerTimeSlots = List.of(interviewerTimeSlot, interviewerTimeSlot1);
-//
-//    given(userRepository.findById(interviewer.getId())).willReturn(Optional.of(interviewer));
-//
-//    given(interviewerTimeSlotRepository.findAll()).willReturn(interviewerTimeSlots);
-//
-//    List<InterviewerTimeSlot> slotList = interviewerService.getWeekTimeSlotsByInterviewerId(
-//        UUID.fromString("123e4567-e89b-42d3-a456-556642440000"), false);
-//
-//    assertThat(slotList).isNotNull();
-//    assertThat(slotList).hasSize(2);
-//  }
+    given(userRepository.findById(interviewer.getId())).willReturn(Optional.of(interviewer));
+    given(interviewerBookingLimitRepository.save(interviewerBookingLimit)).willReturn(
+        interviewerBookingLimit);
+
+    InterviewerBookingLimit savedInterviewerBookingLimit =
+        interviewerService.setNextWeekInterviewerBookingLimit(interviewerBookingLimit);
+
+    assertThat(savedInterviewerBookingLimit.getWeekBookingLimit()).isEqualTo(3);
+    assertThat(savedInterviewerBookingLimit.getWeekNum()).isEqualTo(WeekUtil.getNextWeekNumber());
+    assertThat(savedInterviewerBookingLimit.getInterviewerId()).isEqualTo(
+        UUID.fromString("123e4567-e89b-42d3-a456-556642440000"));
+  }
+
+  @Test
+  void givenInterviewerBookingLimit_whenChangeMaximumBookingLimit_thenReturnUpdatedInterviewerBookingLimit() {
+    InterviewerBookingLimit interviewerBookingLimit = InterviewerBookingLimit.builder()
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
+        .interviewerId(interviewer.getId())
+        .weekBookingLimit(3)
+        .weekNum(WeekUtil.getNextWeekNumber())
+        .build();
+
+    given(userRepository.findById(interviewer.getId())).willReturn(Optional.of(interviewer));
+    given(interviewerBookingLimitRepository.save(interviewerBookingLimit)).willReturn(
+        interviewerBookingLimit);
+
+    interviewerBookingLimit.setWeekBookingLimit(8);
+
+    given(interviewerBookingLimitRepository.findInterviewerBookingLimitByInterviewerIdAndWeekNum(
+        interviewerBookingLimit.getInterviewerId(),
+        interviewerBookingLimit.getWeekNum())).willReturn(interviewerBookingLimit);
+
+    InterviewerBookingLimit updatedInterviewerBookingLimit =
+        interviewerService.setNextWeekInterviewerBookingLimit(interviewerBookingLimit);
+
+    assertThat(updatedInterviewerBookingLimit.getId()).isEqualTo(
+        interviewerBookingLimit.getInterviewerId());
+    assertThat(updatedInterviewerBookingLimit.getWeekBookingLimit()).isEqualTo(8);
+  }
+
+  @Test
+  void givenInterviewerBookingLimit_whenSetMaximumBookings_thenThrowInterviewerNotFoundException() {
+    InterviewerBookingLimit interviewerBookingLimit = InterviewerBookingLimit.builder()
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
+        .interviewerId(UUID.randomUUID())
+        .weekBookingLimit(3)
+        .weekNum(WeekUtil.getNextWeekNumber())
+        .build();
+
+    assertThrows(ValidationException.class,
+        () -> interviewerService.setNextWeekInterviewerBookingLimit(interviewerBookingLimit));
+
+    verify(interviewerBookingLimitRepository, never()).save(any(InterviewerBookingLimit.class));
+  }
+
+  @Test
+  void givenInterviewerBookingLimit_whenSetMaximumBookings_thenThrowNotNextWeekException() {
+    InterviewerBookingLimit interviewerBookingLimit = InterviewerBookingLimit.builder()
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
+        .interviewerId(interviewer.getId())
+        .weekBookingLimit(3)
+        .weekNum("201840")
+        .build();
+
+    given(userRepository.findById(interviewer.getId())).willReturn(Optional.of(interviewer));
+
+    assertThrows(ValidationException.class,
+        () -> interviewerService.setNextWeekInterviewerBookingLimit(interviewerBookingLimit));
+
+    verify(interviewerBookingLimitRepository, never()).save(any(InterviewerBookingLimit.class));
+  }
+
+  @Test
+  void givenInterviewerId_whenGetInterviewerBookingLimits_thenReturnBookingLimitsList() {
+    InterviewerBookingLimit interviewerBookingLimit = InterviewerBookingLimit.builder()
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
+        .interviewerId(interviewer.getId())
+        .weekBookingLimit(3)
+        .weekNum(WeekUtil.getNextWeekNumber())
+        .build();
+
+    given(userRepository.findById(interviewer.getId())).willReturn(Optional.of(interviewer));
+    List<InterviewerBookingLimit> expectedLimits = List.of(interviewerBookingLimit);
+    given(interviewerBookingLimitRepository.findInterviewerBookingLimitsByInterviewerId(
+        interviewer.getId())).willReturn(expectedLimits);
+
+    List<InterviewerBookingLimit> receivedLimits =
+        interviewerService.getBookingLimitsByInterviewerId(interviewer.getId());
+    assertThat(receivedLimits).isEqualTo(expectedLimits);
+  }
+
+  @Test
+  void givenInterviewerIdAndIsForCurrentWeekTrue_whenGetWeekTimeSlotsByInterviewerId_thenReturnInterviewerTimeSlotList() {
+
+    User interviewer = User.builder().
+        id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
+        .email("interrviewer@gmail.com")
+        .role(UserRole.INTERVIEWER)
+        .build();
+
+    InterviewerTimeSlot interviewerTimeSlot = InterviewerTimeSlot.builder()
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440001"))
+        .from(startTime)
+        .to(endTime)
+        .dayOfWeek(DayOfWeek.FRIDAY)
+        .interviewerId(interviewer.getId())
+        .weekNum(WeekUtil.getCurrentWeekNumber())
+        .build();
+
+    InterviewerTimeSlot interviewerTimeSlot1 = InterviewerTimeSlot.builder()
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440002"))
+        .from(startTime)
+        .to(endTime)
+        .dayOfWeek(DayOfWeek.THURSDAY)
+        .interviewerId(interviewer.getId())
+        .weekNum(WeekUtil.getCurrentWeekNumber())
+        .build();
+
+    List<InterviewerTimeSlot> interviewerTimeSlots = List.of(interviewerTimeSlot, interviewerTimeSlot1);
+
+    given(userRepository.findById(interviewer.getId())).willReturn(Optional.of(interviewer));
+
+    given(interviewerTimeSlotRepository.findInterviewerTimeSlotByInterviewerId(interviewer.getId())).willReturn(interviewerTimeSlots);
+
+    List<InterviewerTimeSlot> timeSlotsForCurrentWeek = interviewerService.getWeekTimeSlotsByInterviewerId(interviewer.getId(), true);
+
+    assertThat(timeSlotsForCurrentWeek).isNotNull();
+    assertThat(timeSlotsForCurrentWeek).hasSize(2);
+  }
+
+
+  @Test
+  void givenInterviewerIdAndIsForCurrentWeekFalse_whenGetWeekTimeSlotsByInterviewerId_thenReturnInterviewerTimeSlotList() {
+
+    User interviewer = User.builder().
+        id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
+        .email("interrviewer@gmail.com")
+        .role(UserRole.INTERVIEWER)
+        .build();
+
+    InterviewerTimeSlot interviewerTimeSlot = InterviewerTimeSlot.builder()
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440001"))
+        .from(startTime)
+        .to(endTime)
+        .dayOfWeek(DayOfWeek.FRIDAY)
+        .interviewerId(interviewer.getId())
+        .weekNum(WeekUtil.getNextWeekNumber())
+        .build();
+
+    InterviewerTimeSlot interviewerTimeSlot1 = InterviewerTimeSlot.builder()
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440002"))
+        .from(startTime)
+        .to(endTime)
+        .dayOfWeek(DayOfWeek.THURSDAY)
+        .interviewerId(interviewer.getId())
+        .weekNum(WeekUtil.getNextWeekNumber())
+        .build();
+
+    List<InterviewerTimeSlot> interviewerTimeSlots = List.of(interviewerTimeSlot, interviewerTimeSlot1);
+
+    given(userRepository.findById(interviewer.getId())).willReturn(Optional.of(interviewer));
+
+    given(interviewerTimeSlotRepository.findInterviewerTimeSlotByInterviewerId(interviewer.getId())).willReturn(interviewerTimeSlots);
+
+    List<InterviewerTimeSlot> timeSlotsForNextWeek = interviewerService.getWeekTimeSlotsByInterviewerId(interviewer.getId(), false);
+
+    assertThat(timeSlotsForNextWeek).isNotNull();
+    assertThat(timeSlotsForNextWeek).hasSize(2);
+  }
 
 }
