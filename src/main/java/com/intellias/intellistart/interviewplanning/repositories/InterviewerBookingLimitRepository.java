@@ -14,7 +14,7 @@ import org.springframework.stereotype.Repository;
 public interface InterviewerBookingLimitRepository extends
     JpaRepository<InterviewerBookingLimit, UUID> {
 
-  Optional<InterviewerBookingLimit> findByInterviewerId(UUID id);
+  Optional<List<InterviewerBookingLimit>> findByInterviewerId(UUID id);
 
   List<InterviewerBookingLimit> findInterviewerBookingLimitsByInterviewerId(UUID id);
 
