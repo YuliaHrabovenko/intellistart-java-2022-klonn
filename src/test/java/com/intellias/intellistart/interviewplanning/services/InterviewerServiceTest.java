@@ -7,6 +7,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
+import com.intellias.intellistart.interviewplanning.exceptions.NotFoundException;
 import com.intellias.intellistart.interviewplanning.exceptions.ValidationException;
 import com.intellias.intellistart.interviewplanning.models.InterviewerBookingLimit;
 import com.intellias.intellistart.interviewplanning.models.InterviewerTimeSlot;
@@ -80,8 +81,6 @@ class InterviewerServiceTest {
     InterviewerTimeSlot savedSlot =
         interviewerService.createSlot(interviewerTimeSlot, interviewer.getId());
 
-    System.out.println(savedSlot);
-
     assertThat(savedSlot).isNotNull();
 
   }
@@ -95,7 +94,7 @@ class InterviewerServiceTest {
         .interviewerId(interviewer.getId())
         .build();
 
-    assertThrows(ValidationException.class,
+    assertThrows(NotFoundException.class,
         () -> interviewerService.createSlot(interviewerTimeSlot, interviewer.getId()));
 
     verify(interviewerTimeSlotRepository, never()).save(any(InterviewerTimeSlot.class));
@@ -122,31 +121,6 @@ class InterviewerServiceTest {
 
     verify(interviewerTimeSlotRepository, never()).save(any(InterviewerTimeSlot.class));
   }
-//  @Test
-//  void givenOutdatedPeriod_whenCreateInterviewerSlot_thenThrowsException() {
-//    Period period = Period.builder()
-//        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
-//        .from(LocalTime.of(15, 30))
-//        .to(LocalTime.of(17, 0))
-//        .build();
-//
-//    given(periodRepository.findById(period.getId())).willReturn(Optional.of(period));
-//
-//    given(userRepository.findById(interviewer.getId())).willReturn(Optional.of(interviewer));
-//
-//    InterviewerTimeSlot interviewerTimeSlot = InterviewerTimeSlot.builder()
-//        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
-//        .periodId(period.getId())
-//        .interviewerId(interviewer.getId())
-//        .dayOfWeek(DayOfWeek.MONDAY)
-//        .build();
-//
-//    assertThrows(InvalidInterviewerPeriodException.class,
-//        () -> interviewerService.createSlot(interviewerTimeSlot));
-//
-//    verify(interviewerTimeSlotRepository, never()).save(any(InterviewerTimeSlot.class));
-//  }
-
 
   @Test
   void givenUnroundedPeriod_whenCreateInterviewerSlot_thenThrowsException() {
@@ -279,8 +253,8 @@ class InterviewerServiceTest {
     interviewerTimeSlot.setFrom(startNew);
     interviewerTimeSlot.setTo(endNew);
 
-    assertThrows(ValidationException.class,
-        () -> interviewerService.updateSlot(interviewerTimeSlot, interviewer.getId(),
+    assertThrows(NotFoundException.class,
+        () -> interviewerService.updateSlotForNextWeek(interviewerTimeSlot, interviewer.getId(),
             UUID.fromString("123e4567-e89b-42d3-a456-556642440002")));
 
     verify(interviewerTimeSlotRepository, never()).save(any(InterviewerTimeSlot.class));
@@ -308,8 +282,8 @@ class InterviewerServiceTest {
     interviewerTimeSlot.setFrom(startNew);
     interviewerTimeSlot.setTo(endNew);
 
-    assertThrows(ValidationException.class,
-        () -> interviewerService.updateSlot(interviewerTimeSlot, interviewer.getId(),
+    assertThrows(NotFoundException.class,
+        () -> interviewerService.updateSlotForNextWeek(interviewerTimeSlot, interviewer.getId(),
             UUID.fromString("123e4567-e89b-42d3-a456-556642440002")));
 
     verify(interviewerTimeSlotRepository, never()).save(any(InterviewerTimeSlot.class));
@@ -338,7 +312,7 @@ class InterviewerServiceTest {
     interviewerTimeSlot.setTo(endNew);
 
     InterviewerTimeSlot updatedSlot =
-        interviewerService.updateSlot(interviewerTimeSlot, interviewer.getId(),
+        interviewerService.updateSlotForNextWeek(interviewerTimeSlot, interviewer.getId(),
             UUID.fromString("123e4567-e89b-42d3-a456-556642440002"));
 
     assertThat(updatedSlot.getFrom()).isEqualTo(startNew);
@@ -403,7 +377,7 @@ class InterviewerServiceTest {
         .weekNum(WeekUtil.getNextWeekNumber())
         .build();
 
-    assertThrows(ValidationException.class,
+    assertThrows(NotFoundException.class,
         () -> interviewerService.setNextWeekInterviewerBookingLimit(interviewerBookingLimit));
 
     verify(interviewerBookingLimitRepository, never()).save(any(InterviewerBookingLimit.class));
@@ -437,7 +411,7 @@ class InterviewerServiceTest {
 
     given(userRepository.findById(interviewer.getId())).willReturn(Optional.of(interviewer));
     List<InterviewerBookingLimit> expectedLimits = List.of(interviewerBookingLimit);
-    given(interviewerBookingLimitRepository.findInterviewerBookingLimitsByInterviewerId(
+    given(interviewerBookingLimitRepository.findByInterviewerId(
         interviewer.getId())).willReturn(expectedLimits);
 
     List<InterviewerBookingLimit> receivedLimits =
@@ -472,13 +446,16 @@ class InterviewerServiceTest {
         .weekNum(WeekUtil.getCurrentWeekNumber())
         .build();
 
-    List<InterviewerTimeSlot> interviewerTimeSlots = List.of(interviewerTimeSlot, interviewerTimeSlot1);
+    List<InterviewerTimeSlot> interviewerTimeSlots =
+        List.of(interviewerTimeSlot, interviewerTimeSlot1);
 
     given(userRepository.findById(interviewer.getId())).willReturn(Optional.of(interviewer));
 
-    given(interviewerTimeSlotRepository.findInterviewerTimeSlotByInterviewerId(interviewer.getId())).willReturn(interviewerTimeSlots);
+    given(interviewerTimeSlotRepository.findInterviewerTimeSlotsByInterviewerIdAndWeekNum(
+        interviewer.getId(), interviewerTimeSlot.getWeekNum())).willReturn(interviewerTimeSlots);
 
-    List<InterviewerTimeSlot> timeSlotsForCurrentWeek = interviewerService.getWeekTimeSlotsByInterviewerId(interviewer.getId(), true);
+    List<InterviewerTimeSlot> timeSlotsForCurrentWeek =
+        interviewerService.getWeekTimeSlotsByInterviewerId(interviewer.getId(), true);
 
     assertThat(timeSlotsForCurrentWeek).isNotNull();
     assertThat(timeSlotsForCurrentWeek).hasSize(2);
@@ -512,13 +489,16 @@ class InterviewerServiceTest {
         .weekNum(WeekUtil.getNextWeekNumber())
         .build();
 
-    List<InterviewerTimeSlot> interviewerTimeSlots = List.of(interviewerTimeSlot, interviewerTimeSlot1);
+    List<InterviewerTimeSlot> interviewerTimeSlots =
+        List.of(interviewerTimeSlot, interviewerTimeSlot1);
 
     given(userRepository.findById(interviewer.getId())).willReturn(Optional.of(interviewer));
 
-    given(interviewerTimeSlotRepository.findInterviewerTimeSlotByInterviewerId(interviewer.getId())).willReturn(interviewerTimeSlots);
+    given(interviewerTimeSlotRepository.findInterviewerTimeSlotsByInterviewerIdAndWeekNum(
+        interviewer.getId(), interviewerTimeSlot.getWeekNum())).willReturn(interviewerTimeSlots);
 
-    List<InterviewerTimeSlot> timeSlotsForNextWeek = interviewerService.getWeekTimeSlotsByInterviewerId(interviewer.getId(), false);
+    List<InterviewerTimeSlot> timeSlotsForNextWeek =
+        interviewerService.getWeekTimeSlotsByInterviewerId(interviewer.getId(), false);
 
     assertThat(timeSlotsForNextWeek).isNotNull();
     assertThat(timeSlotsForNextWeek).hasSize(2);

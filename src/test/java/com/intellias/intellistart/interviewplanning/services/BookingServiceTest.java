@@ -107,7 +107,7 @@ class BookingServiceTest {
         .willReturn(Optional.of(interviewerTimeSlot));
 
     given(interviewerBookingLimitRepository.findByInterviewerId(interviewerTimeSlot.getInterviewerId()))
-        .willReturn(Optional.of(interviewerBookingLimits));
+        .willReturn(interviewerBookingLimits);
 
     given(candidateTimeSlotRepository.existsById(candidateSlotUUID))
         .willReturn(true);
@@ -127,7 +127,7 @@ class BookingServiceTest {
         .willReturn(Optional.of(interviewerTimeSlot));
 
     given(interviewerBookingLimitRepository.findByInterviewerId(interviewerTimeSlot.getInterviewerId()))
-        .willReturn(Optional.of(interviewerBookingLimits));
+        .willReturn(interviewerBookingLimits);
 
     assertThrows(ValidationException.class,
         () -> bookingService.createBooking(interviewerSlotUUID, candidateSlotUUID,
@@ -142,7 +142,7 @@ class BookingServiceTest {
         .willReturn(Optional.of(interviewerTimeSlot));
 
     given(interviewerBookingLimitRepository.findByInterviewerId(interviewerTimeSlot.getInterviewerId()))
-        .willReturn(Optional.of(interviewerBookingLimits));
+        .willReturn(interviewerBookingLimits);
 
     given(candidateTimeSlotRepository.existsById(candidateSlotUUID))
         .willReturn(true);
@@ -160,7 +160,7 @@ class BookingServiceTest {
         .willReturn(Optional.of(interviewerTimeSlot));
 
     given(interviewerBookingLimitRepository.findByInterviewerId(interviewerTimeSlot.getInterviewerId()))
-        .willReturn(Optional.of(interviewerBookingLimits));
+        .willReturn(interviewerBookingLimits);
 
     given(candidateTimeSlotRepository.existsById(candidateSlotUUID))
         .willReturn(true);
@@ -192,7 +192,7 @@ class BookingServiceTest {
         .willReturn(Optional.of(interviewerTimeSlot));
 
     given(interviewerBookingLimitRepository.findByInterviewerId(interviewerTimeSlot.getInterviewerId()))
-        .willReturn(Optional.of(interviewerBookingLimits));
+        .willReturn(interviewerBookingLimits);
 
     given(candidateTimeSlotRepository.existsById(candidateSlotUUID))
         .willReturn(true);
@@ -221,7 +221,7 @@ class BookingServiceTest {
         .willReturn(Optional.of(interviewerTimeSlot));
 
     given(interviewerBookingLimitRepository.findByInterviewerId(interviewerTimeSlot.getInterviewerId()))
-        .willReturn(Optional.of(interviewerBookingLimits));
+        .willReturn(interviewerBookingLimits);
 
     given(candidateTimeSlotRepository.existsById(candidateSlotUUID))
         .willReturn(true);

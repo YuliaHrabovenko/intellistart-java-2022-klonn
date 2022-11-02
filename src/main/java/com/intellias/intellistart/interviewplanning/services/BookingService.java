@@ -26,7 +26,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class BookingService {
 
-  @Autowired
   private final BookingRepository bookingRepository;
   private final InterviewerTimeSlotRepository interviewerTimeSlotRepository;
   private final InterviewerBookingLimitRepository interviewerBookingLimitRepository;
@@ -100,7 +99,7 @@ public class BookingService {
    * @param updatedBooking Updated Booking
    */
   @Transactional
-  public void updateBooking(UUID id, Booking updatedBooking) {
+  public Booking updateBooking(UUID id, Booking updatedBooking) {
 
     Booking curBooking = bookingRepository.findById(id)
         .orElseThrow(
@@ -119,7 +118,7 @@ public class BookingService {
     curBooking.setTo(updatedBooking.getTo());
     curBooking.setSubject(updatedBooking.getSubject());
     curBooking.setDescription(updatedBooking.getDescription());
-
+    return curBooking;
   }
 
   /**
@@ -163,7 +162,7 @@ public class BookingService {
             () -> new NotFoundException(ExceptionMessage.INTERVIEWER_SLOT_NOT_FOUND.getMessage()))
         .getInterviewerId();
     List<InterviewerBookingLimit> interviewerBookingLimits = interviewerBookingLimitRepository
-        .findByInterviewerId(interviewerId).orElseThrow();
+        .findByInterviewerId(interviewerId);
     InterviewerBookingLimit isNextWeekLimitExist = interviewerBookingLimitRepository
         .findInterviewerBookingLimitByInterviewerIdAndWeekNum(interviewerId,
             WeekUtil.getNextWeekNumber());

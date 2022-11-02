@@ -20,8 +20,12 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 public class InterviewerController {
+  private final InterviewerService interviewerService;
+
   @Autowired
-  private InterviewerService interviewerService;
+  public InterviewerController(InterviewerService interviewerService) {
+    this.interviewerService = interviewerService;
+  }
 
   @GetMapping("/interviewers/booking-limits/{interviewerId}")
   public List<InterviewerBookingLimit> getLimits(
@@ -39,16 +43,16 @@ public class InterviewerController {
   @PostMapping(path = "/interviewers/{interviewer_id}/slots")
   @ResponseStatus(code = HttpStatus.CREATED)
   public InterviewerTimeSlot createInterviewerTimeSlot(
-      @PathVariable("interviewer_id") UUID interviewerId,
-      @Valid @RequestBody InterviewerTimeSlot timeSlot) {
+      @Valid @PathVariable("interviewer_id") UUID interviewerId,
+      @RequestBody InterviewerTimeSlot timeSlot) {
     return interviewerService.createSlot(timeSlot, interviewerId);
   }
 
-  @PostMapping("/interviewers/{interviewer_id}/slots/{slot_id}")
+  @PostMapping("/interviewers/{interviewer_id}/next-week-slots/{slot_id}")
   public InterviewerTimeSlot updateInterviewerTimeSlot(
-      @PathVariable("interviewer_id") UUID interviewerId,
+      @Valid @PathVariable("interviewer_id") UUID interviewerId,
       @PathVariable("slot_id") UUID slotId,
-      @Valid @RequestBody InterviewerTimeSlot timeSlot) {
+      @RequestBody InterviewerTimeSlot timeSlot) {
     return interviewerService.updateSlotForNextWeek(timeSlot, interviewerId, slotId);
   }
 

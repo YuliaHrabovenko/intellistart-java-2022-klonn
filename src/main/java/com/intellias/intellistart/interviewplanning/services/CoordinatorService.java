@@ -17,6 +17,7 @@ import com.intellias.intellistart.interviewplanning.utils.WeekUtil;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +40,7 @@ public class CoordinatorService {
   private final BookingRepository bookingRepository;
   private final CandidateTimeSlotRepository candidateTimeSlotRepository;
   private final InterviewerTimeSlotRepository interviewerTimeSlotRepository;
+  private final InterviewerService interviewerService;
 
   /**
    * Constructor.
@@ -47,43 +49,34 @@ public class CoordinatorService {
    * @param bookingRepository             booking repository
    * @param candidateTimeSlotRepository   candidate time slot repository
    * @param interviewerTimeSlotRepository interviewer time slot repository
+   * @param interviewerService            interviewer service
    */
   @Autowired
   public CoordinatorService(UserRepository coordinatorRepository,
                             BookingRepository bookingRepository,
                             CandidateTimeSlotRepository candidateTimeSlotRepository,
-                            InterviewerTimeSlotRepository interviewerTimeSlotRepository) {
+                            InterviewerTimeSlotRepository interviewerTimeSlotRepository,
+                            InterviewerService interviewerService) {
     this.coordinatorRepository = coordinatorRepository;
     this.bookingRepository = bookingRepository;
     this.candidateTimeSlotRepository = candidateTimeSlotRepository;
     this.interviewerTimeSlotRepository = interviewerTimeSlotRepository;
-
+    this.interviewerService = interviewerService;
   }
 
   /**
-   * Update interviewer time slot.
+   * Update interviewer's slot for the current or next week.
    *
    * @param interviewerTimeSlot interviewer time slot object
    * @param interviewerId       interviewer id
+   * @param slotId              slot id
    * @return interviewer time slot object if success
    */
   public InterviewerTimeSlot updateInterviewerTimeSlot(InterviewerTimeSlot interviewerTimeSlot,
-                                                       UUID interviewerId) {
-    InterviewerTimeSlot existingInterviewerTimeSlot =
-        interviewerTimeSlotRepository.findById(interviewerId).orElseThrow(
-            () -> new IllegalStateException(
-                "interviewer timeslot with id" + interviewerTimeSlot.getId() + " does not exists"));
-    List<Booking> bookings = bookingRepository.findAll();
-    for (Booking booking : bookings) {
-      if (booking.getCandidateTimeSlotId().equals(interviewerId)) {
-        throw new IllegalStateException("this slot is already booked");
-      }
-    }
-    existingInterviewerTimeSlot.setId(interviewerTimeSlot.getId());
-    existingInterviewerTimeSlot.setFrom(interviewerTimeSlot.getFrom());
-    existingInterviewerTimeSlot.setTo(interviewerTimeSlot.getTo());
-    existingInterviewerTimeSlot.setInterviewerId(interviewerTimeSlot.getInterviewerId());
-    return interviewerTimeSlotRepository.save(existingInterviewerTimeSlot);
+                                                       UUID interviewerId,
+                                                       UUID slotId) {
+    WeekUtil.validateIsCurrentOrNextWeekNumber(interviewerTimeSlot.getWeekNum());
+    return interviewerService.updateSlot(interviewerTimeSlot, interviewerId, slotId);
   }
 
   /**
@@ -283,6 +276,6 @@ public class CoordinatorService {
     private List<InterviewerTimeSlot> interviewerTimeSlots = new ArrayList<>();
     @JsonIgnoreProperties("date")
     private List<CandidateTimeSlot> candidateTimeSlots = new ArrayList<>();
-    private Map<UUID, Booking> bookings = new LinkedHashMap<>();
+    private Map<UUID, Booking> bookings = new HashMap<>();
   }
 }
