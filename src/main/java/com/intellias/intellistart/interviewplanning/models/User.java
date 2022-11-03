@@ -56,6 +56,10 @@ public class User {
   @JoinColumn(name = "interviewer_id", referencedColumnName = "id")
   private Set<InterviewerBookingLimit> interviewerBookingLimits;
 
+  @Column(name = "provider")
+  @Enumerated(EnumType.STRING)
+  private Provider provider;
+
   /**
    * Constructor.
    *

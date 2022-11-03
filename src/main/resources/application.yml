@@ -1,0 +1,11 @@
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          facebook:
+            clientId: ${CLIENT_ID}
+            clientSecret: ${CLIENT_SECRET}
+            scope:
+              - email
+              - public_profile
