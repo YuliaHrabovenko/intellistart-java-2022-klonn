@@ -59,6 +59,15 @@ public class User {
   /**
    * Constructor.
    *
+   * @param email user email
+   */
+  public User(String email) {
+    this.email = email;
+  }
+
+  /**
+   * Constructor.
+   *
    * @param email email of the user
    * @param role  role of the user
    */
