@@ -34,7 +34,10 @@ public enum ExceptionMessage {
   // User info related validation messages
   NOT_COORDINATOR("User with this ID is not a coordinator"),
   NOT_INTERVIEWER("User with this ID is not an interviewer"),
-  USER_EMAIL_EXISTS("User with this email already exists");
+  USER_EMAIL_EXISTS("User with this email already exists"),
+
+  // Authentication related validation messages
+  INVALID_AUTH_TOKEN("Authorization code is invalid");
 
 
   private String message;

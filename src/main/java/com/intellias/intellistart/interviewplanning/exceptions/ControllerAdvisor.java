@@ -1,6 +1,7 @@
 package com.intellias.intellistart.interviewplanning.exceptions;
 
 import java.util.stream.Collectors;
+import org.json.JSONObject;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -8,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
@@ -22,8 +24,7 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
    * @param resourceException custom exception classes
    * @return message and status on response to user
    */
-  @ExceptionHandler(value = {NotFoundException.class,
-      ValidationException.class})
+  @ExceptionHandler(value = {NotFoundException.class, ValidationException.class})
   public ResponseEntity<Object> handleException(AbstractCommonException
                                                     resourceException) {
     ExceptionDetail exceptionDetail = new ExceptionDetail(
@@ -59,6 +60,25 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
     );
 
     return new ResponseEntity<>(exceptionDetail, status);
+  }
+
+  /**
+   * Authentication and authorization exceptions handler.
+   *
+   * @param errorException HttpClientErrorException errorException
+   * @return message and status on response to user
+   */
+  @ExceptionHandler(value = {HttpClientErrorException.class})
+  public ResponseEntity<Object> handleHttpClientErrorException(
+      HttpClientErrorException errorException) {
+    String errorMessage = errorException.getResponseBodyAsString();
+    JSONObject obj = new JSONObject(errorMessage);
+
+    ExceptionDetail exceptionDetail = new ExceptionDetail(
+        errorException.getStatusCode(),
+        obj.getJSONObject("error").get("message").toString()
+    );
+    return new ResponseEntity<>(exceptionDetail, errorException.getStatusCode());
   }
 
 }

@@ -59,7 +59,7 @@ public class InterviewerController {
   @GetMapping("/weeks/current/interviewers/{interviewerId}/slots")
   @ResponseStatus(code = HttpStatus.OK)
   public List<InterviewerTimeSlot> getCurrentWeekSlots(@PathVariable("interviewerId")
-                                                             UUID interviewerId) {
+                                                       UUID interviewerId) {
     return interviewerService.getWeekTimeSlotsByInterviewerId(interviewerId, true);
   }
 
@@ -67,7 +67,7 @@ public class InterviewerController {
   @GetMapping("/weeks/next/interviewers/{interviewerId}/slots")
   @ResponseStatus(code = HttpStatus.OK)
   public List<InterviewerTimeSlot> getNextWeekSlots(@PathVariable("interviewerId")
-                                                           UUID interviewerId) {
+                                                    UUID interviewerId) {
     return interviewerService.getWeekTimeSlotsByInterviewerId(interviewerId, false);
   }
 }

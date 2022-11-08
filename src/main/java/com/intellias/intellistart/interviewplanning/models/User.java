@@ -49,6 +49,9 @@ public class User {
   @Column(name = "role")
   @Enumerated(EnumType.STRING)
   private UserRole role;
+  @NotNull(message = "name has to be present")
+  @Column(name = "name")
+  private String name;
   @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
   @JoinColumn(name = "interviewer_id", referencedColumnName = "id")
   private Set<InterviewerTimeSlot> interviewerTimeSlots;

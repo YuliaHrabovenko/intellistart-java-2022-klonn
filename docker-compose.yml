@@ -14,13 +14,12 @@ services:
     network_mode: bridge
     container_name: app
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/calendar
-      - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/${PG_DATABASE}
+      - SPRING_DATASOURCE_USERNAME=${PG_USER}
+      - SPRING_DATASOURCE_PASSWORD=${PG_PASSWORD}
       - SPRING_JPA_HIBERNATE_DDL_AUTO=none
     expose:
       - 8080
-    restart: unless-stopped
 
   postgres:
     image: 'postgres:latest'
@@ -30,13 +29,12 @@ services:
     container_name: db
     volumes:
       - ./docs/schema.sql:/docker-entrypoint-initdb.d/schema.sql
-#      - interview_planning_postgres_data:/var/lib/postgresql #uncomment if need persist data from start to another start
+    #      - interview_planning_postgres_data:/var/lib/postgresql #uncomment if need persist data from start to another start
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=calendar
+      - POSTGRES_USER=${PG_USER}
+      - POSTGRES_PASSWORD=${PG_PASSWORD}
+      - POSTGRES_DB=${PG_DATABASE}
     expose:
       - 5432
-    restart: unless-stopped
 volumes:
   interview_planning_postgres_data:

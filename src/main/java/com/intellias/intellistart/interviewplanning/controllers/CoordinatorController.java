@@ -60,7 +60,7 @@ public class CoordinatorController {
 
   @PostMapping(path = "/bookings/{bookingId}")
   public Booking updateBooking(@PathVariable("bookingId") UUID id,
-                            @Valid @RequestBody Booking booking) {
+                               @Valid @RequestBody Booking booking) {
     return bookingService.updateBooking(id, booking);
   }
 

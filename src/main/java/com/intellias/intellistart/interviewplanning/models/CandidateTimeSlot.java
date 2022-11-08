@@ -15,6 +15,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -53,6 +54,13 @@ public class CandidateTimeSlot {
   @JsonFormat(pattern = "HH:mm")
   @Column(name = "end_time")
   private LocalTime to;
+  @NotNull(message = "name has to be present")
+  @Column(name = "name")
+  private String name;
+  @NotNull(message = "email has to be present")
+  @Email(regexp = ".+@.+\\..+", message = "Please provide a valid email address")
+  @Column(name = "email")
+  private String email;
   @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
   @JoinColumn(name = "candidate_time_slot_id", referencedColumnName = "id")
   private List<Booking> bookingList = new ArrayList<>();

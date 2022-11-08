@@ -229,7 +229,7 @@ public class InterviewerService {
       throw new NotFoundException(ExceptionMessage.INTERVIEWER_NOT_FOUND.getMessage());
     }
     return interviewerTimeSlotRepository.findInterviewerTimeSlotsByInterviewerIdAndWeekNum(
-            interviewerId, requiredWeekNumber);
+        interviewerId, requiredWeekNumber);
   }
 
 }

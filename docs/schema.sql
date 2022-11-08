@@ -5,6 +5,9 @@ CREATE TABLE candidate_time_slots (
 	interview_date date NULL,
 	start_time time NULL,
 	end_time time NULL,
+	name varchar(100) NOT NULL,
+	email varchar(64) NOT NULL,
+	CONSTRAINT candidates_email_key UNIQUE (email),
 	CONSTRAINT candidate_time_slots_pkey PRIMARY KEY (id)
 );
 
@@ -12,6 +15,7 @@ CREATE TABLE users (
 	id uuid NOT NULL DEFAULT uuid_generate_v4(),
 	email varchar(64) NOT NULL,
 	"role" varchar(30) NULL,
+	name varchar(100) NOT NULL,
 	CONSTRAINT users_email_key UNIQUE (email),
 	CONSTRAINT users_pkey PRIMARY KEY (id)
 );
@@ -51,4 +55,4 @@ CREATE TABLE bookings (
 );
 
 --add the first coordinator to the db on the app start
-INSERT INTO users (email, role) VALUES ('admin.coordinator@gmail.com', 'COORDINATOR');
+INSERT INTO users (name, email, role) VALUES ('Admin', 'first_coordinator@gmail.com', 'COORDINATOR');

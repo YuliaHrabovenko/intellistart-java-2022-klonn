@@ -1,15 +1,14 @@
 package com.intellias.intellistart.interviewplanning.services;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.BDDMockito.given;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.BDDMockito.given;
 
 import com.intellias.intellistart.interviewplanning.exceptions.ValidationException;
 import com.intellias.intellistart.interviewplanning.models.Booking;
-import com.intellias.intellistart.interviewplanning.models.InterviewerBookingLimit;
-import com.intellias.intellistart.interviewplanning.utils.WeekUtil;
-import java.time.DayOfWeek;
 import com.intellias.intellistart.interviewplanning.models.CandidateTimeSlot;
+import com.intellias.intellistart.interviewplanning.models.InterviewerBookingLimit;
 import com.intellias.intellistart.interviewplanning.models.InterviewerTimeSlot;
 import com.intellias.intellistart.interviewplanning.models.User;
 import com.intellias.intellistart.interviewplanning.models.UserRole;
@@ -17,6 +16,8 @@ import com.intellias.intellistart.interviewplanning.repositories.BookingReposito
 import com.intellias.intellistart.interviewplanning.repositories.CandidateTimeSlotRepository;
 import com.intellias.intellistart.interviewplanning.repositories.InterviewerBookingLimitRepository;
 import com.intellias.intellistart.interviewplanning.repositories.InterviewerTimeSlotRepository;
+import com.intellias.intellistart.interviewplanning.utils.WeekUtil;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -106,7 +107,8 @@ class BookingServiceTest {
     given(interviewerTimeSlotRepository.findById(interviewerSlotUUID))
         .willReturn(Optional.of(interviewerTimeSlot));
 
-    given(interviewerBookingLimitRepository.findByInterviewerId(interviewerTimeSlot.getInterviewerId()))
+    given(interviewerBookingLimitRepository.findByInterviewerId(
+        interviewerTimeSlot.getInterviewerId()))
         .willReturn(interviewerBookingLimits);
 
     given(candidateTimeSlotRepository.existsById(candidateSlotUUID))
@@ -120,13 +122,14 @@ class BookingServiceTest {
   }
 
   @Test
-  void givenInterviewerWithNoSpaceForNewBooking_whenCreateBooking_thenThrowsInterviewerLimitException(){
+  void givenInterviewerWithNoSpaceForNewBooking_whenCreateBooking_thenThrowsInterviewerLimitException() {
     interviewerBookingLimits.get(0).setCurrentBookingCount(5);
 
     given(interviewerTimeSlotRepository.findById(interviewerSlotUUID))
         .willReturn(Optional.of(interviewerTimeSlot));
 
-    given(interviewerBookingLimitRepository.findByInterviewerId(interviewerTimeSlot.getInterviewerId()))
+    given(interviewerBookingLimitRepository.findByInterviewerId(
+        interviewerTimeSlot.getInterviewerId()))
         .willReturn(interviewerBookingLimits);
 
     assertThrows(ValidationException.class,
@@ -141,7 +144,8 @@ class BookingServiceTest {
     given(interviewerTimeSlotRepository.findById(interviewerSlotUUID))
         .willReturn(Optional.of(interviewerTimeSlot));
 
-    given(interviewerBookingLimitRepository.findByInterviewerId(interviewerTimeSlot.getInterviewerId()))
+    given(interviewerBookingLimitRepository.findByInterviewerId(
+        interviewerTimeSlot.getInterviewerId()))
         .willReturn(interviewerBookingLimits);
 
     given(candidateTimeSlotRepository.existsById(candidateSlotUUID))
@@ -153,13 +157,14 @@ class BookingServiceTest {
   }
 
   @Test
-  void givenNoBookingLimits_whenCreateBooking_thenBookingCreatedSuccessfully(){
+  void givenNoBookingLimits_whenCreateBooking_thenBookingCreatedSuccessfully() {
     interviewerBookingLimits.clear();
 
     given(interviewerTimeSlotRepository.findById(interviewerSlotUUID))
         .willReturn(Optional.of(interviewerTimeSlot));
 
-    given(interviewerBookingLimitRepository.findByInterviewerId(interviewerTimeSlot.getInterviewerId()))
+    given(interviewerBookingLimitRepository.findByInterviewerId(
+        interviewerTimeSlot.getInterviewerId()))
         .willReturn(interviewerBookingLimits);
 
     given(candidateTimeSlotRepository.existsById(candidateSlotUUID))
@@ -172,7 +177,7 @@ class BookingServiceTest {
   }
 
   @Test
-  void givenNextWeekBookingLimit_whenCreateBooking_thenNextWeekLimitSkipped(){
+  void givenNextWeekBookingLimit_whenCreateBooking_thenNextWeekLimitSkipped() {
 
     InterviewerBookingLimit nextWeekLimit = InterviewerBookingLimit.builder()
         .id(UUID.fromString("3b9c3275-4a2c-4eca-a9e7-be57b5959c79"))
@@ -191,7 +196,8 @@ class BookingServiceTest {
     given(interviewerTimeSlotRepository.findById(interviewerSlotUUID))
         .willReturn(Optional.of(interviewerTimeSlot));
 
-    given(interviewerBookingLimitRepository.findByInterviewerId(interviewerTimeSlot.getInterviewerId()))
+    given(interviewerBookingLimitRepository.findByInterviewerId(
+        interviewerTimeSlot.getInterviewerId()))
         .willReturn(interviewerBookingLimits);
 
     given(candidateTimeSlotRepository.existsById(candidateSlotUUID))
@@ -204,7 +210,7 @@ class BookingServiceTest {
   }
 
   @Test
-  void givenUpdatedBookingData_whenUpdateBooking_thenBookingUpdatedSuccessfully(){
+  void givenUpdatedBookingData_whenUpdateBooking_thenBookingUpdatedSuccessfully() {
     Booking curBooking = new Booking(from, to, interviewerSlotUUID,
         candidateSlotUUID, "Subject1", "Desc1");
 
@@ -220,7 +226,8 @@ class BookingServiceTest {
     given(interviewerTimeSlotRepository.findById(interviewerSlotUUID))
         .willReturn(Optional.of(interviewerTimeSlot));
 
-    given(interviewerBookingLimitRepository.findByInterviewerId(interviewerTimeSlot.getInterviewerId()))
+    given(interviewerBookingLimitRepository.findByInterviewerId(
+        interviewerTimeSlot.getInterviewerId()))
         .willReturn(interviewerBookingLimits);
 
     given(candidateTimeSlotRepository.existsById(candidateSlotUUID))
