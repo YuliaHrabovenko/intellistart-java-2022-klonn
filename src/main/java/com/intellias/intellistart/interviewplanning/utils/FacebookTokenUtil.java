@@ -4,19 +4,23 @@ import com.intellias.intellistart.interviewplanning.dto.JwtRequest;
 import com.intellias.intellistart.interviewplanning.dto.TokenInspect;
 import com.intellias.intellistart.interviewplanning.dto.UserInfo;
 import com.intellias.intellistart.interviewplanning.exceptions.ExceptionMessage;
-import io.github.cdimascio.dotenv.Dotenv;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 /**
- * Util class to process user's Facebook token.
+ * Class to process user's Facebook token.
  */
+@Component
 public class FacebookTokenUtil {
-  private static Dotenv dotenv = Dotenv.load();
-  private static final String CLIENT_ID = dotenv.get("CLIENT_ID");
-  private static final String CLIENT_SECRET = dotenv.get("CLIENT_SECRET");
+  @Value("${spring.security.oauth2.client.clientId}")
+  private String clientId;
+
+  @Value("${spring.security.oauth2.client.clientSecret}")
+  private String clientSecret;
 
   private static final String ACCESS_TOKEN_URI =
       "https://graph.facebook.com/oauth/access_token?client_id=%s&client_secret=%s&grant_type=client_credentials";
@@ -30,8 +34,8 @@ public class FacebookTokenUtil {
    *
    * @return obtained access token
    */
-  public static JwtRequest getAccessToken() {
-    String uri = String.format(ACCESS_TOKEN_URI, CLIENT_ID, CLIENT_SECRET);
+  public JwtRequest getAccessToken() {
+    String uri = String.format(ACCESS_TOKEN_URI, clientId, clientSecret);
     RestTemplate restTemplate = new RestTemplate();
     ResponseEntity<JwtRequest> response = restTemplate.getForEntity(uri, JwtRequest.class);
     return response.getBody();
@@ -43,7 +47,7 @@ public class FacebookTokenUtil {
    * @param inputToken token provided by user
    * @return user data from inspected token
    */
-  public static TokenInspect inspectAccessToken(JwtRequest inputToken) {
+  public TokenInspect inspectAccessToken(JwtRequest inputToken) {
     JwtRequest accessToken = getAccessToken();
     if (accessToken == null) {
       throw new HttpClientErrorException(HttpStatus.UNAUTHORIZED,
@@ -55,14 +59,13 @@ public class FacebookTokenUtil {
     ResponseEntity<TokenInspect> response = restTemplate.getForEntity(uri, TokenInspect.class);
     return response.getBody();
   }
-
   /**
    * Get user's name and email info.
    *
    * @param inputToken token provided by user
    * @return user info
    */
-  public static UserInfo getUserInfo(JwtRequest inputToken) {
+  public UserInfo getUserInfo(JwtRequest inputToken) {
     TokenInspect token = inspectAccessToken(inputToken);
     if (token == null) {
       throw new HttpClientErrorException(HttpStatus.UNAUTHORIZED,

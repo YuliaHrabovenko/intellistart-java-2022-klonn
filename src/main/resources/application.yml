@@ -1,0 +1,9 @@
+jwt:
+  secret: ${SECRET}
+
+spring:
+  security:
+    oauth2:
+      client:
+        clientId: ${CLIENT_ID}
+        clientSecret: ${CLIENT_SECRET}
