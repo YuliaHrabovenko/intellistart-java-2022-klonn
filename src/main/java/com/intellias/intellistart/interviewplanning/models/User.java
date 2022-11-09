@@ -80,4 +80,8 @@ public class User {
     this.email = email;
     this.role = role;
   }
+
+  public User(String email) {
+    this.email = email;
+  }
 }
