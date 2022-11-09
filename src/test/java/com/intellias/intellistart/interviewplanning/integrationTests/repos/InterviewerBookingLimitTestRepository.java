@@ -1,4 +1,4 @@
-package com.intellias.intellistart.interviewplanning.integrationTests;
+package com.intellias.intellistart.interviewplanning.integrationTests.repos;
 
 import com.intellias.intellistart.interviewplanning.models.InterviewerBookingLimit;
 import java.util.List;

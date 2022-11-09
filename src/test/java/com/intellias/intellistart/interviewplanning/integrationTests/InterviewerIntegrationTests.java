@@ -2,6 +2,9 @@ package com.intellias.intellistart.interviewplanning.integrationTests;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.intellias.intellistart.interviewplanning.integrationTests.repos.InterviewerBookingLimitTestRepository;
+import com.intellias.intellistart.interviewplanning.integrationTests.repos.InterviewerTimeSlotTestRepository;
+import com.intellias.intellistart.interviewplanning.integrationTests.repos.UserTestRepository;
 import com.intellias.intellistart.interviewplanning.models.InterviewerBookingLimit;
 import com.intellias.intellistart.interviewplanning.models.InterviewerTimeSlot;
 import com.intellias.intellistart.interviewplanning.models.User;
