@@ -2,8 +2,13 @@ package com.intellias.intellistart.interviewplanning.controllers;
 
 import com.intellias.intellistart.interviewplanning.dto.JwtRequest;
 import com.intellias.intellistart.interviewplanning.dto.UserInfo;
+import com.intellias.intellistart.interviewplanning.models.UserRole;
+import com.intellias.intellistart.interviewplanning.security.jwt.JwtTokenProvider;
 import com.intellias.intellistart.interviewplanning.utils.FacebookTokenUtil;
+import java.util.HashMap;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,12 +18,11 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 public class AuthController {
-
-  private final FacebookTokenUtil facebookTokenUtil;
+  private final JwtTokenProvider jwtTokenProvider;
 
   @Autowired
-  public AuthController(FacebookTokenUtil facebookTokenUtil) {
-    this.facebookTokenUtil = facebookTokenUtil;
+  public AuthController(FacebookTokenUtil facebookTokenUtil, JwtTokenProvider jwtTokenProvider) {
+    this.jwtTokenProvider = jwtTokenProvider;
   }
 
   /**
@@ -28,9 +32,11 @@ public class AuthController {
    * @return own generated token
    */
   @PostMapping(path = "/authenticate")
-  public UserInfo postToken(@RequestBody JwtRequest facebookJwtRequest) {
-    UserInfo userInfo = facebookTokenUtil.getUserInfo(facebookJwtRequest);
-    // TODO: generate token by user info and role
-    return userInfo;
+  public ResponseEntity getJwtToken(@RequestBody JwtRequest facebookJwtRequest) {
+    Map<Object, Object> response = new HashMap<>();
+    response.put("token", jwtTokenProvider.createToken(facebookJwtRequest));
+
+    return ResponseEntity.ok(response);
+
   }
 }

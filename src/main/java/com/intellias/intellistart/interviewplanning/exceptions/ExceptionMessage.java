@@ -37,7 +37,9 @@ public enum ExceptionMessage {
   USER_EMAIL_EXISTS("User with this email already exists"),
 
   // Authentication related validation messages
-  INVALID_AUTH_TOKEN("Authorization code is invalid");
+  INVALID_AUTH_TOKEN("Authorization code is invalid"),
+
+  INVALID_JWT_TOKEN("JWT token is expired or invalid");
 
 
   private String message;
