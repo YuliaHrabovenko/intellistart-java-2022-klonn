@@ -18,12 +18,25 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
   private final JwtTokenProvider jwtTokenProvider;
 
-  private static final String INTERVIEWER_ENDPOINT = "/interviewers/**";
-  private static final String ALL_ENDPOINTS = "/**";
-  private static final String BOOKINGS_ENDPOINT = "/bookings/**";
-  private static final String CANDIDATES_ENDPOINT = "/candidates/**";
-  private static final String WEEK_ENDPOINT = "/users/**";
-  private static final String COORDINATORS_ENDPOINT = "users/coordinators";
+  //COORDINATOR endpoints
+
+  private static final String COORDINATOR = "COORDINATOR";
+  private static final String DASHBOARD_ENDPOINT = "/weeks/{weekId}/dashboard";
+  private static final String UPD_INTER_SLOT_ENDP = "/interviewers/{interviewerId}/slots/{slotId}";
+  private static final String BOOKINGS_ENDPOINTS = "/bookings/**";
+  private static final String USERS_ENDPOINTS = "/users/**";
+
+  //INTERVIEWER endpoints
+
+  private static final String INTERVIEWER = "INTERVIEWER";
+
+  private static final String INTERVIEWERS_ENDPOINTS = "/interviewers/**";
+
+  //CANDIDATE endpoints
+
+  private static final String CANDIDATE = "CANDIDATE";
+
+  private static final String CANDIDATES_ENDPOINTS = "/candidates/**";
   private static final String LOGIN_ENDPOINT = "/authenticate";
 
   @Autowired
@@ -46,7 +59,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .and()
         .authorizeRequests()
         .antMatchers(LOGIN_ENDPOINT).permitAll()
-        .antMatchers(ALL_ENDPOINTS).hasAuthority("COORDINATOR")
+        .antMatchers(DASHBOARD_ENDPOINT).hasAuthority(COORDINATOR)
+        .antMatchers(UPD_INTER_SLOT_ENDP).hasAuthority(COORDINATOR)
+        .antMatchers(BOOKINGS_ENDPOINTS).hasAuthority(COORDINATOR)
+        .antMatchers(USERS_ENDPOINTS).hasAuthority(COORDINATOR)
+        .antMatchers(INTERVIEWERS_ENDPOINTS).hasAuthority(INTERVIEWER)
+        .antMatchers(CANDIDATES_ENDPOINTS).hasAuthority(CANDIDATE)
         .anyRequest().authenticated()
         .and()
         .apply(new JwtConfigurer(jwtTokenProvider));
