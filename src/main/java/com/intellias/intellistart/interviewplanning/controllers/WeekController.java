@@ -25,7 +25,7 @@ public class WeekController {
   }
 
   @GetMapping(value = "test")
-  public String test(){
+  public String test() {
     return "Showing text";
   }
 }

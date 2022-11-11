@@ -16,6 +16,7 @@ import org.springframework.web.client.RestTemplate;
  */
 @Component
 public class FacebookTokenUtil {
+
   @Value("${spring.security.oauth2.client.clientId}")
   private String clientId;
 
@@ -59,6 +60,7 @@ public class FacebookTokenUtil {
     ResponseEntity<TokenInspect> response = restTemplate.getForEntity(uri, TokenInspect.class);
     return response.getBody();
   }
+
   /**
    * Get user's name and email info.
    *
