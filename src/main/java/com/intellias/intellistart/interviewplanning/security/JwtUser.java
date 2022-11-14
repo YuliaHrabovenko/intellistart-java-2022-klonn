@@ -1,8 +1,10 @@
-package com.intellias.intellistart.interviewplanning.security.jwt;
+package com.intellias.intellistart.interviewplanning.security;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.intellias.intellistart.interviewplanning.models.UserRole;
 import java.util.Collection;
 import java.util.List;
+import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,6 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 /**
  * JWT implementation of User model for Spring Security.
  */
+@ToString
 public class JwtUser implements UserDetails {
 
   private final String name;
@@ -26,7 +29,7 @@ public class JwtUser implements UserDetails {
    * @param authorities Authorities based on role to limit access to endpoints
    */
   public JwtUser(String name, String email, UserRole userRole,
-      Collection<? extends GrantedAuthority> authorities) {
+                 Collection<? extends GrantedAuthority> authorities) {
     this.name = name;
     this.email = email;
     this.userRole = userRole;
@@ -51,6 +54,7 @@ public class JwtUser implements UserDetails {
     return authorities;
   }
 
+  @JsonIgnore
   @Override
   public String getPassword() {
     return null;
@@ -61,21 +65,29 @@ public class JwtUser implements UserDetails {
     return name;
   }
 
+  public String getEmail() {
+    return email;
+  }
+
+  @JsonIgnore
   @Override
   public boolean isAccountNonExpired() {
     return true;
   }
 
+  @JsonIgnore
   @Override
   public boolean isAccountNonLocked() {
     return true;
   }
 
+  @JsonIgnore
   @Override
   public boolean isCredentialsNonExpired() {
     return true;
   }
 
+  @JsonIgnore
   @Override
   public boolean isEnabled() {
     return true;

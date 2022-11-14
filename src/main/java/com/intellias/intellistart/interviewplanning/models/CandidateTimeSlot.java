@@ -6,10 +6,8 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -44,24 +42,21 @@ public class CandidateTimeSlot {
   @Column(name = "id")
   private UUID id;
   @NotNull(message = "date has to be present")
-  @Column(name = "interview_date")
+  @Column(name = "interview_date", nullable = false)
   private LocalDate date;
   @NotNull(message = "from has to be present")
-  @Column(name = "start_time")
+  @Column(name = "start_time", nullable = false)
   @JsonFormat(pattern = "HH:mm")
   private LocalTime from;
   @NotNull(message = "to has to be present")
   @JsonFormat(pattern = "HH:mm")
-  @Column(name = "end_time")
+  @Column(name = "end_time", nullable = false)
   private LocalTime to;
-  @NotNull(message = "name has to be present")
   @Column(name = "name")
   private String name;
-  @NotNull(message = "email has to be present")
-  @Email(regexp = ".+@.+\\..+", message = "Please provide a valid email address")
   @Column(name = "email")
   private String email;
-  @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+  @OneToMany
   @JoinColumn(name = "candidate_time_slot_id", referencedColumnName = "id")
   private List<Booking> bookingList = new ArrayList<>();
 

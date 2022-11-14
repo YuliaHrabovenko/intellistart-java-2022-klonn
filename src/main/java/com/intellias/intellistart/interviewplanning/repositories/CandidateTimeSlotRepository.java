@@ -13,4 +13,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CandidateTimeSlotRepository extends JpaRepository<CandidateTimeSlot, UUID> {
   List<CandidateTimeSlot> findCandidateTimeSlotsByDateBetween(LocalDate from, LocalDate to);
+
+  List<CandidateTimeSlot> findByEmail(String email);
 }

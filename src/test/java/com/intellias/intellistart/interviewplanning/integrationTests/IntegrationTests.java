@@ -26,7 +26,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = TestSecurityConfig.class)
 public class IntegrationTests {
 
   @LocalServerPort
@@ -75,7 +75,8 @@ public class IntegrationTests {
         interviewerBookingLimitTestRepository.findByInterviewerId(interviewerID));
 
     ResponseEntity<List> response = restTemplate.exchange(
-        baseUrl + "/interviewers/booking-limits/" + interviewerID,  HttpMethod.GET, entity, List.class);
+        baseUrl + "/interviewers/booking-limits/" + interviewerID, HttpMethod.GET, entity,
+        List.class);
 
     assertEquals(1, userTestRepository.findAll().size());
     assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -97,7 +98,8 @@ public class IntegrationTests {
             .build());
 
     ResponseEntity<InterviewerBookingLimit> response = restTemplate.exchange(
-        baseUrl + "/interviewers/booking-limits",  HttpMethod.POST, entity, InterviewerBookingLimit.class);
+        baseUrl + "/interviewers/booking-limits", HttpMethod.POST, entity,
+        InterviewerBookingLimit.class);
 
     assertEquals(1, userTestRepository.findAll().size());
     assertEquals(HttpStatus.CREATED, response.getStatusCode());
@@ -122,7 +124,8 @@ public class IntegrationTests {
             .build());
 
     ResponseEntity<InterviewerTimeSlot> response = restTemplate.exchange(
-        baseUrl + "/interviewers/" + interviewerID + "/slots",  HttpMethod.POST, entity, InterviewerTimeSlot.class);
+        baseUrl + "/interviewers/" + interviewerID + "/slots", HttpMethod.POST, entity,
+        InterviewerTimeSlot.class);
 
     assertEquals(1, userTestRepository.findAll().size());
     assertEquals(HttpStatus.CREATED, response.getStatusCode());
@@ -147,7 +150,8 @@ public class IntegrationTests {
             .build());
 
     ResponseEntity<InterviewerTimeSlot> responseCreate = restTemplate.exchange(
-        baseUrl + "/interviewers/" + interviewerID + "/slots",  HttpMethod.POST, entityCreate, InterviewerTimeSlot.class);
+        baseUrl + "/interviewers/" + interviewerID + "/slots", HttpMethod.POST, entityCreate,
+        InterviewerTimeSlot.class);
 
     assertEquals(1, userTestRepository.findAll().size());
     assertEquals(HttpStatus.CREATED, responseCreate.getStatusCode());
@@ -164,7 +168,7 @@ public class IntegrationTests {
 
     ResponseEntity<InterviewerTimeSlot> responseUpdate = restTemplate.exchange(
         baseUrl + "/interviewers/" + interviewerID + "/next-week-slots/" +
-            interviewerTimeSlotTestRepository.findAll().get(0).getId(),  HttpMethod.POST,
+            interviewerTimeSlotTestRepository.findAll().get(0).getId(), HttpMethod.POST,
         entityUpdate, InterviewerTimeSlot.class);
 
     assertEquals(HttpStatus.OK, responseUpdate.getStatusCode());
@@ -184,7 +188,8 @@ public class IntegrationTests {
             interviewerID, WeekUtil.getCurrentWeekNumber()));
 
     ResponseEntity<List> response = restTemplate.exchange(
-        baseUrl + "/weeks/current/interviewers/" + interviewerID + "/slots",  HttpMethod.GET, entity, List.class);
+        baseUrl + "/weeks/current/interviewers/" + interviewerID + "/slots", HttpMethod.GET, entity,
+        List.class);
 
     assertEquals(1, userTestRepository.findAll().size());
     assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -203,7 +208,7 @@ public class IntegrationTests {
             interviewerID, WeekUtil.getNextWeekNumber()));
 
     ResponseEntity<List> response = restTemplate.exchange(
-        baseUrl + "/weeks/next/interviewers/" + interviewerID + "/slots",  HttpMethod.GET, entity,
+        baseUrl + "/weeks/next/interviewers/" + interviewerID + "/slots", HttpMethod.GET, entity,
         List.class);
 
     assertEquals(1, userTestRepository.findAll().size());
@@ -229,7 +234,7 @@ public class IntegrationTests {
     assertEquals(4, userTestRepository.findAll().size());
 
     List<User> users = restTemplate.getForObject(baseUrl + "/users/interviewers", List.class);
-    assertEquals(2,users.size());
+    assertEquals(2, users.size());
 
   }
 
@@ -248,7 +253,7 @@ public class IntegrationTests {
     assertEquals(4, userTestRepository.findAll().size());
 
     List<User> users = restTemplate.getForObject(baseUrl + "/users/coordinators", List.class);
-    assertEquals(2,users.size());
+    assertEquals(2, users.size());
 
   }
 

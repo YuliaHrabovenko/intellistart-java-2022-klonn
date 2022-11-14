@@ -1,4 +1,4 @@
-package com.intellias.intellistart.interviewplanning.security.jwt;
+package com.intellias.intellistart.interviewplanning.security;
 
 import java.io.IOException;
 import javax.servlet.FilterChain;
@@ -15,7 +15,7 @@ import org.springframework.web.filter.GenericFilterBean;
  */
 public class JwtTokenFilter extends GenericFilterBean {
 
-  private JwtTokenProvider jwtTokenProvider;
+  private final JwtTokenProvider jwtTokenProvider;
 
   public JwtTokenFilter(JwtTokenProvider jwtTokenProvider) {
     this.jwtTokenProvider = jwtTokenProvider;
@@ -23,18 +23,15 @@ public class JwtTokenFilter extends GenericFilterBean {
 
   @Override
   public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse,
-      FilterChain filterChain) throws IOException, ServletException {
+                       FilterChain filterChain) throws IOException, ServletException {
     String token = jwtTokenProvider.resolveToken((HttpServletRequest) servletRequest);
 
     if (token != null && jwtTokenProvider.validateToken(token)) {
       Authentication authentication = jwtTokenProvider.getAuthentication(token);
-
       if (authentication != null) {
         SecurityContextHolder.getContext().setAuthentication(authentication);
       }
     }
     filterChain.doFilter(servletRequest, servletResponse);
   }
-
-
 }

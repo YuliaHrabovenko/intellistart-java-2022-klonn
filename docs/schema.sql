@@ -5,9 +5,8 @@ CREATE TABLE candidate_time_slots (
 	interview_date date NULL,
 	start_time time NULL,
 	end_time time NULL,
-	name varchar(100) NOT NULL,
-	email varchar(64) NOT NULL,
-	CONSTRAINT candidates_email_key UNIQUE (email),
+	name varchar(100) NULL,
+	email varchar(64) NULL,
 	CONSTRAINT candidate_time_slots_pkey PRIMARY KEY (id)
 );
 
@@ -15,7 +14,7 @@ CREATE TABLE users (
 	id uuid NOT NULL DEFAULT uuid_generate_v4(),
 	email varchar(64) NOT NULL,
 	"role" varchar(30) NULL,
-	name varchar(100) NOT NULL,
+	name varchar(100) NULL,
 	CONSTRAINT users_email_key UNIQUE (email),
 	CONSTRAINT users_pkey PRIMARY KEY (id)
 );

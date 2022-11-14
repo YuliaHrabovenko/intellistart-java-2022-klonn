@@ -39,27 +39,27 @@ public class Booking {
   private UUID id;
   @NotNull(message = "from has to be present")
   @JsonFormat(pattern = "HH:mm")
-  @Column(name = "start_time")
+  @Column(name = "start_time", nullable = false)
   private LocalTime from;
   @NotNull(message = "to has to be present")
   @JsonFormat(pattern = "HH:mm")
-  @Column(name = "end_time")
+  @Column(name = "end_time", nullable = false)
   private LocalTime to;
   @NotNull(message = "subject has to be present")
   @NotBlank
   @Size(max = 255, message = "Subject's length can't be higher than 255 characters")
-  @Column(name = "subject")
+  @Column(name = "subject", length = 255)
   private String subject;
   @NotNull(message = "description has to be present")
   @NotBlank
   @Size(max = 4000, message = "Description's length can't be higher than 4000 characters")
-  @Column(name = "description")
+  @Column(name = "description", length = 4000)
   private String description;
   @NotNull(message = "interviewerTimeSlotId has to be present")
-  @Column(name = "interviewer_time_slot_id")
+  @Column(name = "interviewer_time_slot_id", nullable = false)
   private UUID interviewerTimeSlotId;
   @NotNull(message = "candidateTimeSlotId has to be present")
-  @Column(name = "candidate_time_slot_id")
+  @Column(name = "candidate_time_slot_id", nullable = false)
   private UUID candidateTimeSlotId;
 
   /**

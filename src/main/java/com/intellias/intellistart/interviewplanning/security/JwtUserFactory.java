@@ -1,4 +1,4 @@
-package com.intellias.intellistart.interviewplanning.security.jwt;
+package com.intellias.intellistart.interviewplanning.security;
 
 import com.intellias.intellistart.interviewplanning.models.User;
 import com.intellias.intellistart.interviewplanning.models.UserRole;

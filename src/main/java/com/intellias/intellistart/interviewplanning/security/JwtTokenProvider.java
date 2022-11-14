@@ -1,13 +1,11 @@
-package com.intellias.intellistart.interviewplanning.security.jwt;
+package com.intellias.intellistart.interviewplanning.security;
 
 import com.intellias.intellistart.interviewplanning.dto.JwtRequest;
 import com.intellias.intellistart.interviewplanning.dto.UserInfo;
 import com.intellias.intellistart.interviewplanning.exceptions.ExceptionMessage;
-import com.intellias.intellistart.interviewplanning.exceptions.ValidationException;
 import com.intellias.intellistart.interviewplanning.models.User;
 import com.intellias.intellistart.interviewplanning.models.UserRole;
 import com.intellias.intellistart.interviewplanning.repositories.UserRepository;
-import com.intellias.intellistart.interviewplanning.utils.FacebookTokenUtil;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
@@ -18,10 +16,12 @@ import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 
 /**
  * Class to create, validate and handle JWT tokens.
@@ -33,12 +33,12 @@ public class JwtTokenProvider {
   private String secret;
   @Value("${jwt.token.expired}")
   private long validityInMilliseconds;
-  private FacebookTokenUtil facebookTokenUtil;
-  private UserRepository userRepository;
+  private final FacebookToken facebookToken;
+  private final UserRepository userRepository;
 
   @Autowired
-  public JwtTokenProvider(FacebookTokenUtil facebookTokenUtil, UserRepository userRepository) {
-    this.facebookTokenUtil = facebookTokenUtil;
+  public JwtTokenProvider(FacebookToken facebookToken, UserRepository userRepository) {
+    this.facebookToken = facebookToken;
     this.userRepository = userRepository;
   }
 
@@ -49,7 +49,7 @@ public class JwtTokenProvider {
    * @return JWT token
    */
   public String createToken(JwtRequest facebookJwtRequest) {
-    UserInfo userInfo = facebookTokenUtil.getUserInfo(facebookJwtRequest);
+    UserInfo userInfo = facebookToken.getUserInfo(facebookJwtRequest);
 
     Optional<User> user = userRepository.findUserByEmail(userInfo.getEmail());
 
@@ -95,8 +95,18 @@ public class JwtTokenProvider {
     return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody().getSubject();
   }
 
+  /**
+   * Get token from the request.
+   *
+   * @param req request
+   * @return token if found
+   */
   public String resolveToken(HttpServletRequest req) {
-    return req.getHeader("Authorization");
+    String bearerToken = req.getHeader("Authorization");
+    if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+      return bearerToken.substring(7, bearerToken.length());
+    }
+    return null;
   }
 
   /**
@@ -115,7 +125,8 @@ public class JwtTokenProvider {
 
       return true;
     } catch (JwtException | IllegalArgumentException e) {
-      throw new ValidationException(ExceptionMessage.INVALID_JWT_TOKEN.getMessage());
+      throw new HttpClientErrorException(HttpStatus.UNAUTHORIZED,
+          ExceptionMessage.INVALID_JWT_TOKEN.getMessage());
     }
   }
 
