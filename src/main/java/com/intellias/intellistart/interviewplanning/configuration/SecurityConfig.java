@@ -34,6 +34,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
   private static final String CANDIDATE = "CANDIDATE";
   private static final String CANDIDATES_ENDPOINTS = "/candidates/**";
 
+  //Login endpoint
   private static final String LOGIN_ENDPOINT = "/authenticate";
 
   @Autowired
