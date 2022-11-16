@@ -3,6 +3,7 @@ package com.intellias.intellistart.interviewplanning.controllers;
 import com.intellias.intellistart.interviewplanning.models.Booking;
 import com.intellias.intellistart.interviewplanning.models.InterviewerTimeSlot;
 import com.intellias.intellistart.interviewplanning.models.User;
+import com.intellias.intellistart.interviewplanning.security.JwtUser;
 import com.intellias.intellistart.interviewplanning.services.BookingService;
 import com.intellias.intellistart.interviewplanning.services.CoordinatorService;
 import com.intellias.intellistart.interviewplanning.services.CoordinatorService.DayInfo;
@@ -12,6 +13,7 @@ import java.util.UUID;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -74,9 +76,18 @@ public class CoordinatorController {
     return coordinatorService.getInterviewers();
   }
 
+  /**
+   * Revoke coordinator's role by his id.
+   *
+   * @param coordinatorId  coordinator's id
+   * @param authentication authentication object to get email from
+   */
   @DeleteMapping(path = "/users/coordinators/{coordinatorId}")
-  public void revokeCoordinatorRole(@PathVariable("coordinatorId") UUID coordinatorId) {
-    coordinatorService.revokeCoordinatorRole(coordinatorId);
+  public void revokeCoordinatorRole(@PathVariable("coordinatorId") UUID coordinatorId,
+                                    Authentication authentication) {
+    JwtUser jwtUser = (JwtUser) authentication.getPrincipal();
+    String email = jwtUser.getEmail();
+    coordinatorService.revokeCoordinatorRole(coordinatorId, email);
   }
 
   @DeleteMapping(path = "/users/interviewers/{interviewerId}")

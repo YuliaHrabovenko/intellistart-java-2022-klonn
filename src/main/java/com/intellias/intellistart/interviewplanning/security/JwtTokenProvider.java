@@ -51,7 +51,7 @@ public class JwtTokenProvider {
   public String createToken(JwtRequest facebookJwtRequest) {
     UserInfo userInfo = facebookToken.getUserInfo(facebookJwtRequest);
 
-    Optional<User> user = userRepository.findUserByEmail(userInfo.getEmail());
+    Optional<User> user = userRepository.findByEmail(userInfo.getEmail());
 
     Claims claims = Jwts.claims().setSubject(userInfo.getEmail());
     claims.put("name", userInfo.getName());
@@ -80,7 +80,7 @@ public class JwtTokenProvider {
    * @return authentication token
    */
   public Authentication getAuthentication(String token) {
-    Optional<User> user = this.userRepository.findUserByEmail(getEmail(token));
+    Optional<User> user = this.userRepository.findByEmail(getEmail(token));
     UserDetails userDetails = null;
     if (user.isPresent()) {
       userDetails = JwtUserFactory.create(user.get());

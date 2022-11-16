@@ -4,13 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.intellias.intellistart.interviewplanning.exceptions.NotFoundException;
 import com.intellias.intellistart.interviewplanning.exceptions.ValidationException;
 import com.intellias.intellistart.interviewplanning.models.Booking;
 import com.intellias.intellistart.interviewplanning.models.CandidateTimeSlot;
@@ -193,7 +190,7 @@ public class CandidateServiceTests {
         .build();
 
     List<Booking> bookings = List.of(booking);
-    when(bookingRepository.findBookingsByCandidateTimeSlotId(candidateTimeSlot.getId())).thenReturn(
+    when(bookingRepository.findByCandidateTimeSlotId(candidateTimeSlot.getId())).thenReturn(
         bookings);
 
     candidateTimeSlot.setFrom(startTimeNew);

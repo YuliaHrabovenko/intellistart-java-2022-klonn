@@ -36,6 +36,7 @@ public enum ExceptionMessage {
   NOT_COORDINATOR("User with this ID is not a coordinator"),
   NOT_INTERVIEWER("User with this ID is not an interviewer"),
   USER_EMAIL_EXISTS("User with this email already exists"),
+  COORDINATOR_CAN_NOT_BE_REVOKED("Coordinator can't revoke himself"),
 
   // Authentication related validation messages
   INVALID_AUTH_TOKEN("Authorization code is invalid"),

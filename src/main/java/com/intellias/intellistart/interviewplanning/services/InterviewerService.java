@@ -119,7 +119,8 @@ public class InterviewerService {
     PeriodUtil.validatePeriod(interviewerTimeSlot.getFrom(), interviewerTimeSlot.getTo());
 
     // check if there is no bookings with interviewer slot
-    List<Booking> bookings = bookingRepository.getBookingsByInterviewerSlotId(existingSlot.getId());
+    List<Booking> bookings =
+        bookingRepository.findByInterviewerTimeSlotId(existingSlot.getId());
 
     if (!bookings.isEmpty()) {
       throw new ValidationException(ExceptionMessage.BOOKING_ALREADY_MADE.getMessage());
@@ -196,7 +197,7 @@ public class InterviewerService {
     // if the interviewer has already a booking limit for
     // the next week, just update the booking limit
     InterviewerBookingLimit existingBookingLimit =
-        interviewerBookingLimitRepository.findInterviewerBookingLimitByInterviewerIdAndWeekNum(
+        interviewerBookingLimitRepository.findByInterviewerIdAndWeekNum(
             interviewerBookingLimit.getInterviewerId(), weekNum);
 
     if (existingBookingLimit != null) {
@@ -228,7 +229,7 @@ public class InterviewerService {
     if (interviewer.isEmpty()) {
       throw new NotFoundException(ExceptionMessage.INTERVIEWER_NOT_FOUND.getMessage());
     }
-    return interviewerTimeSlotRepository.findInterviewerTimeSlotsByInterviewerIdAndWeekNum(
+    return interviewerTimeSlotRepository.findByInterviewerIdAndWeekNum(
         interviewerId, requiredWeekNumber);
   }
 

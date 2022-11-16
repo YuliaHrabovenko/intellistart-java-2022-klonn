@@ -143,5 +143,4 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
     );
     return new ResponseEntity<>(exceptionDetail, errorException.getStatusCode());
   }
-
 }

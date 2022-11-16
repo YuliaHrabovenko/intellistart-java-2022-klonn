@@ -189,7 +189,7 @@ class BookingServiceTest {
 
     interviewerBookingLimits.add(nextWeekLimit);
 
-    given(interviewerBookingLimitRepository.findInterviewerBookingLimitByInterviewerIdAndWeekNum(
+    given(interviewerBookingLimitRepository.findByInterviewerIdAndWeekNum(
         interviewer.getId(),
         WeekUtil.getNextWeekNumber())).willReturn(nextWeekLimit);
 

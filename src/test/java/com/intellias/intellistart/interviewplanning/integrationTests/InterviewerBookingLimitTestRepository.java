@@ -9,6 +9,6 @@ public interface InterviewerBookingLimitTestRepository
     extends JpaRepository<InterviewerBookingLimit, UUID> {
   List<InterviewerBookingLimit> findByInterviewerId(UUID id);
 
-  InterviewerBookingLimit findInterviewerBookingLimitByInterviewerIdAndWeekNum(UUID interviewerId,
-                                                                               String weekNum);
+  InterviewerBookingLimit findByInterviewerIdAndWeekNum(UUID interviewerId,
+                                                        String weekNum);
 }

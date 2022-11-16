@@ -30,7 +30,7 @@ public class UserService {
    * @return interviewer or coordinator object
    */
   public UserDto getByEmail(String email) {
-    User user = userRepository.findUserByEmail(email).orElseThrow(
+    User user = userRepository.findByEmail(email).orElseThrow(
         () -> new NotFoundException(ExceptionMessage.USER_NOT_FOUND.getMessage())
     );
     return mapToDto(user);

@@ -11,7 +11,6 @@ import com.intellias.intellistart.interviewplanning.utils.PeriodUtil;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -70,7 +69,7 @@ public class CandidateService {
 
     // Check if there is no bookings with this candidate slot
     List<Booking> bookings =
-        bookingRepository.findBookingsByCandidateTimeSlotId(existingSlot.getId());
+        bookingRepository.findByCandidateTimeSlotId(existingSlot.getId());
 
     if (!bookings.isEmpty()) {
       throw new ValidationException(ExceptionMessage.BOOKING_ALREADY_MADE.getMessage());

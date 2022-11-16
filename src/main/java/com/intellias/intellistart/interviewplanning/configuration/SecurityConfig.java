@@ -4,17 +4,17 @@ import com.intellias.intellistart.interviewplanning.exceptions.ControllerAdvisor
 import com.intellias.intellistart.interviewplanning.security.JwtConfigurer;
 import com.intellias.intellistart.interviewplanning.security.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.SecurityFilterChain;
 
 /**
  * Configuration class of Spring Security.
  */
 @EnableWebSecurity
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
-  private final JwtTokenProvider jwtTokenProvider;
+public class SecurityConfig {
 
   //COORDINATOR endpoints
   private static final String COORDINATOR = "COORDINATOR";
@@ -37,19 +37,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
   //Login endpoint
   private static final String LOGIN_ENDPOINT = "/authenticate";
 
+  private final JwtTokenProvider jwtTokenProvider;
+
   @Autowired
   public SecurityConfig(JwtTokenProvider jwtTokenProvider) {
     this.jwtTokenProvider = jwtTokenProvider;
   }
 
-  //  @Bean
-  //  @Override
-  //  public AuthenticationManager authenticationManagerBean() throws Exception {
-  //    return super.authenticationManagerBean();
-  //  }
-
-  @Override
-  protected void configure(HttpSecurity http) throws Exception {
+  /**
+   * Filter chain to intercept and process each request.
+   *
+   * @param http HttpSecurity http
+   * @return SecurityFilterChain http
+   * @throws Exception error type
+   */
+  @Bean
+  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http
         .httpBasic().disable()
         .csrf().disable()
@@ -70,6 +73,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .and().exceptionHandling()
         .accessDeniedHandler(new ControllerAdvisor.CustomAccessDeniedHandler());
     http.apply(new JwtConfigurer(jwtTokenProvider));
+
+    return http.build();
   }
 
 }

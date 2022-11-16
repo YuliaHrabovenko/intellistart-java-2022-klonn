@@ -164,7 +164,7 @@ public class BookingService {
     List<InterviewerBookingLimit> interviewerBookingLimits = interviewerBookingLimitRepository
         .findByInterviewerId(interviewerId);
     InterviewerBookingLimit isNextWeekLimitExist = interviewerBookingLimitRepository
-        .findInterviewerBookingLimitByInterviewerIdAndWeekNum(interviewerId,
+        .findByInterviewerIdAndWeekNum(interviewerId,
             WeekUtil.getNextWeekNumber());
 
     int counter = interviewerBookingLimits.size();

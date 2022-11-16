@@ -1,6 +1,7 @@
 package com.intellias.intellistart.interviewplanning.models;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -49,14 +50,13 @@ public class User {
   @Column(name = "role")
   @Enumerated(EnumType.STRING)
   private UserRole role;
-  //  @NotNull(message = "name has to be present")
-  @Column(name = "name")
-  private String name;
   @OneToMany
   @JoinColumn(name = "interviewer_id", referencedColumnName = "id")
+  @JsonIgnore
   private Set<InterviewerTimeSlot> interviewerTimeSlots = new HashSet<>();
   @OneToMany
   @JoinColumn(name = "interviewer_id", referencedColumnName = "id")
+  @JsonIgnore
   private Set<InterviewerBookingLimit> interviewerBookingLimits = new HashSet<>();
 
   /**

@@ -15,7 +15,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 @ToString
 public class JwtUser implements UserDetails {
 
-  private final String name;
+  private String name;
   private final String email;
   private final UserRole userRole;
   private final Collection<? extends GrantedAuthority> authorities;
@@ -23,14 +23,12 @@ public class JwtUser implements UserDetails {
   /**
    * JwtUser constructor for users that are present in database.
    *
-   * @param name        User's name
    * @param email       User's email
    * @param userRole    User's role
    * @param authorities Authorities based on role to limit access to endpoints
    */
-  public JwtUser(String name, String email, UserRole userRole,
+  public JwtUser(String email, UserRole userRole,
                  Collection<? extends GrantedAuthority> authorities) {
-    this.name = name;
     this.email = email;
     this.userRole = userRole;
     this.authorities = authorities;

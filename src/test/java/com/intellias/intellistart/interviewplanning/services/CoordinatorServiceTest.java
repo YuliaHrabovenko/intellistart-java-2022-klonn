@@ -122,7 +122,7 @@ class CoordinatorServiceTest {
 
   @Test
   void givenEmail_whenGrantCoordinatorRole_throwException() {
-    given(userRepository.findUserByEmail(coordinator.getEmail())).willReturn(
+    given(userRepository.findByEmail(coordinator.getEmail())).willReturn(
         Optional.of(coordinator));
     assertThrows(ValidationException.class,
         () -> coordinatorService.grantCoordinatorRole(coordinator));
@@ -142,7 +142,7 @@ class CoordinatorServiceTest {
 
   @Test
   void givenEmail_whenGrantInterviewerRole_throwException() {
-    given(userRepository.findUserByEmail(interviewer.getEmail())).willReturn(
+    given(userRepository.findByEmail(interviewer.getEmail())).willReturn(
         Optional.of(interviewer));
     assertThrows(ValidationException.class,
         () -> coordinatorService.grantInterviewerRole(interviewer));
@@ -257,7 +257,7 @@ class CoordinatorServiceTest {
     Map<DayOfWeek, List<InterviewerTimeSlot>> interviewerSlotsByDayOfWeek =
         Map.of(interviewerSlot.getDayOfWeek(), List.of(interviewerSlot));
 
-    given(interviewerTimeSlotRepository.findInterviewerTimeSlotsByWeekNum(
+    given(interviewerTimeSlotRepository.findByWeekNum(
         interviewerSlot.getWeekNum())).willReturn(List.of(interviewerSlot));
 
     assertThat(
@@ -267,7 +267,7 @@ class CoordinatorServiceTest {
     Map<LocalDate, List<CandidateTimeSlot>> candidateSlotsByDate =
         Map.of(candidateSlot.getDate(), List.of(candidateSlot));
 
-    given(candidateTimeSlotRepository.findCandidateTimeSlotsByDateBetween(
+    given(candidateTimeSlotRepository.findByDateBetween(
         LocalDate.of(2022, 10, 27),
         LocalDate.of(2022, 10, 27).plusDays(4L))).willReturn(List.of(candidateSlot));
 
@@ -308,7 +308,7 @@ class CoordinatorServiceTest {
         UUID.fromString("123e4567-e89b-42d3-a456-556642440002"))).willReturn(
         Optional.of(coordinator));
 
-    coordinatorService.revokeCoordinatorRole(coordinator.getId());
+    coordinatorService.revokeCoordinatorRole(coordinator.getId(), "test@gmail.com");
     verify(userRepository, times(1)).deleteById(coordinator.getId());
   }
 
@@ -326,7 +326,7 @@ class CoordinatorServiceTest {
 
 
     assertThrows(ValidationException.class,
-        () -> coordinatorService.revokeCoordinatorRole(coordinatorWithInterviewerRole.getId()));
+        () -> coordinatorService.revokeCoordinatorRole(coordinatorWithInterviewerRole.getId(), "test@gmail.com"));
 
     verify(userRepository, never()).save(any(User.class));
   }
