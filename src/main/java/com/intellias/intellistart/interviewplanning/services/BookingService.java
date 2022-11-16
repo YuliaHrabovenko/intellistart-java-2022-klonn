@@ -41,9 +41,9 @@ public class BookingService {
    */
   @Autowired
   public BookingService(BookingRepository bookingRepository,
-      InterviewerTimeSlotRepository interviewerTimeSlotRepository,
-      InterviewerBookingLimitRepository interviewerBookingLimitRepository,
-      CandidateTimeSlotRepository candidateTimeSlotRepository) {
+                        InterviewerTimeSlotRepository interviewerTimeSlotRepository,
+                        InterviewerBookingLimitRepository interviewerBookingLimitRepository,
+                        CandidateTimeSlotRepository candidateTimeSlotRepository) {
     this.bookingRepository = bookingRepository;
     this.interviewerTimeSlotRepository = interviewerTimeSlotRepository;
     this.interviewerBookingLimitRepository = interviewerBookingLimitRepository;
@@ -64,11 +64,11 @@ public class BookingService {
    * @return saved Booking
    */
   public Booking createBooking(UUID interviewerSlotId,
-      UUID candidateTimeSlotId,
-      LocalTime from,
-      LocalTime to,
-      String subject,
-      String description) {
+                               UUID candidateTimeSlotId,
+                               LocalTime from,
+                               LocalTime to,
+                               String subject,
+                               String description) {
 
     validateBookingFields(interviewerSlotId, candidateTimeSlotId, from, to);
 
@@ -134,9 +134,9 @@ public class BookingService {
   }
 
   private void validateBookingFields(UUID interviewerSlotId,
-      UUID candidateTimeSlotId,
-      LocalTime from,
-      LocalTime to) {
+                                     UUID candidateTimeSlotId,
+                                     LocalTime from,
+                                     LocalTime to) {
 
     isInterviewerLimitExceeded(interviewerSlotId);
 
@@ -164,7 +164,7 @@ public class BookingService {
     List<InterviewerBookingLimit> interviewerBookingLimits = interviewerBookingLimitRepository
         .findByInterviewerId(interviewerId);
     InterviewerBookingLimit isNextWeekLimitExist = interviewerBookingLimitRepository
-        .findInterviewerBookingLimitByInterviewerIdAndWeekNum(interviewerId,
+        .findByInterviewerIdAndWeekNum(interviewerId,
             WeekUtil.getNextWeekNumber());
 
     int counter = interviewerBookingLimits.size();

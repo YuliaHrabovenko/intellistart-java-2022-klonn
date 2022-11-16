@@ -105,7 +105,7 @@ public class CoordinatorService {
    * @return user object if success
    */
   public User grantCoordinatorRole(User coordinator) {
-    Optional<User> user = coordinatorRepository.findUserByEmail(coordinator.getEmail());
+    Optional<User> user = coordinatorRepository.findByEmail(coordinator.getEmail());
     if (user.isPresent()) {
       throw new ValidationException(ExceptionMessage.USER_EMAIL_EXISTS.getMessage());
     }
@@ -120,7 +120,7 @@ public class CoordinatorService {
    * @return user object if success
    */
   public User grantInterviewerRole(User interviewer) {
-    Optional<User> user = coordinatorRepository.findUserByEmail(interviewer.getEmail());
+    Optional<User> user = coordinatorRepository.findByEmail(interviewer.getEmail());
     if (user.isPresent()) {
       throw new ValidationException(ExceptionMessage.USER_EMAIL_EXISTS.getMessage());
     }
@@ -133,13 +133,16 @@ public class CoordinatorService {
    *
    * @param coordinatorId id of the user
    */
-  public void revokeCoordinatorRole(UUID coordinatorId) {
+  public void revokeCoordinatorRole(UUID coordinatorId, String email) {
     User coordinator = coordinatorRepository.findById(coordinatorId)
         .orElseThrow(
             () -> new NotFoundException(ExceptionMessage.COORDINATOR_NOT_FOUND.getMessage()));
     if (coordinator.getRole() != UserRole.COORDINATOR) {
       throw new ValidationException(ExceptionMessage.NOT_COORDINATOR.getMessage());
       //don`t know how to prevent coordinator to revoke himself
+    }
+    if (coordinator.getEmail().equals(email)) {
+      throw new ValidationException(ExceptionMessage.COORDINATOR_CAN_NOT_BE_REVOKED.getMessage());
     }
     coordinatorRepository.deleteById(coordinatorId);
   }
@@ -179,7 +182,7 @@ public class CoordinatorService {
   }
 
   public Map<DayOfWeek, List<InterviewerTimeSlot>> getInterviewerSlotsByDayOfWeek(String weekNum) {
-    return interviewerTimeSlotRepository.findInterviewerTimeSlotsByWeekNum(weekNum).stream()
+    return interviewerTimeSlotRepository.findByWeekNum(weekNum).stream()
         .collect(Collectors.groupingBy(InterviewerTimeSlot::getDayOfWeek));
   }
 
@@ -191,7 +194,7 @@ public class CoordinatorService {
    */
   public Map<LocalDate, List<CandidateTimeSlot>> getCandidateSlotsByDate(
       LocalDate firstDateOfWeek) {
-    return candidateTimeSlotRepository.findCandidateTimeSlotsByDateBetween(firstDateOfWeek,
+    return candidateTimeSlotRepository.findByDateBetween(firstDateOfWeek,
         firstDateOfWeek.plusDays(4L)).stream().collect(
         Collectors.groupingBy(CandidateTimeSlot::getDate));
   }

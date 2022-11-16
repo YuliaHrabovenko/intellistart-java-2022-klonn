@@ -15,6 +15,5 @@ public interface InterviewerBookingLimitRepository extends
 
   List<InterviewerBookingLimit> findByInterviewerId(UUID id);
 
-  InterviewerBookingLimit findInterviewerBookingLimitByInterviewerIdAndWeekNum(UUID interviewerId,
-                                                                               String weekNum);
+  InterviewerBookingLimit findByInterviewerIdAndWeekNum(UUID interviewerId, String weekNum);
 }

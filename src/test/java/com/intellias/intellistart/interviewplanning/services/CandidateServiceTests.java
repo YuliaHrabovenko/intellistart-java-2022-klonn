@@ -4,13 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.intellias.intellistart.interviewplanning.exceptions.NotFoundException;
 import com.intellias.intellistart.interviewplanning.exceptions.ValidationException;
 import com.intellias.intellistart.interviewplanning.models.Booking;
 import com.intellias.intellistart.interviewplanning.models.CandidateTimeSlot;
@@ -193,7 +190,7 @@ public class CandidateServiceTests {
         .build();
 
     List<Booking> bookings = List.of(booking);
-    when(bookingRepository.findBookingsByCandidateTimeSlotId(candidateTimeSlot.getId())).thenReturn(
+    when(bookingRepository.findByCandidateTimeSlotId(candidateTimeSlot.getId())).thenReturn(
         bookings);
 
     candidateTimeSlot.setFrom(startTimeNew);
@@ -204,78 +201,37 @@ public class CandidateServiceTests {
     verify(candidateTimeSlotRepository, never()).save(any(CandidateTimeSlot.class));
   }
 
+
   @Test
-  void givenCandidateTimeSlotId_whenDeleteCandidateTimeSlot_thenNothing() {
+  void givenCandidateEmail_whenGetCandidateTimeSlots_thenReturnCandidateTimeSlotList() {
 
     CandidateTimeSlot candidateTimeSlot = CandidateTimeSlot.builder()
         .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
-        .from(from)
-        .to(to)
         .date(date)
+        .from(LocalTime.of(10, 0))
+        .to(LocalTime.of(11, 30))
+        .email("test@gmail.com")
         .build();
 
-    given(candidateTimeSlotRepository.findById(candidateTimeSlot.getId())).willReturn(
-        Optional.of(candidateTimeSlot));
-
-    willDoNothing().given(candidateTimeSlotRepository).deleteById(candidateTimeSlot.getId());
-
-    candidateService.deleteSlot(candidateTimeSlot.getId());
-
-    verify(candidateTimeSlotRepository, times(1)).deleteById(candidateTimeSlot.getId());
-  }
-
-  @Test
-  void givenCandidateTimeSlotId_whenDeleteCandidateTimeSlot_thenThrowsException() {
-
-    CandidateTimeSlot candidateTimeSlot = CandidateTimeSlot.builder()
-        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
-        .from(from)
-        .to(to)
-        .date(date)
+    CandidateTimeSlot candidateTimeSlot2 = CandidateTimeSlot.builder()
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440001"))
+        .date(date.plusWeeks(1L))
+        .from(LocalTime.of(15, 0))
+        .to(LocalTime.of(16, 30))
+        .email("test@gmail.com")
         .build();
 
-    given(candidateTimeSlotRepository.findById(candidateTimeSlot.getId())).willReturn(
-        Optional.empty());
+    List<CandidateTimeSlot> candidateTimeSlots = List.of(candidateTimeSlot, candidateTimeSlot2);
 
-    assertThrows(NotFoundException.class,
-        () -> candidateService.deleteSlot(candidateTimeSlot.getId()));
 
-    verify(candidateTimeSlotRepository, times(0)).deleteById(candidateTimeSlot.getId());
+    given(candidateTimeSlotRepository.findByEmail("test@gmail.com")).willReturn(
+        candidateTimeSlots);
+
+
+    List<CandidateTimeSlot> slotList = candidateService.getSlotsByCandidateEmail("test@gmail.com");
+
+    assertThat(slotList).isNotNull();
+    assertThat(slotList).hasSize(2);
   }
-
-
-//  @Test
-//  void givenCandidateId_whenGetCandidateTimeSlots_thenReturnCandidateTimeSlotList() {
-//    // given - precondition or setup
-//
-//    User candidate = User.builder().
-//        id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000")).
-//        email("candidate@gmail.com").
-//        role(UserRole.CANDIDATE)
-//        .build();
-//
-//    CandidateTimeSlot candidateTimeSlot = CandidateTimeSlot.builder()
-//        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
-//        .periodId(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
-//        .build();
-//
-//    CandidateTimeSlot candidateTimeSlot2 = CandidateTimeSlot.builder()
-//        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440001"))
-//        .periodId(UUID.fromString("123e4567-e89b-42d3-a456-556642440001"))
-//        .build();
-//
-//    List<CandidateTimeSlot> candidateTimeSlots = List.of(candidateTimeSlot, candidateTimeSlot2);
-//
-//
-//    given(candidateTimeSlotRepository.getCandidateSlotsByCandidateId(candidate.getId())).willReturn(
-//        candidateTimeSlots);
-//
-//
-//    List<CandidateTimeSlot> slotList = candidateService.getSlotsByCandidateId(
-//        UUID.fromString("123e4567-e89b-42d3-a456-556642440000"));
-//
-//    assertThat(slotList).isNotNull();
-//    assertThat(slotList).hasSize(2);
-//  }
 
 }

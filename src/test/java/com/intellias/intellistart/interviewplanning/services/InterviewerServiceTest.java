@@ -356,7 +356,7 @@ class InterviewerServiceTest {
 
     interviewerBookingLimit.setWeekBookingLimit(8);
 
-    given(interviewerBookingLimitRepository.findInterviewerBookingLimitByInterviewerIdAndWeekNum(
+    given(interviewerBookingLimitRepository.findByInterviewerIdAndWeekNum(
         interviewerBookingLimit.getInterviewerId(),
         interviewerBookingLimit.getWeekNum())).willReturn(interviewerBookingLimit);
 
@@ -451,7 +451,7 @@ class InterviewerServiceTest {
 
     given(userRepository.findById(interviewer.getId())).willReturn(Optional.of(interviewer));
 
-    given(interviewerTimeSlotRepository.findInterviewerTimeSlotsByInterviewerIdAndWeekNum(
+    given(interviewerTimeSlotRepository.findByInterviewerIdAndWeekNum(
         interviewer.getId(), interviewerTimeSlot.getWeekNum())).willReturn(interviewerTimeSlots);
 
     List<InterviewerTimeSlot> timeSlotsForCurrentWeek =
@@ -494,7 +494,7 @@ class InterviewerServiceTest {
 
     given(userRepository.findById(interviewer.getId())).willReturn(Optional.of(interviewer));
 
-    given(interviewerTimeSlotRepository.findInterviewerTimeSlotsByInterviewerIdAndWeekNum(
+    given(interviewerTimeSlotRepository.findByInterviewerIdAndWeekNum(
         interviewer.getId(), interviewerTimeSlot.getWeekNum())).willReturn(interviewerTimeSlots);
 
     List<InterviewerTimeSlot> timeSlotsForNextWeek =

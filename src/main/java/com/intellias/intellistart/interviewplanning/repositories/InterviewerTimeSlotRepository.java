@@ -12,12 +12,11 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface InterviewerTimeSlotRepository extends JpaRepository<InterviewerTimeSlot, UUID> {
-  List<InterviewerTimeSlot> findInterviewerTimeSlotsByInterviewerIdAndWeekNum(UUID interviewerId,
-                                                                              String weekNum);
+  List<InterviewerTimeSlot> findByInterviewerIdAndWeekNum(UUID interviewerId, String weekNum);
 
   List<InterviewerTimeSlot> findByDayOfWeekAndInterviewerIdAndWeekNum(DayOfWeek dayOfWeek,
                                                                       UUID interviewerId,
                                                                       String weekNum);
 
-  List<InterviewerTimeSlot> findInterviewerTimeSlotsByWeekNum(String weekNum);
+  List<InterviewerTimeSlot> findByWeekNum(String weekNum);
 }

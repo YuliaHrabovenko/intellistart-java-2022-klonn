@@ -6,10 +6,8 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -43,23 +41,23 @@ public class InterviewerTimeSlot {
   @Column(name = "id")
   private UUID id;
   @NotNull(message = "dayOfWeek has to be present")
-  @Column(name = "day_of_week")
+  @Column(name = "day_of_week", nullable = false)
   private DayOfWeek dayOfWeek;
   @NotNull(message = "from has to be present")
-  @Column(name = "start_time")
+  @Column(name = "start_time", nullable = false)
   @JsonFormat(pattern = "HH:mm")
   private LocalTime from;
   @NotNull(message = "to has to be present")
-  @Column(name = "end_time")
+  @Column(name = "end_time", nullable = false)
   @JsonFormat(pattern = "HH:mm")
   private LocalTime to;
   @NotNull(message = "weekNumber has to be present")
-  @Column(name = "week_number")
+  @Column(name = "week_number", nullable = false)
   private String weekNum;
 
   @Column(name = "interviewer_id")
   private UUID interviewerId;
-  @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+  @OneToMany
   @JoinColumn(name = "interviewer_time_slot_id", referencedColumnName = "id")
   private List<Booking> bookingList = new ArrayList<>();
 

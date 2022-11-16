@@ -75,7 +75,7 @@ public final class WeekUtil {
   /**
    * Validate if a week number is the current or next week number.
    *
-   * @param weekNum     week number
+   * @param weekNum week number
    */
   public static void validateIsCurrentOrNextWeekNumber(String weekNum) {
     if (!(weekNum.equals(getCurrentWeekNumber()) || weekNum.equals(getNextWeekNumber()))) {

@@ -1,4 +1,4 @@
-# intellistart-java-2022-klonn 
+# intellistart-java-2022-klonn
 
 How to setup docker image:
 

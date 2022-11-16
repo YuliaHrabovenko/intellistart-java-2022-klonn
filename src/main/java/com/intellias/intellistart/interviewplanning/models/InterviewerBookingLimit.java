@@ -39,13 +39,13 @@ public class InterviewerBookingLimit {
   private UUID id;
   @NotNull(message = "weekBookingLimit has to be present")
   @Min(value = 1, message = "Week booking limit must be greater or equal to {value}")
-  @Column(name = "week_booking_limit")
+  @Column(name = "week_booking_limit", nullable = false)
   private Integer weekBookingLimit;
   @Min(value = 0, message = "Current booking limit must be greater than {value}")
   @Column(name = "current_booking_count")
   private Integer currentBookingCount = 0;
   @NotNull(message = "weekNum has to be present")
-  @Column(name = "week_number")
+  @Column(name = "week_number", nullable = false)
   private String weekNum;
   @NotNull(message = "interviewerId has to be present")
   @Column(name = "interviewer_id")

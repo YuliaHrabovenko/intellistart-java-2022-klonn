@@ -10,6 +10,7 @@ public enum ExceptionMessage {
   INTERVIEWER_NOT_FOUND("Interviewer with this ID doesn't exist"),
   COORDINATOR_NOT_FOUND("Coordinator with with ID doesn't exists"),
   BOOKING_NOT_FOUND("Booking with this ID doesn't exist"),
+  USER_NOT_FOUND("User with this email doesn't exist"),
 
   // VALIDATION exception error messages
   // Slot related validation messages
@@ -34,7 +35,15 @@ public enum ExceptionMessage {
   // User info related validation messages
   NOT_COORDINATOR("User with this ID is not a coordinator"),
   NOT_INTERVIEWER("User with this ID is not an interviewer"),
-  USER_EMAIL_EXISTS("User with this email already exists");
+  USER_EMAIL_EXISTS("User with this email already exists"),
+  COORDINATOR_CAN_NOT_BE_REVOKED("Coordinator can't revoke himself"),
+
+  // Authentication related validation messages
+  INVALID_AUTH_TOKEN("Authorization code is invalid"),
+
+  INVALID_JWT_TOKEN("JWT token is expired or invalid"),
+  ACCESS_UNAUTHORIZED("Access Unauthorized");
+
 
 
   private String message;

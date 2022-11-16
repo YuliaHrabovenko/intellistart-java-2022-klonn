@@ -1,26 +1,26 @@
 package com.intellias.intellistart.interviewplanning.models;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.Email;
-import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.GenericGenerator;
 
 /**
@@ -32,6 +32,7 @@ import org.hibernate.annotations.GenericGenerator;
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
+@ToString
 @Table(name = "users")
 public class User {
   @Id
@@ -42,19 +43,21 @@ public class User {
   )
   @Column(name = "id")
   private UUID id;
-  @NotNull(message = "email has to be present")
+  //  @NotNull(message = "email has to be present")
   @Email(regexp = ".+@.+\\..+", message = "Please provide a valid email address")
-  @Column(name = "email")
+  @Column(name = "email", nullable = false, unique = true)
   private String email;
   @Column(name = "role")
   @Enumerated(EnumType.STRING)
   private UserRole role;
-  @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+  @OneToMany
   @JoinColumn(name = "interviewer_id", referencedColumnName = "id")
-  private Set<InterviewerTimeSlot> interviewerTimeSlots;
-  @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+  @JsonIgnore
+  private Set<InterviewerTimeSlot> interviewerTimeSlots = new HashSet<>();
+  @OneToMany
   @JoinColumn(name = "interviewer_id", referencedColumnName = "id")
-  private Set<InterviewerBookingLimit> interviewerBookingLimits;
+  @JsonIgnore
+  private Set<InterviewerBookingLimit> interviewerBookingLimits = new HashSet<>();
 
   /**
    * Constructor.
