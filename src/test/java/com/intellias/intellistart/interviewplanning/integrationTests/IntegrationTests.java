@@ -113,7 +113,7 @@ public class IntegrationTests {
         interviewerBookingLimitTestRepository.findByInterviewerId(interviewerID), headers);
 
     ResponseEntity<List> response = restTemplate.exchange(
-        baseUrl + "/interviewers/booking-limits/" + interviewerID, HttpMethod.GET, entity,
+        baseUrl + "/interviewers/" + interviewerID +"/booking-limits", HttpMethod.GET, entity,
         List.class);
 
     assertEquals(1, userTestRepository.findAll().size());
@@ -138,7 +138,7 @@ public class IntegrationTests {
             .build(), headers);
 
     ResponseEntity<InterviewerBookingLimit> response = restTemplate.exchange(
-        baseUrl + "/interviewers/booking-limits", HttpMethod.POST, entity,
+        baseUrl + "/interviewers/" + interviewerID +"/booking-limits", HttpMethod.POST, entity,
         InterviewerBookingLimit.class);
 
     assertEquals(1, userTestRepository.findAll().size());

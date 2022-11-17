@@ -333,7 +333,7 @@ class InterviewerServiceTest {
         interviewerBookingLimit);
 
     InterviewerBookingLimit savedInterviewerBookingLimit =
-        interviewerService.setNextWeekInterviewerBookingLimit(interviewerBookingLimit);
+        interviewerService.setNextWeekInterviewerBookingLimit(interviewerBookingLimit, interviewer.getId());
 
     assertThat(savedInterviewerBookingLimit.getWeekBookingLimit()).isEqualTo(3);
     assertThat(savedInterviewerBookingLimit.getWeekNum()).isEqualTo(WeekUtil.getNextWeekNumber());
@@ -361,7 +361,7 @@ class InterviewerServiceTest {
         interviewerBookingLimit.getWeekNum())).willReturn(interviewerBookingLimit);
 
     InterviewerBookingLimit updatedInterviewerBookingLimit =
-        interviewerService.setNextWeekInterviewerBookingLimit(interviewerBookingLimit);
+        interviewerService.setNextWeekInterviewerBookingLimit(interviewerBookingLimit, interviewer.getId());
 
     assertThat(updatedInterviewerBookingLimit.getId()).isEqualTo(
         interviewerBookingLimit.getInterviewerId());
@@ -378,7 +378,7 @@ class InterviewerServiceTest {
         .build();
 
     assertThrows(NotFoundException.class,
-        () -> interviewerService.setNextWeekInterviewerBookingLimit(interviewerBookingLimit));
+        () -> interviewerService.setNextWeekInterviewerBookingLimit(interviewerBookingLimit, UUID.randomUUID()));
 
     verify(interviewerBookingLimitRepository, never()).save(any(InterviewerBookingLimit.class));
   }
@@ -395,7 +395,7 @@ class InterviewerServiceTest {
     given(userRepository.findById(interviewer.getId())).willReturn(Optional.of(interviewer));
 
     assertThrows(ValidationException.class,
-        () -> interviewerService.setNextWeekInterviewerBookingLimit(interviewerBookingLimit));
+        () -> interviewerService.setNextWeekInterviewerBookingLimit(interviewerBookingLimit, interviewer.getId()));
 
     verify(interviewerBookingLimitRepository, never()).save(any(InterviewerBookingLimit.class));
   }

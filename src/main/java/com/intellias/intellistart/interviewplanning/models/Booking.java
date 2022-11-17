@@ -1,6 +1,7 @@
 package com.intellias.intellistart.interviewplanning.models;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalTime;
 import java.util.UUID;
 import javax.persistence.Column;
@@ -16,6 +17,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.GenericGenerator;
 
 /**
@@ -27,6 +29,7 @@ import org.hibernate.annotations.GenericGenerator;
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
+@ToString
 @Table(name = "bookings")
 public class Booking {
   @Id
@@ -37,28 +40,20 @@ public class Booking {
   )
   @Column(name = "id")
   private UUID id;
-  @NotNull(message = "from has to be present")
   @JsonFormat(pattern = "HH:mm")
   @Column(name = "start_time", nullable = false)
   private LocalTime from;
-  @NotNull(message = "to has to be present")
   @JsonFormat(pattern = "HH:mm")
   @Column(name = "end_time", nullable = false)
   private LocalTime to;
-  @NotNull(message = "subject has to be present")
-  @NotBlank
-  @Size(max = 255, message = "Subject's length can't be higher than 255 characters")
   @Column(name = "subject", length = 255)
   private String subject;
-  @NotNull(message = "description has to be present")
-  @NotBlank
-  @Size(max = 4000, message = "Description's length can't be higher than 4000 characters")
   @Column(name = "description", length = 4000)
   private String description;
-  @NotNull(message = "interviewerTimeSlotId has to be present")
+  @JsonProperty("interviewerTimeSlotId")
   @Column(name = "interviewer_time_slot_id", nullable = false)
   private UUID interviewerTimeSlotId;
-  @NotNull(message = "candidateTimeSlotId has to be present")
+  @JsonProperty("candidateTimeSlotId")
   @Column(name = "candidate_time_slot_id", nullable = false)
   private UUID candidateTimeSlotId;
 
