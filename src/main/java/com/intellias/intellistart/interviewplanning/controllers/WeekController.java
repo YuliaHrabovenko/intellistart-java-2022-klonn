@@ -15,16 +15,11 @@ public class WeekController {
 
   @GetMapping(value = "weeks/current", produces = MediaType.APPLICATION_JSON_VALUE)
   public Map<String, String> getCurrentWeek() {
-    return Collections.singletonMap("weekNum", WeekUtil.getCurrentWeekNumber());
+    return Collections.singletonMap("week_num", WeekUtil.getCurrentWeekNumber());
   }
 
   @GetMapping(value = "weeks/next", produces = MediaType.APPLICATION_JSON_VALUE)
   public Map<String, String> getNextWeek() {
-    return Collections.singletonMap("weekNum", WeekUtil.getNextWeekNumber());
-  }
-
-  @GetMapping(value = "test")
-  public String test() {
-    return "Showing text";
+    return Collections.singletonMap("week_num", WeekUtil.getNextWeekNumber());
   }
 }

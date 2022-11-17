@@ -1,6 +1,7 @@
 package com.intellias.intellistart.interviewplanning.services;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.intellias.intellistart.interviewplanning.exceptions.ExceptionMessage;
 import com.intellias.intellistart.interviewplanning.exceptions.NotFoundException;
 import com.intellias.intellistart.interviewplanning.exceptions.ValidationException;
@@ -273,12 +274,17 @@ public class CoordinatorService {
   @NoArgsConstructor
   @ToString
   public static class DayInfo {
+    @JsonProperty("day_of_week")
     private DayOfWeek dayOfWeek;
+    @JsonProperty("date")
     private LocalDate date;
-    @JsonIgnoreProperties("dayOfWeek")
+    @JsonIgnoreProperties("day_of_week")
+    @JsonProperty("interviewer_time_slots")
     private List<InterviewerTimeSlot> interviewerTimeSlots = new ArrayList<>();
     @JsonIgnoreProperties("date")
+    @JsonProperty("candidate_time_slots")
     private List<CandidateTimeSlot> candidateTimeSlots = new ArrayList<>();
+    @JsonProperty("bookings")
     private Map<UUID, Booking> bookings = new HashMap<>();
   }
 }

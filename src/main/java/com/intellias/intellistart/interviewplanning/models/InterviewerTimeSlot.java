@@ -1,6 +1,7 @@
 package com.intellias.intellistart.interviewplanning.models;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -40,23 +41,24 @@ public class InterviewerTimeSlot {
   )
   @Column(name = "id")
   private UUID id;
-  @NotNull(message = "dayOfWeek has to be present")
+  @JsonProperty("day_of_week")
   @Column(name = "day_of_week", nullable = false)
   private DayOfWeek dayOfWeek;
-  @NotNull(message = "from has to be present")
+  @JsonProperty("from")
+  @JsonFormat(pattern = "HH:mm")
   @Column(name = "start_time", nullable = false)
-  @JsonFormat(pattern = "HH:mm")
   private LocalTime from;
-  @NotNull(message = "to has to be present")
-  @Column(name = "end_time", nullable = false)
+  @JsonProperty("to")
   @JsonFormat(pattern = "HH:mm")
+  @Column(name = "end_time", nullable = false)
   private LocalTime to;
-  @NotNull(message = "weekNumber has to be present")
+  @JsonProperty("week_num")
   @Column(name = "week_number", nullable = false)
   private String weekNum;
-
+  @JsonProperty("interviewer_id")
   @Column(name = "interviewer_id")
   private UUID interviewerId;
+  @JsonProperty("bookings")
   @OneToMany
   @JoinColumn(name = "interviewer_time_slot_id", referencedColumnName = "id")
   private List<Booking> bookingList = new ArrayList<>();

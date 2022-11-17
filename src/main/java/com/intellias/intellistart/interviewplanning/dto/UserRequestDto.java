@@ -15,6 +15,5 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserRequestDto {
-  @JsonProperty("email")
   private String email;
 }
