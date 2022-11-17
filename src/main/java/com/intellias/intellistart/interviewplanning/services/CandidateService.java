@@ -50,6 +50,11 @@ public class CandidateService {
     PeriodUtil.validatePeriod(from, to);
     PeriodUtil.validateDate(date);
 
+    List<CandidateTimeSlot> slots =
+        candidateTimeSlotRepository.findByEmailAndDate(candidateTimeSlot.getEmail(),
+            candidateTimeSlot.getDate());
+
+    PeriodUtil.isCandidateSlotOverlapping(candidateTimeSlot, slots);
     return candidateTimeSlotRepository.save(candidateTimeSlot);
   }
 
@@ -74,14 +79,17 @@ public class CandidateService {
     if (!bookings.isEmpty()) {
       throw new ValidationException(ExceptionMessage.BOOKING_ALREADY_MADE.getMessage());
     }
-
     LocalTime from = candidateTimeSlot.getFrom();
     LocalTime to = candidateTimeSlot.getTo();
-
     LocalDate date = candidateTimeSlot.getDate();
+    List<CandidateTimeSlot> slots =
+        candidateTimeSlotRepository.findByEmailAndDate(existingSlot.getEmail(), date);
+    // don't take into account period of the existing slot
+    slots.remove(existingSlot);
 
     PeriodUtil.validatePeriod(from, to);
     PeriodUtil.validateDate(date);
+    PeriodUtil.isCandidateSlotOverlapping(candidateTimeSlot, slots);
 
     existingSlot.setFrom(candidateTimeSlot.getFrom());
     existingSlot.setTo(candidateTimeSlot.getTo());
@@ -91,10 +99,10 @@ public class CandidateService {
   }
 
   /**
-   * List slots of candidate.
+   * Get candidate's slots.
    *
    * @param email email;
-   * @return list of candidate`s slots
+   * @return list of candidate's slots
    */
   public List<CandidateTimeSlot> getSlotsByCandidateEmail(String email) {
     return candidateTimeSlotRepository.findByEmail(email);

@@ -1,5 +1,6 @@
 package com.intellias.intellistart.interviewplanning.models;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -37,17 +38,16 @@ public class InterviewerBookingLimit {
   )
   @Column(name = "id")
   private UUID id;
-  @NotNull(message = "weekBookingLimit has to be present")
-  @Min(value = 1, message = "Week booking limit must be greater or equal to {value}")
+  @JsonProperty("week_booking_limit")
   @Column(name = "week_booking_limit", nullable = false)
   private Integer weekBookingLimit;
-  @Min(value = 0, message = "Current booking limit must be greater than {value}")
+  @JsonProperty("current_booking_limit")
   @Column(name = "current_booking_count")
   private Integer currentBookingCount = 0;
-  @NotNull(message = "weekNum has to be present")
+  @JsonProperty("week_num")
   @Column(name = "week_number", nullable = false)
   private String weekNum;
-  @NotNull(message = "interviewerId has to be present")
+  @JsonProperty("interviewer_id")
   @Column(name = "interviewer_id")
   private UUID interviewerId;
 

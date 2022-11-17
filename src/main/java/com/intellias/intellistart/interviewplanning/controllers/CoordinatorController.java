@@ -54,8 +54,8 @@ public class CoordinatorController {
     this.modelMapper = modelMapper;
   }
 
-  @DeleteMapping(path = "/bookings/{bookingId}")
-  public void deleteBooking(@PathVariable("bookingId") UUID bookingId) {
+  @DeleteMapping(path = "/bookings/{booking_id}")
+  public void deleteBooking(@PathVariable("booking_id") UUID bookingId) {
     bookingService.deleteBooking(bookingId);
   }
 
@@ -76,8 +76,8 @@ public class CoordinatorController {
         booking.getDescription());
   }
 
-  @PostMapping(path = "/bookings/{bookingId}")
-  public Booking updateBooking(@PathVariable("bookingId") UUID id,
+  @PostMapping(path = "/bookings/{booking_id}")
+  public Booking updateBooking(@PathVariable("booking_id") UUID id,
                                @Valid @RequestBody BookingRequestDto bookingDto) {
     Booking booking = mapToBooking(bookingDto);
     return bookingService.updateBooking(id, booking);
@@ -99,19 +99,17 @@ public class CoordinatorController {
    * @param coordinatorId  coordinator's id
    * @param authentication authentication object to get email from
    */
-  @DeleteMapping(path = "/users/coordinators/{coordinatorId}")
-  public void revokeCoordinatorRole(@PathVariable("coordinatorId") UUID coordinatorId,
+  @DeleteMapping(path = "/users/coordinators/{coordinator_id}")
+  public void revokeCoordinatorRole(@PathVariable("coordinator_id") UUID coordinatorId,
                                     Authentication authentication) {
     JwtUser jwtUser = (JwtUser) authentication.getPrincipal();
-    String email = jwtUser.getEmail();
-    coordinatorService.revokeCoordinatorRole(coordinatorId, email);
+    coordinatorService.revokeCoordinatorRole(coordinatorId, jwtUser.getEmail());
   }
 
-  @DeleteMapping(path = "/users/interviewers/{interviewerId}")
-  public void revokeInterviewerRole(@PathVariable("interviewerId") UUID interviewerId) {
+  @DeleteMapping(path = "/users/interviewers/{interviewer_id}")
+  public void revokeInterviewerRole(@PathVariable("interviewer_id") UUID interviewerId) {
     coordinatorService.revokeInterviewerRole(interviewerId);
   }
-
 
   @PostMapping(path = "/users/coordinators")
   @ResponseStatus(code = HttpStatus.CREATED)
@@ -145,8 +143,8 @@ public class CoordinatorController {
         coordinatorService.updateInterviewerTimeSlot(timeSlot, interviewerId, slotId));
   }
 
-  @GetMapping(path = "/weeks/{weekNum}/dashboard")
-  public Map<String, DayInfo[]> getDashboard(@PathVariable("weekNum") String weekNum) {
+  @GetMapping(path = "/weeks/{week_num}/dashboard")
+  public Map<String, DayInfo[]> getDashboard(@PathVariable("week_num") String weekNum) {
     return coordinatorService.getAllSlotsAndBookingsGroupedByDay(weekNum);
   }
 

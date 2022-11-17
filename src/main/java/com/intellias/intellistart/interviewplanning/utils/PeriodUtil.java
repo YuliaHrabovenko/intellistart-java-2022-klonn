@@ -4,10 +4,12 @@ import static com.intellias.intellistart.interviewplanning.exceptions.ExceptionM
 
 import com.intellias.intellistart.interviewplanning.exceptions.ExceptionMessage;
 import com.intellias.intellistart.interviewplanning.exceptions.ValidationException;
+import com.intellias.intellistart.interviewplanning.models.CandidateTimeSlot;
 import com.intellias.intellistart.interviewplanning.models.InterviewerTimeSlot;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 /**
  * Util class to validate period.
@@ -67,6 +69,22 @@ public final class PeriodUtil {
     );
     if (overlaps) {
       throw new ValidationException(ExceptionMessage.OVERLAPPING_PERIOD.getMessage());
+    }
+  }
+
+  /**
+   * Check if new time slot is not overlapping existing slots.
+   *
+   * @param existingSlots existing slots
+   * @param newSlot       new slot
+   */
+  public static void isCandidateSlotOverlapping(CandidateTimeSlot newSlot,
+                                                List<CandidateTimeSlot> existingSlots) {
+
+    for (CandidateTimeSlot slot : existingSlots) {
+      if ((slot.getFrom().isBefore(newSlot.getTo())) && (slot.getTo().isAfter(newSlot.getFrom()))) {
+        throw new ValidationException(ExceptionMessage.OVERLAPPING_PERIOD.getMessage());
+      }
     }
   }
 }

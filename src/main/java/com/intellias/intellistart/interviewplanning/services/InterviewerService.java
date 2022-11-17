@@ -184,21 +184,21 @@ public class InterviewerService {
    * @return interviewer booking limit object
    */
   public InterviewerBookingLimit setNextWeekInterviewerBookingLimit(
-      InterviewerBookingLimit interviewerBookingLimit) {
+      InterviewerBookingLimit interviewerBookingLimit, UUID interviewerId) {
 
     // check if interviewer with this id exists in db
-    validateInterviewerExistsById(interviewerBookingLimit.getInterviewerId());
+    validateInterviewerExistsById(interviewerId);
 
     // check if weekNum is for the next week
     String weekNum = interviewerBookingLimit.getWeekNum();
     String nextWeekNumber = WeekUtil.getNextWeekNumber();
     WeekUtil.validateIsNextWeekNumber(weekNum, nextWeekNumber);
+    interviewerBookingLimit.setInterviewerId(interviewerId);
 
     // if the interviewer has already a booking limit for
     // the next week, just update the booking limit
     InterviewerBookingLimit existingBookingLimit =
-        interviewerBookingLimitRepository.findByInterviewerIdAndWeekNum(
-            interviewerBookingLimit.getInterviewerId(), weekNum);
+        interviewerBookingLimitRepository.findByInterviewerIdAndWeekNum(interviewerId, weekNum);
 
     if (existingBookingLimit != null) {
       // set a new number of a week booking limit for the next week

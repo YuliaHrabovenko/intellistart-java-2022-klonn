@@ -1,6 +1,7 @@
 package com.intellias.intellistart.interviewplanning.models;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.GenericGenerator;
 
 /**
@@ -31,6 +33,7 @@ import org.hibernate.annotations.GenericGenerator;
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
+@ToString
 @Table(name = "candidate_time_slots")
 public class CandidateTimeSlot {
   @Id
@@ -41,14 +44,12 @@ public class CandidateTimeSlot {
   )
   @Column(name = "id")
   private UUID id;
-  @NotNull(message = "date has to be present")
+  @JsonProperty("date")
   @Column(name = "interview_date", nullable = false)
   private LocalDate date;
-  @NotNull(message = "from has to be present")
   @Column(name = "start_time", nullable = false)
   @JsonFormat(pattern = "HH:mm")
   private LocalTime from;
-  @NotNull(message = "to has to be present")
   @JsonFormat(pattern = "HH:mm")
   @Column(name = "end_time", nullable = false)
   private LocalTime to;
@@ -56,6 +57,7 @@ public class CandidateTimeSlot {
   private String name;
   @Column(name = "email")
   private String email;
+  @JsonProperty("bookings")
   @OneToMany
   @JoinColumn(name = "candidate_time_slot_id", referencedColumnName = "id")
   private List<Booking> bookingList = new ArrayList<>();
