@@ -1,24 +1,20 @@
 package com.intellias.intellistart.interviewplanning.dto;
 
-
-import com.intellias.intellistart.interviewplanning.models.UserRole;
-import java.util.UUID;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * DTO class for user requests by INTERVIEWER or COORDINATOR role.
+ * Dto for user request.
+ *
  */
 @Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class UserDto {
+public class UserRequestDto {
+  @JsonProperty("email")
   private String email;
-  private UserRole role;
-  private UUID id;
 }
