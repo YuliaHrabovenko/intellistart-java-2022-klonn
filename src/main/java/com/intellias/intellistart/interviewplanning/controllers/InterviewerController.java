@@ -1,5 +1,6 @@
 package com.intellias.intellistart.interviewplanning.controllers;
 
+import com.intellias.intellistart.interviewplanning.dto.InterviewerBookingLimitDto;
 import com.intellias.intellistart.interviewplanning.dto.InterviewerTimeSlotRequestDto;
 import com.intellias.intellistart.interviewplanning.dto.InterviewerTimeSlotResponseDto;
 import com.intellias.intellistart.interviewplanning.models.InterviewerBookingLimit;
@@ -32,17 +33,19 @@ public class InterviewerController {
     this.modelMapper = modelMapper;
   }
 
-  @GetMapping("/interviewers/booking-limits/{interviewerId}")
+  @GetMapping("/interviewers/{interviewer_id}/booking-limits")
   public List<InterviewerBookingLimit> getLimits(
-      @PathVariable("interviewerId") UUID interviewerId) {
+      @PathVariable("interviewer_id") UUID interviewerId) {
     return interviewerService.getBookingLimitsByInterviewerId(interviewerId);
   }
 
-  @PostMapping("/interviewers/booking-limits")
+  @PostMapping("/interviewers/{interviewer_id}/booking-limits")
   @ResponseStatus(code = HttpStatus.CREATED)
   public InterviewerBookingLimit createInterviewerBookingLimit(
-      @Valid @RequestBody InterviewerBookingLimit interviewerBookingLimit) {
-    return interviewerService.setNextWeekInterviewerBookingLimit(interviewerBookingLimit);
+      @PathVariable("interviewer_id") UUID interviewerId,
+      @Valid @RequestBody InterviewerBookingLimitDto dto) {
+    InterviewerBookingLimit limit = mapToInterviewerBookingLimit(dto);
+    return interviewerService.setNextWeekInterviewerBookingLimit(limit, interviewerId);
   }
 
   /**
@@ -58,7 +61,6 @@ public class InterviewerController {
       @Valid @PathVariable("interviewer_id") UUID interviewerId,
       @RequestBody InterviewerTimeSlotRequestDto timeSlotDto) {
     InterviewerTimeSlot timeSlot = mapToInterviewerTimeSlot(timeSlotDto);
-
     return mapToInterviewerTimeSlotResponseDto(
         interviewerService.createSlot(timeSlot, interviewerId));
   }
@@ -82,17 +84,17 @@ public class InterviewerController {
         interviewerService.updateSlotForNextWeek(timeSlot, interviewerId, slotId));
   }
 
-  @GetMapping("/weeks/current/interviewers/{interviewerId}/slots")
+  @GetMapping("/weeks/current/interviewers/{interviewer_id}/slots")
   @ResponseStatus(code = HttpStatus.OK)
-  public List<InterviewerTimeSlot> getCurrentWeekSlots(@PathVariable("interviewerId")
+  public List<InterviewerTimeSlot> getCurrentWeekSlots(@PathVariable("interviewer_id")
                                                        UUID interviewerId) {
     return interviewerService.getWeekTimeSlotsByInterviewerId(interviewerId, true);
   }
 
 
-  @GetMapping("/weeks/next/interviewers/{interviewerId}/slots")
+  @GetMapping("/weeks/next/interviewers/{interviewer_id}/slots")
   @ResponseStatus(code = HttpStatus.OK)
-  public List<InterviewerTimeSlot> getNextWeekSlots(@PathVariable("interviewerId")
+  public List<InterviewerTimeSlot> getNextWeekSlots(@PathVariable("interviewer_id")
                                                     UUID interviewerId) {
     return interviewerService.getWeekTimeSlotsByInterviewerId(interviewerId, false);
   }
@@ -116,5 +118,9 @@ public class InterviewerController {
         .from(timeSlot.getFrom())
         .to(timeSlot.getTo())
         .build();
+  }
+
+  public InterviewerBookingLimit mapToInterviewerBookingLimit(InterviewerBookingLimitDto dto) {
+    return modelMapper.map(dto, InterviewerBookingLimit.class);
   }
 }

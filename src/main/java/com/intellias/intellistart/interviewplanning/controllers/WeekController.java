@@ -22,9 +22,4 @@ public class WeekController {
   public Map<String, String> getNextWeek() {
     return Collections.singletonMap("weekNum", WeekUtil.getNextWeekNumber());
   }
-
-  @GetMapping(value = "test")
-  public String test() {
-    return "Showing text";
-  }
 }

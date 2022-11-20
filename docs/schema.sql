@@ -75,4 +75,4 @@ CREATE INDEX bookings_interviewer_time_slot_id_idx
 ON bookings (interviewer_time_slot_id);
 
 --add the first coordinator to the db on the app start
-INSERT INTO users (name, email, role) VALUES ('first_coordinator@gmail.com', 'COORDINATOR');
+INSERT INTO users (email, role) VALUES ('first_coordinator@gmail.com', 'COORDINATOR');

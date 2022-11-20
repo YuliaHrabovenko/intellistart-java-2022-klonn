@@ -9,8 +9,15 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class WebConfig {
+  /**
+   * Get model mapper.
+   *
+   * @return model mapper
+   */
   @Bean
   public ModelMapper modelMapper() {
-    return new ModelMapper();
+    ModelMapper modelMapper = new ModelMapper();
+    modelMapper.getConfiguration().setAmbiguityIgnored(true);
+    return modelMapper;
   }
 }

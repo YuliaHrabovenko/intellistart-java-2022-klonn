@@ -43,8 +43,12 @@ public class CandidateController {
   @PostMapping("/candidates/current/slots")
   @ResponseStatus(code = HttpStatus.CREATED)
   public CandidateTimeSlot createCandidateSlot(
-      @Valid @RequestBody CandidateTimeSlotRequestDto candidateTimeSlotDto) {
+      @Valid @RequestBody CandidateTimeSlotRequestDto candidateTimeSlotDto,
+      Authentication authentication) {
     CandidateTimeSlot timeSlot = mapToCandidateTimeSlot(candidateTimeSlotDto);
+    JwtUser jwtUser = (JwtUser) authentication.getPrincipal();
+    timeSlot.setEmail(jwtUser.getEmail());
+    timeSlot.setName(jwtUser.getUsername());
     return candidateService.createSlot(timeSlot);
   }
 
