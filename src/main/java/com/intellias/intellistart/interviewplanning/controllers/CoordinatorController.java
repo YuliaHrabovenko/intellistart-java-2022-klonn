@@ -187,8 +187,36 @@ public class CoordinatorController {
         .build();
   }
 
+  // Using model Mapper we get exception:
+  //The destination property com.intellias.intellistart.interviewplanning.models.Booking.setId()
+  // matches multiple source property hierarchies:
+
+  //com.intellias.intellistart.interviewplanning.dto
+  //.BookingRequestDto.getInterviewerTimeSlotId()
+  //com.intellias.intellistart.interviewplanning
+  //.dto.BookingRequestDto.getCandidateTimeSlotId()
+
+  //  public Booking mapToBooking(BookingRequestDto bookingDto) {
+  //    return modelMapper.map(bookingDto, Booking.class);
+  //  }
+
+  /**
+   * mapping booking dto to booking model.
+   *
+   * @param bookingDto booking dto
+   *
+   * @return booking from bookingDTO
+   */
+
   public Booking mapToBooking(BookingRequestDto bookingDto) {
-    return modelMapper.map(bookingDto, Booking.class);
+    return Booking.builder()
+        .candidateTimeSlotId(bookingDto.getCandidateTimeSlotId())
+        .interviewerTimeSlotId(bookingDto.getInterviewerTimeSlotId())
+        .from(bookingDto.getFrom())
+        .to(bookingDto.getTo())
+        .description(bookingDto.getDescription())
+        .subject(bookingDto.getSubject())
+        .build();
   }
 
 }
