@@ -2,6 +2,8 @@ package com.intellias.intellistart.interviewplanning.integrationTests;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.intellias.intellistart.interviewplanning.models.Booking;
+import com.intellias.intellistart.interviewplanning.models.CandidateTimeSlot;
 import com.intellias.intellistart.interviewplanning.models.InterviewerBookingLimit;
 import com.intellias.intellistart.interviewplanning.models.InterviewerTimeSlot;
 import com.intellias.intellistart.interviewplanning.models.User;
@@ -13,6 +15,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Date;
 import java.util.List;
@@ -80,6 +83,7 @@ public class IntegrationTests {
     interviewerBookingLimitTestRepository.deleteAll();
     interviewerTimeSlotTestRepository.deleteAll();
     userTestRepository.deleteAll();
+    candidateTimeSlotRepoTest.deleteAll();
   }
 
   public HttpHeaders getHeaders(String email, UserRole role){
@@ -420,56 +424,109 @@ public class IntegrationTests {
 
   }
 
-//  @Test
-//  void testCreateBookingSuccess() {
-//    User coordinator1 = new User("existing_coordinator@gmail.com", UserRole.COORDINATOR);
-//    userTestRepository.save(coordinator1);
-//
-//    HttpHeaders headers = getHeaders("existing_coordinator@gmail.com", UserRole.COORDINATOR);
-//
-//    User interviewer = new User("interviewer@gmail.com", UserRole.INTERVIEWER);
-//    userTestRepository.save(interviewer);
-//
-//    User candidate = new User("candidate@gmail.com");
-//    userTestRepository.save(candidate);
-//
-//    InterviewerTimeSlot interviewerTimeSlot =
-//        InterviewerTimeSlot.builder()
-//            .weekNum(WeekUtil.getNextWeekNumber())
-//            .dayOfWeek(DayOfWeek.THURSDAY)
-//            .from(LocalTime.of(13, 30))
-//            .to(LocalTime.of(17, 0))
-//            .interviewerId(interviewer.getId())
-//            .build();
-//
-//    interviewerTimeSlotTestRepository.save(interviewerTimeSlot);
-//    assertEquals(1, interviewerTimeSlotTestRepository.findAll().size());
-//
-//    CandidateTimeSlot candidateTimeSlot =
-//        CandidateTimeSlot.builder()
-//            .date(LocalDate.now())
-//            .from(LocalTime.of(13, 30))
-//            .to(LocalTime.of(17, 0))
-//            .build();
-//
-//    candidateTimeSlotRepoTest.save(candidateTimeSlot);
-//    assertEquals(1, candidateTimeSlotRepoTest.findAll().size());
-//
-//    HttpEntity<Booking> request = new HttpEntity<>(
-//        Booking.builder()
-//            .from(LocalTime.of(15, 30))
-//            .to(LocalTime.of(17, 0))
-//            .interviewerTimeSlotId(interviewerTimeSlotTestRepository.findAll().get(0).getId())
-//            .candidateTimeSlotId(candidateTimeSlotRepoTest.findAll().get(0).getId())
-//            .subject("Subject")
-//            .description("Description")
-//            .build(), headers);
-//
-//    ResponseEntity<Booking> response =
-//        restTemplate.postForEntity(baseUrl + "/bookings", request, Booking.class);
-//
-//    assertEquals(HttpStatus.CREATED, response.getStatusCode());
-//    assertEquals(1, bookingRepo.findAll().size());
-//  }
+  @Test
+  void testCreateBookingSuccess() {
+    User coordinator1 = new User("existing_coordinator@gmail.com", UserRole.COORDINATOR);
+    userTestRepository.save(coordinator1);
 
+    HttpHeaders headers = getHeaders("existing_coordinator@gmail.com", UserRole.COORDINATOR);
+
+    User interviewer = new User("interviewer@gmail.com", UserRole.INTERVIEWER);
+    userTestRepository.save(interviewer);
+
+    User candidate = new User("candidate@gmail.com");
+    userTestRepository.save(candidate);
+
+    InterviewerTimeSlot interviewerTimeSlot =
+        InterviewerTimeSlot.builder()
+            .weekNum(WeekUtil.getNextWeekNumber())
+            .dayOfWeek(DayOfWeek.THURSDAY)
+            .from(LocalTime.of(13, 30))
+            .to(LocalTime.of(17, 0))
+            .interviewerId(interviewer.getId())
+            .build();
+
+    interviewerTimeSlotTestRepository.save(interviewerTimeSlot);
+    assertEquals(1, interviewerTimeSlotTestRepository.findAll().size());
+
+    CandidateTimeSlot candidateTimeSlot =
+        CandidateTimeSlot.builder()
+            .date(LocalDate.now())
+            .from(LocalTime.of(13, 30))
+            .to(LocalTime.of(17, 0))
+            .build();
+
+    candidateTimeSlotRepoTest.save(candidateTimeSlot);
+    assertEquals(1, candidateTimeSlotRepoTest.findAll().size());
+
+    HttpEntity<Booking> request = new HttpEntity<>(
+        Booking.builder()
+            .from(LocalTime.of(15, 30))
+            .to(LocalTime.of(17, 0))
+            .interviewerTimeSlotId(interviewerTimeSlotTestRepository.findAll().get(0).getId())
+            .candidateTimeSlotId(candidateTimeSlotRepoTest.findAll().get(0).getId())
+            .subject("Subject")
+            .description("Description")
+            .build(), headers);
+
+    ResponseEntity<Booking> response =
+        restTemplate.postForEntity(baseUrl + "/bookings", request, Booking.class);
+
+    assertEquals(HttpStatus.CREATED, response.getStatusCode());
+    assertEquals(1, bookingRepo.findAll().size());
+
+  }
+
+  @Test
+  void testCreateCandidateTimeSlotSuccess() {
+    HttpHeaders headers = getHeaders("existing_candidate@gmail.com", UserRole.CANDIDATE);
+
+    baseUrl = baseUrl.concat("/candidates/current/slots");
+    HttpEntity<CandidateTimeSlot> request = new HttpEntity<>(CandidateTimeSlot.builder()
+        .from(LocalTime.of(15, 30))
+        .to(LocalTime.of(17, 0))
+        .date(LocalDate.now().plusWeeks(2L))
+        .build(), headers);
+
+    ResponseEntity<CandidateTimeSlot> response =
+        restTemplate.postForEntity(baseUrl, request, CandidateTimeSlot.class);
+
+    assertEquals(HttpStatus.CREATED, response.getStatusCode());
+    assertEquals(1, candidateTimeSlotRepoTest.findAll().size());
+
+  }
+
+  @Test
+  void testUpdateCandidateTimeSlotSuccess() {
+    HttpHeaders headers = getHeaders("existing_candidate@gmail.com", UserRole.CANDIDATE);
+
+    String URLForCreate = baseUrl + "/candidates/current/slots";
+
+    HttpEntity<CandidateTimeSlot> requestCreate = new HttpEntity<>(CandidateTimeSlot.builder()
+        .from(LocalTime.of(15, 30))
+        .to(LocalTime.of(17, 0))
+        .date(LocalDate.now().plusWeeks(2L))
+        .build(), headers);
+
+    ResponseEntity<CandidateTimeSlot> response =
+        restTemplate.postForEntity(URLForCreate, requestCreate, CandidateTimeSlot.class);
+
+    assertEquals(HttpStatus.CREATED, response.getStatusCode());
+    assertEquals(1, candidateTimeSlotRepoTest.findAll().size());
+
+
+    UUID slotId = candidateTimeSlotRepoTest.findAll().get(0).getId();
+    String URLForUpdate = URLForCreate + "/" + slotId;
+
+    HttpEntity<CandidateTimeSlot> requestUpdate = new HttpEntity<>(CandidateTimeSlot.builder()
+        .from(LocalTime.of(10, 0))
+        .to(LocalTime.of(11, 30))
+        .date(LocalDate.now().plusWeeks(2L))
+        .build(), headers);
+
+    ResponseEntity<CandidateTimeSlot> responseUpdate = restTemplate.exchange(
+        URLForUpdate, HttpMethod.POST, requestUpdate, CandidateTimeSlot.class);
+
+    assertEquals(HttpStatus.OK, responseUpdate.getStatusCode());
+  }
 }
