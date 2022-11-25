@@ -2,7 +2,7 @@ package com.intellias.intellistart.interviewplanning.services;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.intellias.intellistart.interviewplanning.exceptions.ExceptionMessage;
+import com.intellias.intellistart.interviewplanning.exceptions.AuthException;
 import com.intellias.intellistart.interviewplanning.exceptions.NotFoundException;
 import com.intellias.intellistart.interviewplanning.exceptions.ValidationException;
 import com.intellias.intellistart.interviewplanning.models.Booking;
@@ -108,7 +108,7 @@ public class CoordinatorService {
   public User grantCoordinatorRole(User coordinator) {
     Optional<User> user = coordinatorRepository.findByEmail(coordinator.getEmail());
     if (user.isPresent()) {
-      throw new ValidationException(ExceptionMessage.USER_EMAIL_EXISTS.getMessage());
+      throw new ValidationException(ValidationException.USER_EMAIL_EXISTS);
     }
     coordinator.setRole(UserRole.COORDINATOR);
     return coordinatorRepository.save(coordinator);
@@ -123,7 +123,7 @@ public class CoordinatorService {
   public User grantInterviewerRole(User interviewer) {
     Optional<User> user = coordinatorRepository.findByEmail(interviewer.getEmail());
     if (user.isPresent()) {
-      throw new ValidationException(ExceptionMessage.USER_EMAIL_EXISTS.getMessage());
+      throw new ValidationException(ValidationException.USER_EMAIL_EXISTS);
     }
     interviewer.setRole(UserRole.INTERVIEWER);
     return coordinatorRepository.save(interviewer);
@@ -137,13 +137,12 @@ public class CoordinatorService {
   public void revokeCoordinatorRole(UUID coordinatorId, String email) {
     User coordinator = coordinatorRepository.findById(coordinatorId)
         .orElseThrow(
-            () -> new NotFoundException(ExceptionMessage.COORDINATOR_NOT_FOUND.getMessage()));
+            () -> new NotFoundException(NotFoundException.COORDINATOR_NOT_FOUND));
     if (coordinator.getRole() != UserRole.COORDINATOR) {
-      throw new ValidationException(ExceptionMessage.NOT_COORDINATOR.getMessage());
-      //don`t know how to prevent coordinator to revoke himself
+      throw new AuthException(AuthException.ACCESS_UNAUTHORIZED);
     }
     if (coordinator.getEmail().equals(email)) {
-      throw new ValidationException(ExceptionMessage.COORDINATOR_CAN_NOT_BE_REVOKED.getMessage());
+      throw new ValidationException(ValidationException.COORDINATOR_CAN_NOT_BE_REVOKED);
     }
     coordinatorRepository.deleteById(coordinatorId);
   }
@@ -156,10 +155,9 @@ public class CoordinatorService {
   public void revokeInterviewerRole(UUID interviewerId) {
     User coordinator = coordinatorRepository.findById(interviewerId)
         .orElseThrow(
-            () -> new NotFoundException(ExceptionMessage.INTERVIEWER_NOT_FOUND.getMessage()));
+            () -> new NotFoundException(NotFoundException.INTERVIEWER_NOT_FOUND));
     if (coordinator.getRole() != UserRole.INTERVIEWER) {
-      throw new ValidationException(ExceptionMessage.NOT_INTERVIEWER.getMessage());
-      //don`t know how to prevent coordinator to revoke himself
+      throw new AuthException(AuthException.ACCESS_UNAUTHORIZED);
     }
     coordinatorRepository.deleteById(interviewerId);
   }

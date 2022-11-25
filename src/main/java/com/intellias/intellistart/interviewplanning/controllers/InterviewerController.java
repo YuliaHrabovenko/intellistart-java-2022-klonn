@@ -58,8 +58,8 @@ public class InterviewerController {
   @PostMapping(path = "/interviewers/{interviewer_id}/slots")
   @ResponseStatus(code = HttpStatus.CREATED)
   public InterviewerTimeSlotResponseDto createInterviewerTimeSlot(
-      @Valid @PathVariable("interviewer_id") UUID interviewerId,
-      @RequestBody InterviewerTimeSlotRequestDto timeSlotDto) {
+      @PathVariable("interviewer_id") UUID interviewerId,
+      @Valid @RequestBody InterviewerTimeSlotRequestDto timeSlotDto) {
     InterviewerTimeSlot timeSlot = mapToInterviewerTimeSlot(timeSlotDto);
     return mapToInterviewerTimeSlotResponseDto(
         interviewerService.createSlot(timeSlot, interviewerId));
@@ -75,9 +75,9 @@ public class InterviewerController {
    */
   @PostMapping("/interviewers/{interviewer_id}/next-week-slots/{slot_id}")
   public InterviewerTimeSlotResponseDto updateInterviewerTimeSlot(
-      @Valid @PathVariable("interviewer_id") UUID interviewerId,
+      @PathVariable("interviewer_id") UUID interviewerId,
       @PathVariable("slot_id") UUID slotId,
-      @RequestBody InterviewerTimeSlotRequestDto timeSlotDto) {
+      @Valid @RequestBody InterviewerTimeSlotRequestDto timeSlotDto) {
     InterviewerTimeSlot timeSlot = mapToInterviewerTimeSlot(timeSlotDto);
 
     return mapToInterviewerTimeSlotResponseDto(

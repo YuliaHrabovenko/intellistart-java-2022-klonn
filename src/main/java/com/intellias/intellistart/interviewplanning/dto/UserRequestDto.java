@@ -1,6 +1,7 @@
 package com.intellias.intellistart.interviewplanning.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,5 +16,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserRequestDto {
+  @NotNull(message = "email has to be present")
+  @Email(regexp = ".+@.+\\..+", message = "Please provide a valid email address")
   private String email;
 }

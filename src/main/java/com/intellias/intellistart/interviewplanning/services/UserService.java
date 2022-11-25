@@ -1,7 +1,6 @@
 package com.intellias.intellistart.interviewplanning.services;
 
 import com.intellias.intellistart.interviewplanning.dto.UserDto;
-import com.intellias.intellistart.interviewplanning.exceptions.ExceptionMessage;
 import com.intellias.intellistart.interviewplanning.exceptions.NotFoundException;
 import com.intellias.intellistart.interviewplanning.models.User;
 import com.intellias.intellistart.interviewplanning.repositories.UserRepository;
@@ -31,7 +30,7 @@ public class UserService {
    */
   public UserDto getByEmail(String email) {
     User user = userRepository.findByEmail(email).orElseThrow(
-        () -> new NotFoundException(ExceptionMessage.USER_NOT_FOUND.getMessage())
+        () -> new NotFoundException(NotFoundException.USER_NOT_FOUND)
     );
     return mapToDto(user);
   }

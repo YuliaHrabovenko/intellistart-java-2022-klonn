@@ -1,6 +1,5 @@
 package com.intellias.intellistart.interviewplanning.services;
 
-import com.intellias.intellistart.interviewplanning.exceptions.ExceptionMessage;
 import com.intellias.intellistart.interviewplanning.exceptions.NotFoundException;
 import com.intellias.intellistart.interviewplanning.exceptions.ValidationException;
 import com.intellias.intellistart.interviewplanning.models.Booking;
@@ -69,7 +68,7 @@ public class CandidateService {
 
     CandidateTimeSlot existingSlot =
         candidateTimeSlotRepository.findById(candidateSlotId).orElseThrow(
-            () -> new NotFoundException(ExceptionMessage.CANDIDATE_SLOT_NOT_FOUND.getMessage())
+            () -> new NotFoundException(NotFoundException.CANDIDATE_SLOT_NOT_FOUND)
         );
 
     // Check if there is no bookings with this candidate slot
@@ -77,7 +76,7 @@ public class CandidateService {
         bookingRepository.findByCandidateTimeSlotId(existingSlot.getId());
 
     if (!bookings.isEmpty()) {
-      throw new ValidationException(ExceptionMessage.BOOKING_ALREADY_MADE.getMessage());
+      throw new ValidationException(ValidationException.BOOKING_ALREADY_MADE);
     }
     LocalTime from = candidateTimeSlot.getFrom();
     LocalTime to = candidateTimeSlot.getTo();

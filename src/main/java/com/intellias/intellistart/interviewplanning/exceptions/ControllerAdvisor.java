@@ -6,8 +6,6 @@ import java.util.stream.Collectors;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import lombok.extern.slf4j.Slf4j;
-import org.json.JSONObject;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -19,14 +17,13 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 /**
  * Resource exception handler.
  */
-@Slf4j
 @ControllerAdvice
 public class ControllerAdvisor extends ResponseEntityExceptionHandler {
 
@@ -40,18 +37,12 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
-                         AuthenticationException authException)
+                         AuthenticationException ex)
         throws IOException, ServletException {
-      log.error("Auth error on " + request.getMethod() + " " + request.getRequestURI() + ":"
-          + authException.getMessage(), authException);
-      ExceptionDetail exceptionDetail = new ExceptionDetail(
-          HttpStatus.UNAUTHORIZED,
-          authException.getMessage()
-      );
-
-      response.getWriter().print(new ObjectMapper().writeValueAsString(exceptionDetail));
+      AbstractCommonException commonEx = new AuthException(AuthException.INVALID_AUTH_TOKEN);
+      response.getWriter().print(new ObjectMapper().writeValueAsString(commonEx));
       response.setContentType("application/json");
-      response.setStatus(exceptionDetail.getErrorCode().value());
+      response.setStatus(commonEx.getStatusCode());
     }
 
   }
@@ -68,34 +59,18 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
     public void handle(HttpServletRequest request, HttpServletResponse response,
                        AccessDeniedException accessDeniedException)
         throws IOException, ServletException {
-      ExceptionDetail exceptionDetail = new ExceptionDetail(
-          HttpStatus.FORBIDDEN,
-          accessDeniedException.getMessage()
-      );
-      log.error(
-          "Authorization error on " + request.getMethod() + " " + request.getRequestURI() + ":"
-              + accessDeniedException.getMessage(), accessDeniedException);
-      response.getWriter().print(new ObjectMapper().writeValueAsString(exceptionDetail));
+      AbstractCommonException commonEx = new AuthException(AuthException.ACCESS_UNAUTHORIZED);
+      response.getWriter().print(new ObjectMapper().writeValueAsString(commonEx));
       response.setContentType("application/json");
-      response.setStatus(exceptionDetail.getErrorCode().value());
+      response.setStatus(commonEx.getStatusCode());
     }
   }
 
-  /**
-   * Exception handler for RuntimeException type exceptions.
-   *
-   * @param resourceException custom exception classes
-   * @return message and status on response to user
-   */
-  @ExceptionHandler(value = {NotFoundException.class, ValidationException.class})
-  public ResponseEntity<Object> handleException(AbstractCommonException
-                                                    resourceException) {
-    ExceptionDetail exceptionDetail = new ExceptionDetail(
-        resourceException.getHttpStatus(),
-        resourceException.getMessage()
-    );
-
-    return new ResponseEntity<>(exceptionDetail, resourceException.getHttpStatus());
+  @ResponseBody
+  @ExceptionHandler(AbstractCommonException.class)
+  ResponseEntity<?>  handleCommonException(HttpServletRequest request, Throwable ex) {
+    AbstractCommonException commonEx = (AbstractCommonException) ex;
+    return new ResponseEntity<>(commonEx, HttpStatus.resolve(commonEx.getStatusCode()));
   }
 
   /**
@@ -107,6 +82,7 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
    * @param request WebRequest request
    * @return message and status on response to user
    */
+  @ResponseBody
   public ResponseEntity<Object> handleMethodArgumentNotValid(
       MethodArgumentNotValidException ex, HttpHeaders headers,
       HttpStatus status, WebRequest request) {
@@ -117,30 +93,17 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
         .map(DefaultMessageSourceResolvable::getDefaultMessage)
         .collect(Collectors.joining(","));
 
-    ExceptionDetail exceptionDetail = new ExceptionDetail(
-        status,
-        errorMessage
-    );
+    AbstractCommonException commonEx =
+        new ValidationException(400, "invalid_parameter", errorMessage);
 
-    return new ResponseEntity<>(exceptionDetail, status);
+    return new ResponseEntity<>(commonEx, HttpStatus.resolve(commonEx.getStatusCode()));
   }
 
-  /**
-   * Authentication and authorization exceptions handler.
-   *
-   * @param errorException HttpClientErrorException errorException
-   * @return message and status on response to user
-   */
-  @ExceptionHandler(value = {HttpClientErrorException.class})
-  public ResponseEntity<Object> handleHttpClientErrorException(
-      HttpClientErrorException errorException) {
-    String errorMessage = errorException.getResponseBodyAsString();
-    JSONObject obj = new JSONObject(errorMessage);
-
-    ExceptionDetail exceptionDetail = new ExceptionDetail(
-        errorException.getStatusCode(),
-        obj.getJSONObject("error").get("message").toString()
-    );
-    return new ResponseEntity<>(exceptionDetail, errorException.getStatusCode());
+  @ResponseBody
+  @ExceptionHandler(Throwable.class)
+  ResponseEntity<?>  handleInnerServerException(HttpServletRequest request, Throwable ex) {
+    AbstractCommonException commonEx =
+        new InternalErrorException(InternalErrorException.INTERNAL_SERVER_ERROR);
+    return new ResponseEntity<>(commonEx, HttpStatus.resolve(commonEx.getStatusCode()));
   }
 }

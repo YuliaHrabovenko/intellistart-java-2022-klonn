@@ -10,6 +10,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import com.intellias.intellistart.interviewplanning.exceptions.AuthException;
 import com.intellias.intellistart.interviewplanning.exceptions.NotFoundException;
 import com.intellias.intellistart.interviewplanning.exceptions.ValidationException;
 import com.intellias.intellistart.interviewplanning.models.Booking;
@@ -325,7 +326,7 @@ class CoordinatorServiceTest {
         Optional.of(coordinatorWithInterviewerRole));
 
 
-    assertThrows(ValidationException.class,
+    assertThrows(AuthException.class,
         () -> coordinatorService.revokeCoordinatorRole(coordinatorWithInterviewerRole.getId(), "test@gmail.com"));
 
     verify(userRepository, never()).save(any(User.class));
@@ -353,7 +354,7 @@ class CoordinatorServiceTest {
         UUID.fromString("123e4567-e89b-42d3-a456-556642440003"))).willReturn(
         Optional.of(interviewerWithCoordinatorRole));
 
-    assertThrows(ValidationException.class,
+    assertThrows(AuthException.class,
         () -> coordinatorService.revokeInterviewerRole(interviewerWithCoordinatorRole.getId()));
 
     verify(userRepository, never()).save(any(User.class));

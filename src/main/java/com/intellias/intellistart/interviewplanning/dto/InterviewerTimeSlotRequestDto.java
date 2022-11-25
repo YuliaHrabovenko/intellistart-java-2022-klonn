@@ -19,21 +19,21 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class InterviewerTimeSlotRequestDto {
-  @NotNull(message = "weekNum has to be present")
   @JsonProperty("weekNum")
+  @NotNull(message = "weekNum has to be present")
   private String weekNum;
 
-  @NotNull(message = "dayOfWeek has to be present")
   @JsonProperty("dayOfWeek")
+  @NotNull(message = "dayOfWeek has to be present")
   private DayOfWeek day;
 
-  @NotNull(message = "from has to be present")
   @JsonFormat(pattern = "HH:mm")
   @JsonProperty("from")
+  @NotNull(message = "from has to be present")
   private LocalTime from;
 
-  @NotNull(message = "to has to be present")
   @JsonFormat(pattern = "HH:mm")
   @JsonProperty("to")
+  @NotNull(message = "to has to be present")
   private LocalTime to;
 }

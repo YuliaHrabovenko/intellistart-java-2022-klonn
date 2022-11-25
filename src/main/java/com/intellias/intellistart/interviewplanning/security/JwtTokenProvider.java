@@ -2,7 +2,7 @@ package com.intellias.intellistart.interviewplanning.security;
 
 import com.intellias.intellistart.interviewplanning.dto.JwtRequest;
 import com.intellias.intellistart.interviewplanning.dto.UserInfo;
-import com.intellias.intellistart.interviewplanning.exceptions.ExceptionMessage;
+import com.intellias.intellistart.interviewplanning.exceptions.AuthException;
 import com.intellias.intellistart.interviewplanning.models.User;
 import com.intellias.intellistart.interviewplanning.models.UserRole;
 import com.intellias.intellistart.interviewplanning.repositories.UserRepository;
@@ -16,12 +16,10 @@ import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpClientErrorException;
 
 /**
  * Class to create, validate and handle JWT tokens.
@@ -125,8 +123,7 @@ public class JwtTokenProvider {
 
       return true;
     } catch (JwtException | IllegalArgumentException e) {
-      throw new HttpClientErrorException(HttpStatus.UNAUTHORIZED,
-          ExceptionMessage.INVALID_JWT_TOKEN.getMessage());
+      throw new AuthException(AuthException.INVALID_AUTH_TOKEN);
     }
   }
 

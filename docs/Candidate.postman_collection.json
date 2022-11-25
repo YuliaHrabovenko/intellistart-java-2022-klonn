@@ -1,0 +1,154 @@
+{
+	"info": {
+		"_postman_id": "1e2f39b2-abd1-4d33-b47d-df474182d338",
+		"name": "Candidate",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "21733750"
+	},
+	"item": [
+		{
+			"name": "create slot",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"date\": \"2022-11-30\",\n    \"from\": \"16:30\",\n    \"to\" : \"18:00\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{localhost}}/candidates/current/slots",
+					"host": [
+						"{{localhost}}"
+					],
+					"path": [
+						"candidates",
+						"current",
+						"slots"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update slot",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"date\": \"2022-11-29\",\n    \"from\": \"08:00\",\n    \"to\" : \"09:30\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{localhost}}/candidates/current/slots/6d5ad354-d26c-4db8-9a86-3e93482f58fd",
+					"host": [
+						"{{localhost}}"
+					],
+					"path": [
+						"candidates",
+						"current",
+						"slots",
+						"6d5ad354-d26c-4db8-9a86-3e93482f58fd"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get slots",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{localhost}}/candidates/current/slots",
+					"host": [
+						"{{localhost}}"
+					],
+					"path": [
+						"candidates",
+						"current",
+						"slots"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "slot_id",
+			"value": ""
+		}
+	]
+}

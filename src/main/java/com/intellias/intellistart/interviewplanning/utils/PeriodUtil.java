@@ -1,8 +1,5 @@
 package com.intellias.intellistart.interviewplanning.utils;
 
-import static com.intellias.intellistart.interviewplanning.exceptions.ExceptionMessage.SLOT_BOUNDARIES_EXCEEDED;
-
-import com.intellias.intellistart.interviewplanning.exceptions.ExceptionMessage;
 import com.intellias.intellistart.interviewplanning.exceptions.ValidationException;
 import com.intellias.intellistart.interviewplanning.models.CandidateTimeSlot;
 import com.intellias.intellistart.interviewplanning.models.InterviewerTimeSlot;
@@ -29,19 +26,19 @@ public final class PeriodUtil {
    */
   public static void validatePeriod(LocalTime from, LocalTime to) {
     if (from.isBefore(minStartTime) || to.isAfter(maxEndTime)) {
-      throw new ValidationException(SLOT_BOUNDARIES_EXCEEDED.getMessage());
+      throw new ValidationException(ValidationException.SLOT_BOUNDARIES_EXCEEDED);
     }
 
     if (to.isBefore(from)) {
-      throw new ValidationException(ExceptionMessage.START_TIME_BIGGER_THAN_END_TIME.getMessage());
+      throw new ValidationException(ValidationException.START_TIME_BIGGER_THAN_END_TIME);
     }
 
     if (Math.abs(Duration.between(from, to).toMinutes()) < 90) {
-      throw new ValidationException(ExceptionMessage.PERIOD_DURATION_IS_NOT_ENOUGH.getMessage());
+      throw new ValidationException(ValidationException.PERIOD_DURATION_IS_NOT_ENOUGH);
     }
 
     if (from.getMinute() % 30 != 0 || to.getMinute() % 30 != 0) {
-      throw new ValidationException(ExceptionMessage.SLOT_BOUNDARIES_NOT_ROUNDED.getMessage());
+      throw new ValidationException(ValidationException.SLOT_BOUNDARIES_NOT_ROUNDED);
     }
   }
 
@@ -52,7 +49,7 @@ public final class PeriodUtil {
    */
   public static void validateDate(LocalDate date) {
     if (date.isBefore(LocalDate.now())) {
-      throw new ValidationException(ExceptionMessage.DATE_IS_OUTDATED.getMessage());
+      throw new ValidationException(ValidationException.DATE_IS_OUTDATED);
     }
   }
 
@@ -68,7 +65,7 @@ public final class PeriodUtil {
             && (existingSlot.getTo().isAfter(newSlot.getFrom()))
     );
     if (overlaps) {
-      throw new ValidationException(ExceptionMessage.OVERLAPPING_PERIOD.getMessage());
+      throw new ValidationException(ValidationException.OVERLAPPING_PERIOD);
     }
   }
 
@@ -83,7 +80,7 @@ public final class PeriodUtil {
 
     for (CandidateTimeSlot slot : existingSlots) {
       if ((slot.getFrom().isBefore(newSlot.getTo())) && (slot.getTo().isAfter(newSlot.getFrom()))) {
-        throw new ValidationException(ExceptionMessage.OVERLAPPING_PERIOD.getMessage());
+        throw new ValidationException(ValidationException.OVERLAPPING_PERIOD);
       }
     }
   }

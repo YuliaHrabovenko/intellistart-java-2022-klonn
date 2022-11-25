@@ -1,14 +1,16 @@
 package com.intellias.intellistart.interviewplanning.security;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.intellias.intellistart.interviewplanning.dto.JwtRequest;
-import com.intellias.intellistart.interviewplanning.dto.TokenInspect;
 import com.intellias.intellistart.interviewplanning.dto.UserInfo;
-import com.intellias.intellistart.interviewplanning.exceptions.ExceptionMessage;
+import com.intellias.intellistart.interviewplanning.exceptions.AuthException;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -28,6 +30,42 @@ public class FacebookToken {
       "https://graph.facebook.com/debug_token?input_token=%s&access_token=%s";
   private static final String USER_INFO_URI =
       "https://graph.facebook.com/%s?fields=name,email&access_token=%s";
+
+
+  /**
+   * DTO for Graph API endpoint token check.
+   */
+  @Setter
+  @Getter
+  @NoArgsConstructor
+  @AllArgsConstructor
+  static class TokenInspect {
+    @JsonProperty("data")
+    private TokenData data;
+  }
+
+  /**
+   * DTO for inspected token data.
+   */
+  @Getter
+  @Setter
+  @AllArgsConstructor
+  @NoArgsConstructor
+  static class TokenData {
+    @JsonProperty("app_id")
+    private String appId;
+    private String type;
+    private String application;
+    @JsonProperty("expires_at")
+    private String expiresAt;
+    @JsonProperty("data_access_expires_at")
+    private String dataExpiresAt;
+    @JsonProperty("is_valid")
+    private String isValid;
+    private String[] scopes;
+    @JsonProperty("user_id")
+    private String userId;
+  }
 
   /**
    * Get an app access token from Facebook.
@@ -50,8 +88,7 @@ public class FacebookToken {
   public TokenInspect inspectAccessToken(JwtRequest inputToken) {
     JwtRequest accessToken = getAccessToken();
     if (accessToken == null) {
-      throw new HttpClientErrorException(HttpStatus.UNAUTHORIZED,
-          ExceptionMessage.INVALID_AUTH_TOKEN.getMessage());
+      throw new AuthException(AuthException.INVALID_AUTH_TOKEN);
     }
     String uri =
         String.format(ACCESS_TOKEN_DATA_URI, inputToken.getToken(), accessToken.getToken());
@@ -69,8 +106,7 @@ public class FacebookToken {
   public UserInfo getUserInfo(JwtRequest inputToken) {
     TokenInspect token = inspectAccessToken(inputToken);
     if (token == null) {
-      throw new HttpClientErrorException(HttpStatus.UNAUTHORIZED,
-          ExceptionMessage.INVALID_AUTH_TOKEN.getMessage());
+      throw new AuthException(AuthException.INVALID_AUTH_TOKEN);
     }
     String uri = String.format(USER_INFO_URI, token.getData().getUserId(), inputToken.getToken());
     RestTemplate restTemplate = new RestTemplate();

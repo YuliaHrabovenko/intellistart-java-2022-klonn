@@ -20,7 +20,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class InterviewerTimeSlotResponseDto extends InterviewerTimeSlotRequestDto {
+public class InterviewerTimeSlotResponseDto {
   @JsonProperty("id")
   private UUID id;
 

@@ -2,7 +2,6 @@ package com.intellias.intellistart.interviewplanning.models;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -15,7 +14,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -44,8 +42,6 @@ public class User {
   )
   @Column(name = "id")
   private UUID id;
-  //  @NotNull(message = "email has to be present")
-  @Email(regexp = ".+@.+\\..+", message = "Please provide a valid email address")
   @Column(name = "email", nullable = false, unique = true)
   private String email;
   @Column(name = "role")
