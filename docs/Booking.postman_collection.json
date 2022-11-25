@@ -1,0 +1,120 @@
+{
+	"info": {
+		"_postman_id": "1ac2a79e-4cc7-40b3-9b50-2a391d386191",
+		"name": "Booking",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "21733750"
+	},
+	"item": [
+		{
+			"name": "create booking",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"from\": \"08:00\",\n    \"to\" : \"09:30\",\n    \"candidateTimeSlotId\" : \"b7e3971d-6950-451b-b9c3-ee128792611c\",\n    \"interviewerTimeSlotId\" : \"1a472547-b812-4578-acf4-cb0564478582\",\n    \"subject\" : \"Subject\",\n    \"description\" : \"Description\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{localhost}}/bookings",
+					"host": [
+						"{{localhost}}"
+					],
+					"path": [
+						"bookings"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update booking",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"from\": \"16:30\",\n    \"to\" : \"18:00\",\n    \"candidateTimeSlotId\" : \"63fe4a6d-0d6e-46f4-a8ab-18ba2fb48b59\",\n    \"interviewerTimeSlotId\" : \"9522275e-b7f2-4e4b-8bd3-634e4137a24e\",\n    \"subject\" : \"Subject\",\n    \"description\" : \"Description\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{localhost}}/bookings/2def461a-5c7e-4fb9-881b-904bac8a0ce0",
+					"host": [
+						"{{localhost}}"
+					],
+					"path": [
+						"bookings",
+						"2def461a-5c7e-4fb9-881b-904bac8a0ce0"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete booking by id",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{localhost}}/bookings/2918be4c-8e04-417a-88b4-b07392e6e206",
+					"host": [
+						"{{localhost}}"
+					],
+					"path": [
+						"bookings",
+						"2918be4c-8e04-417a-88b4-b07392e6e206"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

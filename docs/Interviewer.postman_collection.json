@@ -1,0 +1,252 @@
+{
+	"info": {
+		"_postman_id": "3d1316e8-fa36-4831-93ca-6412d4494845",
+		"name": "Interviewer",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "21733750"
+	},
+	"item": [
+		{
+			"name": "create interviewer time slot by id",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"weekNum\": \"202248\",\r\n    \"dayOfWeek\": \"WEDNESDAY\",\r\n    \"from\": \"08:00\",\r\n    \"to\": \"09:30\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{localhost}}/interviewers/c7ab4922-b3d5-4937-9cec-281760ea871d/slots",
+					"host": [
+						"{{localhost}}"
+					],
+					"path": [
+						"interviewers",
+						"c7ab4922-b3d5-4937-9cec-281760ea871d",
+						"slots"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update interviewer time slot by interviewer id and slot id",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"weekNum\": \"202248\",\n    \"dayOfWeek\": \"TUESDAY\",\n    \"from\": \"16:00\",\n    \"to\": \"19:00\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{localhost}}/interviewers/c7ab4922-b3d5-4937-9cec-281760ea871d/next-week-slots/c197c739-262c-48a7-8f4a-a9317f465964",
+					"host": [
+						"{{localhost}}"
+					],
+					"path": [
+						"interviewers",
+						"c7ab4922-b3d5-4937-9cec-281760ea871d",
+						"next-week-slots",
+						"c197c739-262c-48a7-8f4a-a9317f465964"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "set interviewer booking limit",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"weekNum\": \"202247\",\r\n    \"weekBookingLimit\": 4\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{localhost}}/interviewers/c14acca7-3cce-4d4c-9064-cfb22ca12155/booking-limits",
+					"host": [
+						"{{localhost}}"
+					],
+					"path": [
+						"interviewers",
+						"c14acca7-3cce-4d4c-9064-cfb22ca12155",
+						"booking-limits"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get interviewer booking limit",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{localhost}}/interviewers/c14acca7-3cce-4d4c-9064-cfb22ca12155/booking-limits",
+					"host": [
+						"{{localhost}}"
+					],
+					"path": [
+						"interviewers",
+						"c14acca7-3cce-4d4c-9064-cfb22ca12155",
+						"booking-limits"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get current week slots",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{localhost}}/weeks/current/interviewers/07bb6e3f-e2fe-4996-8dd6-50411c18ef0c/slots",
+					"host": [
+						"{{localhost}}"
+					],
+					"path": [
+						"weeks",
+						"current",
+						"interviewers",
+						"07bb6e3f-e2fe-4996-8dd6-50411c18ef0c",
+						"slots"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get next week slots",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{localhost}}/weeks/next/interviewers/c7ab4922-b3d5-4937-9cec-281760ea871d/slots",
+					"host": [
+						"{{localhost}}"
+					],
+					"path": [
+						"weeks",
+						"next",
+						"interviewers",
+						"c7ab4922-b3d5-4937-9cec-281760ea871d",
+						"slots"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

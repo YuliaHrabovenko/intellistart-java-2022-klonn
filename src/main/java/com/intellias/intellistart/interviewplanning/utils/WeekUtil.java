@@ -1,8 +1,5 @@
 package com.intellias.intellistart.interviewplanning.utils;
 
-import static com.intellias.intellistart.interviewplanning.exceptions.ExceptionMessage.NOT_WORKING_DAY_OF_WEEK;
-
-import com.intellias.intellistart.interviewplanning.exceptions.ExceptionMessage;
 import com.intellias.intellistart.interviewplanning.exceptions.ValidationException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -67,8 +64,7 @@ public final class WeekUtil {
    */
   public static void validateIsNextWeekNumber(String weekNum, String nextWeekNum) {
     if (!weekNum.equals(nextWeekNum)) {
-      throw new ValidationException(
-          ExceptionMessage.NOT_NEXT_WEEK_NUMBER.getMessage());
+      throw new ValidationException(ValidationException.NOT_NEXT_WEEK_NUMBER);
     }
   }
 
@@ -79,8 +75,7 @@ public final class WeekUtil {
    */
   public static void validateIsCurrentOrNextWeekNumber(String weekNum) {
     if (!(weekNum.equals(getCurrentWeekNumber()) || weekNum.equals(getNextWeekNumber()))) {
-      throw new ValidationException(
-          ExceptionMessage.NOT_CURRENT_OR_NEXT_WEEK.getMessage());
+      throw new ValidationException(ValidationException.NOT_CURRENT_OR_NEXT_WEEK);
     }
   }
 
@@ -91,7 +86,7 @@ public final class WeekUtil {
    */
   public static void validateDayOfWeek(DayOfWeek dayOfWeek) {
     if (dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY) {
-      throw new ValidationException(NOT_WORKING_DAY_OF_WEEK.getMessage());
+      throw new ValidationException(ValidationException.NOT_WORKING_DAY_OF_WEEK);
     }
   }
 }

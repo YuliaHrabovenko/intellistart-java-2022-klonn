@@ -1,0 +1,325 @@
+{
+	"info": {
+		"_postman_id": "f78fdd7e-24f0-46ad-ba1e-7be1f8cb4afa",
+		"name": "Coordinator",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "21733750"
+	},
+	"item": [
+		{
+			"name": "get coordinators",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{localhost}}/users/coordinators",
+					"host": [
+						"{{localhost}}"
+					],
+					"path": [
+						"users",
+						"coordinators"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get interviewers",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{localhost}}/users/interviewers",
+					"host": [
+						"{{localhost}}"
+					],
+					"path": [
+						"users",
+						"interviewers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "create coordinator by email",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\":\"test@gmail.com\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{localhost}}/users/coordinators",
+					"host": [
+						"{{localhost}}"
+					],
+					"path": [
+						"users",
+						"coordinators"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "create interviewer by email",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"interviewer@gmail.com\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{localhost}}/users/interviewers",
+					"host": [
+						"{{localhost}}"
+					],
+					"path": [
+						"users",
+						"interviewers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete coordinator by id",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{localhost}}/users/coordinators/e4ee02e4-1398-4b69-9b16-4ab3c69d5f7b",
+					"host": [
+						"{{localhost}}"
+					],
+					"path": [
+						"users",
+						"coordinators",
+						"e4ee02e4-1398-4b69-9b16-4ab3c69d5f7b"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete interviewer by id",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{localhost}}/users/interviewers/92c36943-7e93-46aa-8cf5-c037bbd39dd7",
+					"host": [
+						"{{localhost}}"
+					],
+					"path": [
+						"users",
+						"interviewers",
+						"92c36943-7e93-46aa-8cf5-c037bbd39dd7"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update interviewer slot",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"weekNum\": \"202246\",\n    \"dayOfWeek\": \"FRIDAY\",\n    \"from\": \"10:00\",\n    \"to\" : \"11:30\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{localhost}}/interviewers/07bb6e3f-e2fe-4996-8dd6-50411c18ef0c/slots/9522275e-b7f2-4e4b-8bd3-634e4137a24e",
+					"host": [
+						"{{localhost}}"
+					],
+					"path": [
+						"interviewers",
+						"07bb6e3f-e2fe-4996-8dd6-50411c18ef0c",
+						"slots",
+						"9522275e-b7f2-4e4b-8bd3-634e4137a24e"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get dashboard",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{localhost}}/weeks/202247/dashboard",
+					"host": [
+						"{{localhost}}"
+					],
+					"path": [
+						"weeks",
+						"202247",
+						"dashboard"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "weekNum",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "tokenCoordinator",
+			"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0YXJhczg3ODVAZ21haWwuY29tIiwibmFtZSI6IlRhcmFzIFJlem5payIsInJvbGUiOiJDQU5ESURBVEUiLCJpYXQiOjE2NjkwMzcwMDUsImV4cCI6MTY2OTA3MzAwNX0.OHDzDFeYxmDtfGJ7mH5vJJqo5UbMVni8ODo7H2TkBEs"
+		},
+		{
+			"key": "CoordinatorToken",
+			"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0YXJhczg3ODVAZ21haWwuY29tIiwibmFtZSI6IlRhcmFzIFJlem5payIsInJvbGUiOiJDT09SRElOQVRPUiIsImlhdCI6MTY2OTA0MzU3OCwiZXhwIjoxNjY5MDc5NTc4fQ.pmbotXUqh1CVprEHncyCm-6CyJL175QZPK4IkwY_IR8"
+		}
+	]
+}

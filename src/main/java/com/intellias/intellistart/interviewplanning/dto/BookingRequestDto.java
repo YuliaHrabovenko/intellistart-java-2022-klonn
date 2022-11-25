@@ -1,6 +1,5 @@
 package com.intellias.intellistart.interviewplanning.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalTime;
 import java.util.UUID;

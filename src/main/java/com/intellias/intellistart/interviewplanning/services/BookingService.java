@@ -1,6 +1,6 @@
 package com.intellias.intellistart.interviewplanning.services;
 
-import com.intellias.intellistart.interviewplanning.exceptions.ExceptionMessage;
+
 import com.intellias.intellistart.interviewplanning.exceptions.NotFoundException;
 import com.intellias.intellistart.interviewplanning.exceptions.ValidationException;
 import com.intellias.intellistart.interviewplanning.models.Booking;
@@ -90,7 +90,7 @@ public class BookingService {
    */
   public Booking getBookingById(UUID id) {
     return bookingRepository.findById(id).orElseThrow(
-        () -> new NotFoundException(ExceptionMessage.BOOKING_NOT_FOUND.getMessage()));
+        () -> new NotFoundException(NotFoundException.BOOKING_NOT_FOUND));
   }
 
   /**
@@ -103,7 +103,7 @@ public class BookingService {
 
     Booking curBooking = bookingRepository.findById(id)
         .orElseThrow(
-            () -> new NotFoundException(ExceptionMessage.BOOKING_NOT_FOUND.getMessage()));
+            () -> new NotFoundException(NotFoundException.BOOKING_NOT_FOUND));
 
     validateBookingFields(
         updatedBooking.getInterviewerTimeSlotId(),
@@ -129,7 +129,7 @@ public class BookingService {
   public void deleteBooking(UUID bookingId) {
     Booking booking = bookingRepository.findById(bookingId)
         .orElseThrow(
-            () -> new NotFoundException(ExceptionMessage.BOOKING_NOT_FOUND.getMessage()));
+            () -> new NotFoundException(NotFoundException.BOOKING_NOT_FOUND));
     bookingRepository.delete(booking);
   }
 
@@ -142,14 +142,13 @@ public class BookingService {
 
     boolean existCandidateTimeSlot = candidateTimeSlotRepository.existsById(candidateTimeSlotId);
     if (!existCandidateTimeSlot) {
-      throw new NotFoundException(ExceptionMessage.CANDIDATE_SLOT_NOT_FOUND.getMessage());
+      throw new NotFoundException(NotFoundException.CANDIDATE_SLOT_NOT_FOUND);
     }
 
     PeriodUtil.validatePeriod(from, to);
 
     if (Math.abs(Duration.between(from, to).toMinutes()) != 90) {
-      throw new ValidationException(
-          ExceptionMessage.WRONG_BOOKING_DURATION.getMessage());
+      throw new ValidationException(ValidationException.WRONG_BOOKING_DURATION);
     }
 
 
@@ -159,7 +158,7 @@ public class BookingService {
     //Getting BookingLimitRepository
     UUID interviewerId = interviewerTimeSlotRepository.findById(interviewerTimeSlotId)
         .orElseThrow(
-            () -> new NotFoundException(ExceptionMessage.INTERVIEWER_SLOT_NOT_FOUND.getMessage()))
+            () -> new NotFoundException(NotFoundException.INTERVIEWER_SLOT_NOT_FOUND))
         .getInterviewerId();
     List<InterviewerBookingLimit> interviewerBookingLimits = interviewerBookingLimitRepository
         .findByInterviewerId(interviewerId);
@@ -183,8 +182,7 @@ public class BookingService {
     int bookingLimit = interviewerBookingLimit.getWeekBookingLimit();
     int bookingCount = interviewerBookingLimit.getCurrentBookingCount();
     if (bookingCount >= bookingLimit) {
-      throw new ValidationException(
-          ExceptionMessage.INTERVIEWER_BOOKING_LIMIT_EXCEEDED.getMessage());
+      throw new ValidationException(ValidationException.INTERVIEWER_BOOKING_LIMIT_EXCEEDED);
     }
     return false;
 

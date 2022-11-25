@@ -1,0 +1,90 @@
+{
+	"info": {
+		"_postman_id": "e243e610-0efd-4390-9097-d02c45f0c1b6",
+		"name": "Week",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "21733750"
+	},
+	"item": [
+		{
+			"name": "get current week",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{localhost}}/weeks/current",
+					"host": [
+						"{{localhost}}"
+					],
+					"path": [
+						"weeks",
+						"current"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get next week",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{localhost}}/weeks/next",
+					"host": [
+						"{{localhost}}"
+					],
+					"path": [
+						"weeks",
+						"next"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

@@ -1,6 +1,5 @@
 package com.intellias.intellistart.interviewplanning.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import javax.validation.constraints.NotNull;

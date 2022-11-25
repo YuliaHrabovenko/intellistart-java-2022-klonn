@@ -1,6 +1,5 @@
 package com.intellias.intellistart.interviewplanning.services;
 
-import com.intellias.intellistart.interviewplanning.exceptions.ExceptionMessage;
 import com.intellias.intellistart.interviewplanning.exceptions.NotFoundException;
 import com.intellias.intellistart.interviewplanning.exceptions.ValidationException;
 import com.intellias.intellistart.interviewplanning.models.Booking;
@@ -59,7 +58,7 @@ public class InterviewerService {
     Optional<User> interviewer = interviewerRepository
         .findById(interviewerId);
     if (interviewer.isEmpty()) {
-      throw new NotFoundException(ExceptionMessage.INTERVIEWER_NOT_FOUND.getMessage());
+      throw new NotFoundException(NotFoundException.INTERVIEWER_NOT_FOUND);
     }
   }
 
@@ -111,8 +110,7 @@ public class InterviewerService {
     interviewerTimeSlot.setInterviewerId(interviewerId);
 
     InterviewerTimeSlot existingSlot = interviewerTimeSlotRepository.findById(slotId).orElseThrow(
-        () -> new NotFoundException(
-            ExceptionMessage.INTERVIEWER_SLOT_NOT_FOUND.getMessage()));
+        () -> new NotFoundException(NotFoundException.INTERVIEWER_SLOT_NOT_FOUND));
 
     //validation new data
     WeekUtil.validateDayOfWeek(interviewerTimeSlot.getDayOfWeek());
@@ -123,7 +121,7 @@ public class InterviewerService {
         bookingRepository.findByInterviewerTimeSlotId(existingSlot.getId());
 
     if (!bookings.isEmpty()) {
-      throw new ValidationException(ExceptionMessage.BOOKING_ALREADY_MADE.getMessage());
+      throw new ValidationException(ValidationException.BOOKING_ALREADY_MADE);
     }
     // creating a list of slots interviewer has for current day
     List<InterviewerTimeSlot> slots =
@@ -227,7 +225,7 @@ public class InterviewerService {
 
     Optional<User> interviewer = interviewerRepository.findById(interviewerId);
     if (interviewer.isEmpty()) {
-      throw new NotFoundException(ExceptionMessage.INTERVIEWER_NOT_FOUND.getMessage());
+      throw new NotFoundException(NotFoundException.INTERVIEWER_NOT_FOUND);
     }
     return interviewerTimeSlotRepository.findByInterviewerIdAndWeekNum(
         interviewerId, requiredWeekNumber);
