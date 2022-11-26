@@ -13,7 +13,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
-public class UserRepositoryTest {
+public class UserRepoTest {
   @Autowired
   private TestEntityManager entityManager;
   @Autowired
@@ -21,17 +21,14 @@ public class UserRepositoryTest {
 
   @Test
   public void shouldFindNoUsersIfRepositoryIsEmpty() {
-    Iterable users = userRepository.findAll();
-
+    Iterable<User> users = userRepository.findAll();
     assertThat(users).isEmpty();
   }
 
   @Test
   public void shouldSaveUser() {
     User user = userRepository.save(new User("interviewer@gmail.com", UserRole.INTERVIEWER));
-
     assertThat(userRepository.findAll()).hasSize(1);
-//    assertThat(user).hasFieldOrPropertyWithValue("role", UserRole.CANDIDATE);
   }
 
   @Test

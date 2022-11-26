@@ -71,7 +71,7 @@ public class InterviewerService {
   public InterviewerTimeSlot createSlot(InterviewerTimeSlot interviewerTimeSlot,
                                         UUID interviewerId) {
     // check if time is before weekends
-    WeekUtil.validateDayOfWeek(LocalDate.now().getDayOfWeek());
+    // WeekUtil.validateDayOfWeek(LocalDate.now().getDayOfWeek());
     validateInterviewerExistsById(interviewerId);
     interviewerTimeSlot.setInterviewerId(interviewerId);
 
@@ -105,7 +105,7 @@ public class InterviewerService {
                                         UUID interviewerId,
                                         UUID slotId) {
     // check if time is before weekends
-    WeekUtil.validateDayOfWeek(LocalDate.now().getDayOfWeek());
+    // WeekUtil.validateDayOfWeek(LocalDate.now().getDayOfWeek());
     validateInterviewerExistsById(interviewerId);
     interviewerTimeSlot.setInterviewerId(interviewerId);
 

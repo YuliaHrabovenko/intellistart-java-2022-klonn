@@ -6,14 +6,6 @@ Roles:
 * *Interviewer* can perform create/read/update operations over his/her slots and set the maximum number of bookings for the next week
 * *Coordinator* can perform CRUD operations over bookings, grant and revoke users(interviewers or coordinators), see info about granted users and dashboard for certain week
 
-Tech stack:
-* Language: Java, SQL
-* Databases: Postgres, H2
-* Frameworks: Spring Boot, Spring Security, Hibernate, JUnit, Mockito
-* Deployment: Docker
-* Performance testing: JMeter
-* API testing: Postman
-
 # Install
 
 ## Running for development with docker-compose
@@ -42,14 +34,14 @@ git clone git@github.com:julse-lia/intellistart-java-2022-klonn.git
 
 Set environment variables for DB connection and FB authentication in `.env` file
 ```
-PG_USER=
-PG_PASSWORD=
-PG_DATABASE=
+PG_USER=postgres
+PG_PASSWORD=password
+PG_DATABASE=interview_schedule
 
 CLIENT_ID=
 CLIENT_SECRET=
-JWT_SECRET=
-TOKEN_EXPIRATION_TIME=
+JWT_SECRET=secret
+TOKEN_EXPIRATION_TIME=36000000
 ```
 
 Run app
