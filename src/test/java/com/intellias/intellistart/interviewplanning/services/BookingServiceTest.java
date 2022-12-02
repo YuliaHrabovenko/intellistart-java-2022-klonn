@@ -3,8 +3,14 @@ package com.intellias.intellistart.interviewplanning.services;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willDoNothing;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
+import com.intellias.intellistart.interviewplanning.exceptions.NotFoundException;
 import com.intellias.intellistart.interviewplanning.exceptions.ValidationException;
 import com.intellias.intellistart.interviewplanning.models.Booking;
 import com.intellias.intellistart.interviewplanning.models.CandidateTimeSlot;
@@ -241,5 +247,63 @@ class BookingServiceTest {
     assertEquals(updatedBooking.getCandidateTimeSlotId(), curBooking.getCandidateTimeSlotId());
     assertEquals(updatedBooking.getFrom(), curBooking.getFrom());
     assertEquals(updatedBooking.getTo(), curBooking.getTo());
+  }
+
+  @Test
+  void givenNonExistingBookingId_whenUpdateBooking_thenThrowsException() {
+
+    Booking booking = Booking.builder()
+        .from(from)
+        .to(to)
+        .candidateTimeSlotId(candidateSlotUUID)
+        .interviewerTimeSlotId(interviewerSlotUUID)
+        .subject("subject")
+        .description("description")
+        .build();
+
+    assertThrows(NotFoundException.class,
+        () -> bookingService.updateBooking(UUID.randomUUID(), booking));
+
+    verify(bookingRepository, never()).save(any(Booking.class));
+  }
+
+  @Test
+  void givenBookingId_whenDeleteBooking_thenNothing() {
+
+    Booking booking = Booking.builder()
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440001"))
+        .from(LocalTime.of(9, 30))
+        .to(LocalTime.of(11, 0))
+        .subject("Subject")
+        .description("Description")
+        .build();
+    given(bookingRepository.findById(booking.getId())).willReturn(
+        Optional.of(booking));
+
+    willDoNothing().given(bookingRepository).delete(booking);
+
+    bookingService.deleteBooking(booking.getId());
+
+    verify(bookingRepository, times(1)).delete(booking);
+  }
+
+  @Test
+  void givenNonExistingBookingId_whenDeleteBooking_thenThrowsException() {
+
+    Booking booking = Booking.builder()
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440001"))
+        .from(LocalTime.of(9, 30))
+        .to(LocalTime.of(11, 0))
+        .subject("Subject")
+        .description("Description")
+        .build();
+
+    given(bookingRepository.findById(booking.getId())).willReturn(
+        Optional.empty());
+
+    assertThrows(NotFoundException.class,
+        () -> bookingService.deleteBooking(booking.getId()));
+
+    verify(bookingRepository, times(0)).delete(booking);
   }
 }

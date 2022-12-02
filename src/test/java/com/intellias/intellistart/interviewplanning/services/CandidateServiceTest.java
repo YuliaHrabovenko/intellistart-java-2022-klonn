@@ -8,6 +8,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.intellias.intellistart.interviewplanning.exceptions.NotFoundException;
 import com.intellias.intellistart.interviewplanning.exceptions.ValidationException;
 import com.intellias.intellistart.interviewplanning.models.Booking;
 import com.intellias.intellistart.interviewplanning.models.CandidateTimeSlot;
@@ -26,7 +27,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class CandidateServiceTest {
+class CandidateServiceTest {
 
   @Mock
   private CandidateTimeSlotRepository candidateTimeSlotRepository;
@@ -163,6 +164,24 @@ public class CandidateServiceTest {
 
     assertThat(updatedSlot.getFrom()).isEqualTo(startTimeNew);
     assertThat(updatedSlot.getTo()).isEqualTo(endTimeNew);
+  }
+
+  @Test
+  void givenNonExistingSlot_whenUpdateCandidateSlot_thenThrowsException() {
+
+    LocalTime startTime = LocalTime.of(15, 27);
+    LocalTime endTime = LocalTime.of(17, 0);
+
+    CandidateTimeSlot candidateTimeSlot = CandidateTimeSlot.builder()
+        .from(startTime)
+        .to(endTime)
+        .date(date)
+        .build();
+
+    assertThrows(NotFoundException.class,
+        () -> candidateService.updateSlot(candidateTimeSlot, UUID.randomUUID()));
+
+    verify(candidateTimeSlotRepository, never()).save(any(CandidateTimeSlot.class));
   }
 
   @Test
