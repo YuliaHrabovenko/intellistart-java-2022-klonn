@@ -81,18 +81,6 @@ public class BookingService {
     return booking;
   }
 
-
-  /**
-   * Gets Booking by Id.
-   *
-   * @param id Booking id
-   * @return Booking
-   */
-  public Booking getBookingById(UUID id) {
-    return bookingRepository.findById(id).orElseThrow(
-        () -> new NotFoundException(NotFoundException.BOOKING_NOT_FOUND));
-  }
-
   /**
    * Updates Booking.
    *

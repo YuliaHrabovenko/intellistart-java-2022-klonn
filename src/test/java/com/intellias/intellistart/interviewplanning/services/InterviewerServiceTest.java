@@ -1,6 +1,7 @@
 package com.intellias.intellistart.interviewplanning.services;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -9,6 +10,7 @@ import static org.mockito.Mockito.verify;
 
 import com.intellias.intellistart.interviewplanning.exceptions.NotFoundException;
 import com.intellias.intellistart.interviewplanning.exceptions.ValidationException;
+import com.intellias.intellistart.interviewplanning.models.Booking;
 import com.intellias.intellistart.interviewplanning.models.InterviewerBookingLimit;
 import com.intellias.intellistart.interviewplanning.models.InterviewerTimeSlot;
 import com.intellias.intellistart.interviewplanning.models.User;
@@ -320,6 +322,77 @@ class InterviewerServiceTest {
   }
 
   @Test
+  void givenBookedInterviewerSlot_whenUpdateInterviewerSlot_thenThrowsException() {
+
+    InterviewerTimeSlot interviewerTimeSlot = InterviewerTimeSlot.builder()
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440002"))
+        .from(startTime)
+        .to(endTime)
+        .interviewerId(interviewer.getId())
+        .dayOfWeek(DayOfWeek.MONDAY)
+        .weekNum(WeekUtil.getNextWeekNumber())
+        .build();
+    given(userRepository.findById(interviewer.getId())).willReturn(Optional.of(interviewer));
+    given(interviewerTimeSlotRepository.findById(
+        UUID.fromString("123e4567-e89b-42d3-a456-556642440002"))).willReturn(
+        Optional.of(interviewerTimeSlot));
+
+    Booking booking = Booking.builder()
+        .interviewerTimeSlotId(interviewerTimeSlot.getId())
+        .candidateTimeSlotId(UUID.randomUUID())
+        .from(startTime)
+        .to(endTime)
+        .subject("subject")
+        .description("description")
+        .build();
+
+    given(bookingRepository.findByInterviewerTimeSlotId(interviewerTimeSlot.getId())).willReturn(
+        List.of(booking));
+
+    interviewerTimeSlot.setFrom(LocalTime.of(14, 0));
+    interviewerTimeSlot.setTo(LocalTime.of(16, 0));
+
+    assertThrows(ValidationException.class,
+        () -> interviewerService.updateSlotForNextWeek(interviewerTimeSlot, interviewer.getId(),
+            UUID.fromString("123e4567-e89b-42d3-a456-556642440002")));
+
+    verify(interviewerTimeSlotRepository, never()).save(any(InterviewerTimeSlot.class));
+  }
+
+  @Test
+  void givenOverlappingSlot_whenCreateInterviewerSlot_thenThrowsException() {
+
+    InterviewerTimeSlot interviewerTimeSlot = InterviewerTimeSlot.builder()
+        .from(startTime)
+        .to(endTime)
+        .interviewerId(interviewer.getId())
+        .dayOfWeek(DayOfWeek.MONDAY)
+        .weekNum(WeekUtil.getNextWeekNumber())
+        .build();
+    given(userRepository.findById(interviewer.getId())).willReturn(Optional.of(interviewer));
+    given(interviewerTimeSlotRepository.findByDayOfWeekAndInterviewerIdAndWeekNum(DayOfWeek.MONDAY,
+        interviewer.getId(), WeekUtil.getNextWeekNumber())).willReturn(List.of(interviewerTimeSlot));
+
+    InterviewerTimeSlot overlappingSlot = InterviewerTimeSlot.builder()
+        .from(startTime)
+        .to(endTime)
+        .interviewerId(interviewer.getId())
+        .dayOfWeek(DayOfWeek.MONDAY)
+        .weekNum(WeekUtil.getNextWeekNumber())
+        .build();
+    given(userRepository.findById(interviewer.getId())).willReturn(Optional.of(interviewer));
+
+//    assertThrows(ValidationException.class,
+//        () -> interviewerService.createSlot(overlappingSlot, interviewer.getId()));
+
+    ValidationException exception = assertThrows(
+        ValidationException.class,
+        () -> interviewerService.createSlot(overlappingSlot, interviewer.getId()));
+    assertEquals("Time slot interval can't overlap existing time slot",
+        exception.getErrorMessage());
+  }
+
+  @Test
   void givenInterviewerBookingLimit_whenSetMaximumBookingsLimit_thenReturnInterviewerBookingLimit() {
     InterviewerBookingLimit interviewerBookingLimit = InterviewerBookingLimit.builder()
         .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
@@ -333,7 +406,8 @@ class InterviewerServiceTest {
         interviewerBookingLimit);
 
     InterviewerBookingLimit savedInterviewerBookingLimit =
-        interviewerService.setNextWeekInterviewerBookingLimit(interviewerBookingLimit, interviewer.getId());
+        interviewerService.setNextWeekInterviewerBookingLimit(interviewerBookingLimit,
+            interviewer.getId());
 
     assertThat(savedInterviewerBookingLimit.getWeekBookingLimit()).isEqualTo(3);
     assertThat(savedInterviewerBookingLimit.getWeekNum()).isEqualTo(WeekUtil.getNextWeekNumber());
@@ -361,7 +435,8 @@ class InterviewerServiceTest {
         interviewerBookingLimit.getWeekNum())).willReturn(interviewerBookingLimit);
 
     InterviewerBookingLimit updatedInterviewerBookingLimit =
-        interviewerService.setNextWeekInterviewerBookingLimit(interviewerBookingLimit, interviewer.getId());
+        interviewerService.setNextWeekInterviewerBookingLimit(interviewerBookingLimit,
+            interviewer.getId());
 
     assertThat(updatedInterviewerBookingLimit.getId()).isEqualTo(
         interviewerBookingLimit.getInterviewerId());
@@ -378,7 +453,8 @@ class InterviewerServiceTest {
         .build();
 
     assertThrows(NotFoundException.class,
-        () -> interviewerService.setNextWeekInterviewerBookingLimit(interviewerBookingLimit, UUID.randomUUID()));
+        () -> interviewerService.setNextWeekInterviewerBookingLimit(interviewerBookingLimit,
+            UUID.randomUUID()));
 
     verify(interviewerBookingLimitRepository, never()).save(any(InterviewerBookingLimit.class));
   }
@@ -395,7 +471,8 @@ class InterviewerServiceTest {
     given(userRepository.findById(interviewer.getId())).willReturn(Optional.of(interviewer));
 
     assertThrows(ValidationException.class,
-        () -> interviewerService.setNextWeekInterviewerBookingLimit(interviewerBookingLimit, interviewer.getId()));
+        () -> interviewerService.setNextWeekInterviewerBookingLimit(interviewerBookingLimit,
+            interviewer.getId()));
 
     verify(interviewerBookingLimitRepository, never()).save(any(InterviewerBookingLimit.class));
   }
@@ -503,5 +580,12 @@ class InterviewerServiceTest {
     assertThat(timeSlotsForNextWeek).isNotNull();
     assertThat(timeSlotsForNextWeek).hasSize(2);
   }
+
+  @Test
+  void givenNonExistingInterviewerId_whenGetWeekTimeSlots_thenThrowsException() {
+    assertThrows(NotFoundException.class,
+        () -> interviewerService.getWeekTimeSlotsByInterviewerId(UUID.randomUUID(), true));
+  }
+
 
 }

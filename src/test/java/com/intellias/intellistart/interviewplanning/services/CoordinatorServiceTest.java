@@ -150,26 +150,6 @@ class CoordinatorServiceTest {
     verify(userRepository, never()).save(any(User.class));
   }
 
-//  @Test
-//  void SuccessUpdatingOfBooking() {
-//    Booking booking = new Booking(startTime,
-//        endTime,
-//        UUID.fromString("123e4567-e89b-42d3-a456-556642440001"),
-//        UUID.fromString("123e4567-e89b-42d3-a456-556642440002"),
-//        "Subject",
-//        "Description"
-//    );
-//    given(bookingRepository.findById(
-//        UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))).willReturn(
-//        Optional.of(booking));
-//
-//    given(bookingRepository.save(booking)).willReturn(booking);
-//    Booking booking1 = null;
-//    booking1 = coordinatorService.updateBooking(booking,
-//        UUID.fromString("123e4567-e89b-42d3-a456-556642440000"));
-//    assertThat(booking1).isNotNull();
-//  }
-
   @Test
   void givenBookingId_whenDeleteBooking_thenNothing() {
 
@@ -333,6 +313,38 @@ class CoordinatorServiceTest {
   }
 
   @Test
+  void givenNonExistingCoordinator_whenRevokeCoordinatorRole_thenThrowException() {
+    User coordinator = User.builder().
+        email("coord@gmail.com")
+        .build();
+
+    coordinatorService.grantCoordinatorRole(coordinator);
+
+    assertThrows(NotFoundException.class,
+        () -> coordinatorService.revokeCoordinatorRole(UUID.randomUUID(), coordinator.getEmail()));
+
+    verify(userRepository, never()).delete(any(User.class));
+  }
+
+  @Test
+  void givenCoordinator_whenRevokeCoordinatorRole_thenThrowException() {
+    User coordinator = User.builder().
+        id(UUID.fromString("123e4567-e89b-42d3-a456-556642440001"))
+        .email("coord@gmail.com")
+        .role(UserRole.COORDINATOR)
+        .build();
+
+    given(userRepository.findById(
+        UUID.fromString("123e4567-e89b-42d3-a456-556642440001"))).willReturn(
+            Optional.of(coordinator));
+
+    assertThrows(ValidationException.class,
+        () -> coordinatorService.revokeCoordinatorRole(coordinator.getId(), coordinator.getEmail()));
+
+    verify(userRepository, never()).delete(any(User.class));
+  }
+
+  @Test
   void givenInterviewerId_whenRevokeInterviewerRole_thenNothing() {
     given(userRepository.findById(
         UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))).willReturn(
@@ -340,6 +352,20 @@ class CoordinatorServiceTest {
 
     coordinatorService.revokeInterviewerRole(interviewer.getId());
     verify(userRepository, times(1)).deleteById(interviewer.getId());
+  }
+
+  @Test
+  void givenNonExistingInterviewerId_whenRevokeInterviewerRole_thenThrowException() {
+    User interviewer = User.builder().
+        email("interviwer@gmail.com")
+        .build();
+
+    coordinatorService.grantInterviewerRole(interviewer);
+
+    assertThrows(NotFoundException.class,
+        () -> coordinatorService.revokeInterviewerRole(UUID.randomUUID()));
+
+    verify(userRepository, never()).delete(any(User.class));
   }
 
   @Test
