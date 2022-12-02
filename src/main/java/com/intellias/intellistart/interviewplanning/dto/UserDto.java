@@ -1,6 +1,7 @@
 package com.intellias.intellistart.interviewplanning.dto;
 
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.intellias.intellistart.interviewplanning.models.UserRole;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -20,5 +21,6 @@ import lombok.Setter;
 public class UserDto {
   private String email;
   private UserRole role;
+  @JsonInclude(JsonInclude.Include.NON_NULL)
   private UUID id;
 }
