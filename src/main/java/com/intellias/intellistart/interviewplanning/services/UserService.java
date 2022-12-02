@@ -1,8 +1,8 @@
 package com.intellias.intellistart.interviewplanning.services;
 
 import com.intellias.intellistart.interviewplanning.dto.UserDto;
-import com.intellias.intellistart.interviewplanning.exceptions.NotFoundException;
 import com.intellias.intellistart.interviewplanning.models.User;
+import com.intellias.intellistart.interviewplanning.models.UserRole;
 import com.intellias.intellistart.interviewplanning.repositories.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,13 +29,15 @@ public class UserService {
    * @return interviewer or coordinator object
    */
   public UserDto getByEmail(String email) {
-    User user = userRepository.findByEmail(email).orElseThrow(
-        () -> new NotFoundException(NotFoundException.USER_NOT_FOUND)
-    );
-    return mapToDto(user);
+    User user = userRepository.findByEmail(email).orElseGet(() -> User.builder()
+            .email(email)
+            .role(UserRole.CANDIDATE)
+            .build()
+        );
+    return mapToUserDto(user);
   }
 
-  public UserDto mapToDto(User user) {
+  public UserDto mapToUserDto(User user) {
     return modelMapper.map(user, UserDto.class);
   }
 }
