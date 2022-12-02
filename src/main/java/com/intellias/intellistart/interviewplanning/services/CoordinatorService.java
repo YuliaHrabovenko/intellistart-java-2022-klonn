@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -78,25 +79,6 @@ public class CoordinatorService {
                                                        UUID slotId) {
     WeekUtil.validateIsCurrentOrNextWeekNumber(interviewerTimeSlot.getWeekNum());
     return interviewerService.updateSlot(interviewerTimeSlot, interviewerId, slotId);
-  }
-
-  /**
-   * Get candidates slots.
-   *
-   * @return all candidates slots
-   */
-
-  public List<CandidateTimeSlot> getCandidatesSlots() {
-    return candidateTimeSlotRepository.findAll();
-  }
-
-  /**
-   * Get interviewers slots.
-   *
-   * @return all interviewers slots
-   */
-  public List<InterviewerTimeSlot> getInterviewersSlots() {
-    return interviewerTimeSlotRepository.findAll();
   }
 
   /**
@@ -270,7 +252,6 @@ public class CoordinatorService {
   @Setter
   @Getter
   @NoArgsConstructor
-  @ToString
   public static class DayInfo {
     @JsonProperty("dayOfWeek")
     private DayOfWeek dayOfWeek;
