@@ -7,6 +7,7 @@ import com.intellias.intellistart.interviewplanning.models.CandidateTimeSlot;
 import com.intellias.intellistart.interviewplanning.repositories.BookingRepository;
 import com.intellias.intellistart.interviewplanning.repositories.CandidateTimeSlotRepository;
 import com.intellias.intellistart.interviewplanning.utils.PeriodUtil;
+import com.intellias.intellistart.interviewplanning.utils.WeekUtil;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -48,6 +49,7 @@ public class CandidateService {
 
     PeriodUtil.validatePeriod(from, to);
     PeriodUtil.validateDate(date);
+    WeekUtil.validateDayOfWeek(date.getDayOfWeek());
 
     List<CandidateTimeSlot> slots =
         candidateTimeSlotRepository.findByEmailAndDate(candidateTimeSlot.getEmail(),
@@ -88,6 +90,7 @@ public class CandidateService {
 
     PeriodUtil.validatePeriod(from, to);
     PeriodUtil.validateDate(date);
+    WeekUtil.validateDayOfWeek(date.getDayOfWeek());
     PeriodUtil.isCandidateSlotOverlapping(candidateTimeSlot, slots);
 
     existingSlot.setFrom(candidateTimeSlot.getFrom());
