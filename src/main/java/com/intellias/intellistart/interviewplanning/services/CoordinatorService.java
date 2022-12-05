@@ -25,11 +25,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -187,10 +185,10 @@ public class CoordinatorService {
    * @return array of dates
    */
   public LocalDate[] getWeekDates(LocalDate firstDateOfWeek) {
-    LocalDate[] dates = new LocalDate[5];
+    LocalDate[] dates = new LocalDate[7];
     dates[0] = firstDateOfWeek;
     long count = 1L;
-    for (int i = 1; i < 5; i++) {
+    for (int i = 1; i < 7; i++) {
       dates[i] = firstDateOfWeek.plusDays(count);
       count++;
     }
@@ -209,7 +207,7 @@ public class CoordinatorService {
     LocalDate firstDateOfWeek = WeekUtil.getFirstDateOfWeekByYearWeekNum(year, weekNumInt);
 
     DayOfWeek[] dayOfWeeks = {DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY,
-        DayOfWeek.THURSDAY, DayOfWeek.FRIDAY};
+        DayOfWeek.THURSDAY, DayOfWeek.FRIDAY, DayOfWeek.SATURDAY, DayOfWeek.SUNDAY};
 
     LocalDate[] dates = getWeekDates(firstDateOfWeek);
 
@@ -220,7 +218,8 @@ public class CoordinatorService {
         getCandidateSlotsByDate(firstDateOfWeek);
 
     DayInfo[] daysInfo = {
-        new DayInfo(), new DayInfo(), new DayInfo(), new DayInfo(), new DayInfo()
+        new DayInfo(), new DayInfo(), new DayInfo(), new DayInfo(),
+        new DayInfo(), new DayInfo(), new DayInfo()
     };
     for (int i = 0; i < daysInfo.length; i++) {
       daysInfo[i].setDayOfWeek(dayOfWeeks[i]);

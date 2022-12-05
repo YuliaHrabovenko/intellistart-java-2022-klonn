@@ -46,7 +46,7 @@ class CandidateServiceTest {
   public void setup() {
     from = LocalTime.of(15, 30);
     to = LocalTime.of(17, 0);
-    date = LocalDate.now().plusWeeks(2L);
+    date = LocalDate.of(2022, 12, 5).plusWeeks(2L);
   }
 
   @Test
@@ -102,6 +102,23 @@ class CandidateServiceTest {
   }
 
   @Test
+  void givenNotWorkingDayOfWeek_whenCreateCandidateSlot_thenThrowsException() {
+
+    CandidateTimeSlot candidateTimeSlot = CandidateTimeSlot.builder()
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
+        .from(from)
+        .to(to)
+        .date(LocalDate.of(2022, 12, 4).plusWeeks(2L))
+        .build();
+
+    assertThrows(ValidationException.class,
+        () -> candidateService.createSlot(candidateTimeSlot));
+
+    verify(candidateTimeSlotRepository, never()).save(any(CandidateTimeSlot.class));
+  }
+
+
+  @Test
   void givenUnroundedPeriod_whenCreateCandidateSlot_thenThrowsException() {
 
     LocalTime startTime = LocalTime.of(15, 27);
@@ -146,7 +163,7 @@ class CandidateServiceTest {
         .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
         .from(from)
         .to(to)
-        .date(LocalDate.now().plusWeeks(2L))
+        .date(date)
         .build();
 
     given(candidateTimeSlotRepository.save(candidateTimeSlot)).willReturn(candidateTimeSlot);
@@ -164,6 +181,29 @@ class CandidateServiceTest {
 
     assertThat(updatedSlot.getFrom()).isEqualTo(startTimeNew);
     assertThat(updatedSlot.getTo()).isEqualTo(endTimeNew);
+  }
+
+  @Test
+  void givenNotWorkingDayOfWeek_whenUpdateCandidateSlot_thenThrowsException() {
+
+    CandidateTimeSlot candidateTimeSlot = CandidateTimeSlot.builder()
+        .id(UUID.fromString("123e4567-e89b-42d3-a456-556642440000"))
+        .from(from)
+        .to(to)
+        .date(date)
+        .build();
+
+    given(candidateTimeSlotRepository.findById(candidateTimeSlot.getId())).willReturn(
+        Optional.of(candidateTimeSlot));
+
+    LocalDate newDate = LocalDate.of(2022, 12, 4);
+
+    candidateTimeSlot.setDate(newDate);
+
+    assertThrows(ValidationException.class,
+        () -> candidateService.updateSlot(candidateTimeSlot, candidateTimeSlot.getId()));
+
+    verify(candidateTimeSlotRepository, never()).save(any(CandidateTimeSlot.class));
   }
 
   @Test

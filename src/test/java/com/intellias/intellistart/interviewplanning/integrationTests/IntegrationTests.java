@@ -485,7 +485,7 @@ public class IntegrationTests {
     HttpEntity<CandidateTimeSlot> request = new HttpEntity<>(CandidateTimeSlot.builder()
         .from(LocalTime.of(15, 30))
         .to(LocalTime.of(17, 0))
-        .date(LocalDate.now().plusWeeks(2L))
+        .date(LocalDate.of(2022, 12, 5).plusWeeks(2L))
         .build(), headers);
 
     ResponseEntity<CandidateTimeSlot> response =
@@ -505,7 +505,7 @@ public class IntegrationTests {
     HttpEntity<CandidateTimeSlot> requestCreate = new HttpEntity<>(CandidateTimeSlot.builder()
         .from(LocalTime.of(15, 30))
         .to(LocalTime.of(17, 0))
-        .date(LocalDate.now().plusWeeks(2L))
+        .date(LocalDate.of(2022, 12, 5).plusWeeks(2L))
         .build(), headers);
 
     ResponseEntity<CandidateTimeSlot> response =
@@ -521,7 +521,7 @@ public class IntegrationTests {
     HttpEntity<CandidateTimeSlot> requestUpdate = new HttpEntity<>(CandidateTimeSlot.builder()
         .from(LocalTime.of(10, 0))
         .to(LocalTime.of(11, 30))
-        .date(LocalDate.now().plusWeeks(2L))
+        .date(LocalDate.of(2022, 12, 5).plusWeeks(2L))
         .build(), headers);
 
     ResponseEntity<CandidateTimeSlot> responseUpdate = restTemplate.exchange(
