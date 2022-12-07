@@ -1,10 +1,15 @@
 package com.intellias.intellistart.interviewplanning.services;
 
 
+import static com.intellias.intellistart.interviewplanning.utils.PeriodUtil.isBookingsOverlapping;
+import static com.intellias.intellistart.interviewplanning.utils.WeekUtil.getFirstDateOfWeekByYearWeekNum;
+
 import com.intellias.intellistart.interviewplanning.exceptions.NotFoundException;
 import com.intellias.intellistart.interviewplanning.exceptions.ValidationException;
 import com.intellias.intellistart.interviewplanning.models.Booking;
+import com.intellias.intellistart.interviewplanning.models.CandidateTimeSlot;
 import com.intellias.intellistart.interviewplanning.models.InterviewerBookingLimit;
+import com.intellias.intellistart.interviewplanning.models.InterviewerTimeSlot;
 import com.intellias.intellistart.interviewplanning.repositories.BookingRepository;
 import com.intellias.intellistart.interviewplanning.repositories.CandidateTimeSlotRepository;
 import com.intellias.intellistart.interviewplanning.repositories.InterviewerBookingLimitRepository;
@@ -12,11 +17,13 @@ import com.intellias.intellistart.interviewplanning.repositories.InterviewerTime
 import com.intellias.intellistart.interviewplanning.utils.PeriodUtil;
 import com.intellias.intellistart.interviewplanning.utils.WeekUtil;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import javax.transaction.Transactional;
+import net.bytebuddy.asm.Advice.Local;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +38,7 @@ public class BookingService {
   private final InterviewerBookingLimitRepository interviewerBookingLimitRepository;
   private final CandidateTimeSlotRepository candidateTimeSlotRepository;
 
+
   /**
    * Constructor.
    *
@@ -41,9 +49,9 @@ public class BookingService {
    */
   @Autowired
   public BookingService(BookingRepository bookingRepository,
-                        InterviewerTimeSlotRepository interviewerTimeSlotRepository,
-                        InterviewerBookingLimitRepository interviewerBookingLimitRepository,
-                        CandidateTimeSlotRepository candidateTimeSlotRepository) {
+      InterviewerTimeSlotRepository interviewerTimeSlotRepository,
+      InterviewerBookingLimitRepository interviewerBookingLimitRepository,
+      CandidateTimeSlotRepository candidateTimeSlotRepository) {
     this.bookingRepository = bookingRepository;
     this.interviewerTimeSlotRepository = interviewerTimeSlotRepository;
     this.interviewerBookingLimitRepository = interviewerBookingLimitRepository;
@@ -64,19 +72,24 @@ public class BookingService {
    * @return saved Booking
    */
   public Booking createBooking(UUID interviewerSlotId,
-                               UUID candidateTimeSlotId,
-                               LocalTime from,
-                               LocalTime to,
-                               String subject,
-                               String description) {
+      UUID candidateTimeSlotId,
+      LocalTime from,
+      LocalTime to,
+      String subject,
+      String description) {
 
     validateBookingFields(interviewerSlotId, candidateTimeSlotId, from, to);
+
+    List<Booking> bookings = bookingRepository.findByInterviewerTimeSlotId(interviewerSlotId);
+    isBookingsOverlapping(from, to, bookings);
 
     Booking booking = new Booking(
         from, to, interviewerSlotId, candidateTimeSlotId, subject, description
     );
 
     bookingRepository.save(booking);
+
+
 
     return booking;
   }
@@ -93,12 +106,19 @@ public class BookingService {
         .orElseThrow(
             () -> new NotFoundException(NotFoundException.BOOKING_NOT_FOUND));
 
+    curBooking.setCandidateTimeSlotId(null);
+
     validateBookingFields(
         updatedBooking.getInterviewerTimeSlotId(),
         updatedBooking.getCandidateTimeSlotId(),
         updatedBooking.getFrom(),
         updatedBooking.getTo()
     );
+
+    List<Booking> bookings = bookingRepository.findByInterviewerTimeSlotId(
+        curBooking.getInterviewerTimeSlotId());
+    bookings.remove(curBooking);
+    isBookingsOverlapping(curBooking.getFrom(), curBooking.getTo(), bookings);
 
     curBooking.setInterviewerTimeSlotId(updatedBooking.getInterviewerTimeSlotId());
     curBooking.setCandidateTimeSlotId(updatedBooking.getCandidateTimeSlotId());
@@ -122,9 +142,9 @@ public class BookingService {
   }
 
   private void validateBookingFields(UUID interviewerSlotId,
-                                     UUID candidateTimeSlotId,
-                                     LocalTime from,
-                                     LocalTime to) {
+      UUID candidateTimeSlotId,
+      LocalTime from,
+      LocalTime to) {
 
     isInterviewerLimitExceeded(interviewerSlotId);
 
@@ -133,10 +153,40 @@ public class BookingService {
       throw new NotFoundException(NotFoundException.CANDIDATE_SLOT_NOT_FOUND);
     }
 
-    PeriodUtil.validatePeriod(from, to);
-
     if (Math.abs(Duration.between(from, to).toMinutes()) != 90) {
       throw new ValidationException(ValidationException.WRONG_BOOKING_DURATION);
+    }
+
+    PeriodUtil.validatePeriod(from, to);
+
+    CandidateTimeSlot cts = candidateTimeSlotRepository.findById(candidateTimeSlotId).get();
+    LocalTime ctsFrom = cts.getFrom();
+    LocalTime ctsTo = cts.getTo();
+
+    if (from.isBefore(ctsFrom) || to.isAfter(ctsTo)) {
+      throw new ValidationException(ValidationException.BOOKING_OUT_OF_BOUNDS_CANDIDATE);
+    }
+
+    InterviewerTimeSlot its = interviewerTimeSlotRepository.findById(interviewerSlotId).get();
+    LocalTime itsFrom = its.getFrom();
+    LocalTime itsTo = its.getTo();
+
+    if (from.isBefore(itsFrom) || to.isAfter(itsTo)) {
+      throw new ValidationException(ValidationException.BOOKING_OUT_OF_BOUNDS_INTERVIEWER);
+    }
+
+    if (!bookingRepository.findByCandidateTimeSlotId(candidateTimeSlotId).isEmpty()) {
+      throw new ValidationException(ValidationException.CANDIDATE_SLOT_BOOKED);
+    }
+
+    int itsYear = Integer.parseInt(its.getWeekNum().substring(0, 4));
+    int itsWeek = Integer.parseInt(its.getWeekNum().substring(4));
+
+    LocalDate itsDate = getFirstDateOfWeekByYearWeekNum(itsYear, itsWeek).plusDays(
+        (its.getDayOfWeek().getValue() - 1));
+
+    if (!itsDate.equals(cts.getDate())) {
+      throw new ValidationException(ValidationException.DIFFERENT_SLOTS_DATES);
     }
 
 
@@ -167,8 +217,11 @@ public class BookingService {
         Comparator.comparingInt(o -> Integer.parseInt(o.getWeekNum())));
     InterviewerBookingLimit interviewerBookingLimit = interviewerBookingLimits.get(counter - 1);
 
+
+
     int bookingLimit = interviewerBookingLimit.getWeekBookingLimit();
     int bookingCount = interviewerBookingLimit.getCurrentBookingCount();
+
     if (bookingCount >= bookingLimit) {
       throw new ValidationException(ValidationException.INTERVIEWER_BOOKING_LIMIT_EXCEEDED);
     }
@@ -176,3 +229,5 @@ public class BookingService {
 
   }
 }
+
+

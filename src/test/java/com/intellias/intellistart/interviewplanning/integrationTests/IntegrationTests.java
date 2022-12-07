@@ -440,7 +440,7 @@ public class IntegrationTests {
     InterviewerTimeSlot interviewerTimeSlot =
         InterviewerTimeSlot.builder()
             .weekNum(WeekUtil.getNextWeekNumber())
-            .dayOfWeek(DayOfWeek.THURSDAY)
+            .dayOfWeek(LocalDate.now().getDayOfWeek())
             .from(LocalTime.of(13, 30))
             .to(LocalTime.of(17, 0))
             .interviewerId(interviewer.getId())
@@ -451,7 +451,7 @@ public class IntegrationTests {
 
     CandidateTimeSlot candidateTimeSlot =
         CandidateTimeSlot.builder()
-            .date(LocalDate.now())
+            .date(LocalDate.now().plusWeeks(1))
             .from(LocalTime.of(13, 30))
             .to(LocalTime.of(17, 0))
             .build();

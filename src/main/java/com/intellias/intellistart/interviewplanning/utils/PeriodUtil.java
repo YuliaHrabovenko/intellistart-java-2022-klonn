@@ -1,6 +1,7 @@
 package com.intellias.intellistart.interviewplanning.utils;
 
 import com.intellias.intellistart.interviewplanning.exceptions.ValidationException;
+import com.intellias.intellistart.interviewplanning.models.Booking;
 import com.intellias.intellistart.interviewplanning.models.CandidateTimeSlot;
 import com.intellias.intellistart.interviewplanning.models.InterviewerTimeSlot;
 import java.time.Duration;
@@ -12,6 +13,7 @@ import java.util.List;
  * Util class to validate period.
  */
 public final class PeriodUtil {
+
   private static final LocalTime minStartTime = LocalTime.of(8, 0);
   private static final LocalTime maxEndTime = LocalTime.of(22, 0);
 
@@ -76,11 +78,27 @@ public final class PeriodUtil {
    * @param newSlot       new slot
    */
   public static void isCandidateSlotOverlapping(CandidateTimeSlot newSlot,
-                                                List<CandidateTimeSlot> existingSlots) {
+      List<CandidateTimeSlot> existingSlots) {
 
     for (CandidateTimeSlot slot : existingSlots) {
       if ((slot.getFrom().isBefore(newSlot.getTo())) && (slot.getTo().isAfter(newSlot.getFrom()))) {
         throw new ValidationException(ValidationException.OVERLAPPING_PERIOD);
+      }
+    }
+  }
+
+  /**
+   * Check if booking does not overlap existing slots.
+   *
+   * @param from             start time
+   * @param to               end time
+   * @param existingBookings existing bookings
+   */
+  public static void isBookingsOverlapping(LocalTime from, LocalTime to,
+      List<Booking> existingBookings) {
+    for (Booking booking : existingBookings) {
+      if ((booking.getFrom().isBefore(to)) && (booking.getTo().isAfter(from))) {
+        throw new ValidationException(ValidationException.BOOKING_OVERLAP);
       }
     }
   }
