@@ -40,6 +40,24 @@ public class ValidationException extends AbstractCommonException {
   public static final Detail WRONG_BOOKING_DURATION =
       new Detail(400, "invalid_period", "Booking duration must equal to 1.5h");
 
+  public static final Detail BOOKING_OUT_OF_BOUNDS_CANDIDATE =
+      new Detail(400, "booking_out_of_bounds_candidate",
+          "Booking must be within the time limits of the candidate's slot");
+
+  public static final Detail BOOKING_OUT_OF_BOUNDS_INTERVIEWER =
+      new Detail(400, "booking_out_of_bounds_interviewer",
+          "Booking must be within the time limits of the interviewer's slot");
+
+  public static final Detail CANDIDATE_SLOT_BOOKED =
+      new Detail(400, "candidate_slot_booked", "Candidate time slot is already booked");
+
+  public static final Detail DIFFERENT_SLOTS_DATES =
+      new Detail(400, "different_slots_dates",
+          "Booking most contain interviewer and candidate slot of same date");
+
+  public static final Detail BOOKING_OVERLAP =
+      new Detail(400, "booking_overlap", "Booking's time overlaps with existing one");
+
   // User related validation
   public static final Detail USER_EMAIL_EXISTS =
       new Detail(400, "invalid_email", "User with this email already exists");

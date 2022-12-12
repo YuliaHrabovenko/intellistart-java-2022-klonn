@@ -89,6 +89,8 @@ class BookingServiceTest {
         .dayOfWeek(DayOfWeek.MONDAY)
         .from(from)
         .to(to)
+        .weekNum("202249")
+        .dayOfWeek(DayOfWeek.FRIDAY)
         .build();
 
     candidateTimeSlot = candidateTimeSlot.builder()
@@ -96,6 +98,7 @@ class BookingServiceTest {
         .date(date)
         .from(from)
         .to(to)
+        .date(LocalDate.of(2022, 12, 9))
         .build();
 
     interviewerBookingLimits.add(InterviewerBookingLimit.builder()
@@ -119,6 +122,9 @@ class BookingServiceTest {
 
     given(candidateTimeSlotRepository.existsById(candidateSlotUUID))
         .willReturn(true);
+
+    given(candidateTimeSlotRepository.findById(candidateSlotUUID))
+        .willReturn(Optional.of(candidateTimeSlot));
 
     Booking booking = bookingService.createBooking(interviewerSlotUUID, candidateSlotUUID,
         from, to, "Subject1", "Desc1");
@@ -176,6 +182,11 @@ class BookingServiceTest {
     given(candidateTimeSlotRepository.existsById(candidateSlotUUID))
         .willReturn(true);
 
+    given(candidateTimeSlotRepository.findById(candidateSlotUUID))
+        .willReturn(Optional.of(candidateTimeSlot));
+
+
+
     Booking booking = bookingService.createBooking(interviewerSlotUUID, candidateSlotUUID,
         from, to, "Subject1", "Desc1");
 
@@ -209,6 +220,9 @@ class BookingServiceTest {
     given(candidateTimeSlotRepository.existsById(candidateSlotUUID))
         .willReturn(true);
 
+    given(candidateTimeSlotRepository.findById(candidateSlotUUID))
+        .willReturn(Optional.of(candidateTimeSlot));
+
     Booking booking = bookingService.createBooking(interviewerSlotUUID, candidateSlotUUID,
         from, to, "Subject1", "Desc1");
 
@@ -220,8 +234,8 @@ class BookingServiceTest {
     Booking curBooking = new Booking(from, to, interviewerSlotUUID,
         candidateSlotUUID, "Subject1", "Desc1");
 
-    from = LocalTime.of(14, 00);
-    to = LocalTime.of(15, 30);
+    from = LocalTime.of(15, 0);
+    to = LocalTime.of(16, 30);
 
     Booking updatedBooking = new Booking(from, to, interviewerSlotUUID,
         candidateSlotUUID, "Subject2", "Desc2");
@@ -239,6 +253,9 @@ class BookingServiceTest {
     given(candidateTimeSlotRepository.existsById(candidateSlotUUID))
         .willReturn(true);
 
+    given(candidateTimeSlotRepository.findById(candidateSlotUUID))
+        .willReturn(Optional.of(candidateTimeSlot));
+
     bookingService.updateBooking(curBooking.getId(), updatedBooking);
 
     assertEquals(updatedBooking.getSubject(), curBooking.getSubject());
@@ -247,6 +264,39 @@ class BookingServiceTest {
     assertEquals(updatedBooking.getCandidateTimeSlotId(), curBooking.getCandidateTimeSlotId());
     assertEquals(updatedBooking.getFrom(), curBooking.getFrom());
     assertEquals(updatedBooking.getTo(), curBooking.getTo());
+  }
+
+  @Test
+  void givenIncorrectBoundsCandidate_whenUpdateBooking_thenThrowsValidationExeption() {
+    Booking curBooking = new Booking(from, to, interviewerSlotUUID,
+        candidateSlotUUID, "Subject1", "Desc1");
+
+    from = LocalTime.of(14, 30);
+    to = LocalTime.of(16, 0);
+
+    Booking updatedBooking = new Booking(from, to, interviewerSlotUUID,
+        candidateSlotUUID, "Subject2", "Desc2");
+
+    given(bookingRepository.findById(curBooking.getId()))
+        .willReturn(Optional.of(curBooking));
+
+    given(interviewerTimeSlotRepository.findById(interviewerSlotUUID))
+        .willReturn(Optional.of(interviewerTimeSlot));
+
+    given(interviewerBookingLimitRepository.findByInterviewerId(
+        interviewerTimeSlot.getInterviewerId()))
+        .willReturn(interviewerBookingLimits);
+
+    given(candidateTimeSlotRepository.existsById(candidateSlotUUID))
+        .willReturn(true);
+
+    given(candidateTimeSlotRepository.findById(candidateSlotUUID))
+        .willReturn(Optional.of(candidateTimeSlot));
+
+    assertThrows(ValidationException.class,
+        () -> bookingService.updateBooking(curBooking.getId(), updatedBooking));
+
+    verify(bookingRepository, never()).save(any(Booking.class));
   }
 
   @Test
